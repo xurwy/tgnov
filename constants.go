@@ -8,6 +8,7 @@ import (
 	"log"
 	"math/big"
 	"net"
+	"os"
 	"time"
 
 	"github.com/teamgram/marmota/pkg/hack"
@@ -95,7 +96,7 @@ func initializeCTRCodec(buffer []byte, n int) *AesCTR128Crypto {
 
 func handleReqDHParams(cp *ConnProp, obj mtproto.TLObject) ([]byte, []byte, []byte, []byte, error) {
 	reqDhParam, _ := obj.(*mtproto.TLReq_DHParams)
-	rsa, _ := crypto.NewRSACryptor("../../server_pkcs1.key")
+	rsa, _ := crypto.NewRSACryptor("./server_pkcs1.key")
 	innerData := rsa.Decrypt([]byte(reqDhParam.EncryptedData))
 	key := innerData[:32]
 	hash := crypto.Sha256Digest(innerData[32:])
@@ -219,6 +220,14 @@ func handleSetClientDHParams(cp *ConnProp, obj mtproto.TLObject, nonce, serverNo
 	sha1E := sha1.Sum(authKeyAuxHash[:len(authKeyAuxHash)-12])
 	authKeyAuxHash = append(authKeyAuxHash, sha1E[:]...)
 	authKeyId = int64(binary.LittleEndian.Uint64(authKeyAuxHash[len(newNonce)+1+12 : len(newNonce)+1+12+8]))
+	
+	// Save the 256-byte authKey to auth_key.bin
+	if err := os.WriteFile("auth_key.bin", AuthKey, 0644); err != nil {
+		logf(1, "Failed to save auth key: %v", err)
+	} else {
+		logf(1, "Auth key saved to auth_key.bin (256 bytes)")
+	}
+	
 	dhGen := mtproto.MakeTLDhGenOk(&mtproto.SetClient_DHParamsAnswer{Nonce: nonce, ServerNonce: serverNonce, NewNonceHash1: calcNewNonceHash(newNonce, AuthKey, 0x01)}).To_SetClient_DHParamsAnswer()
 	cp.sendTLObjectResponse(dhGen)
 	return nil

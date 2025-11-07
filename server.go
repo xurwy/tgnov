@@ -101,6 +101,100 @@ func (cp *ConnProp) Encode(x *mtproto.EncodeBuf) []byte {
 
 // a -> ctr -> b -> ige -> c (golang)
 
+func handleAuthenticatedMessage(cp *ConnProp, buff []byte, n int) {
+	// handleAuthPacket(buff, n)
+	// cp.processPackets(buff)
+	hasAuthKey := readAuthKey()
+	if hasAuthKey && crAuthKey != nil {
+		logf(2, "A. Raw received from client: %02x", buff[:n])
+
+		// CTR decrypt returns new buffer
+		decrypted := cp.cryp.Decrypt(buff[:n])
+		logf(2, "B. After CTR decrypt: %02x", decrypted)
+
+		var rawP []byte
+		var err error
+		var validOffsets []int
+
+		// First, find all valid offsets - NOW USE THE DECRYPTED BUFFER!
+		for offset := 0; offset <= len(decrypted)-16; offset++ {
+			// Check if we have enough space for 16-byte msgKey and some data
+			if offset+16 < len(decrypted) {
+				// Additional bounds checking to prevent slice errors
+				if offset >= 0 && offset+16 <= len(decrypted) && offset+16 < len(decrypted) {
+					msgKey := decrypted[offset : offset+16]   // Now this uses decrypted data
+					encData := padTo16(decrypted[offset+16:]) // And this too
+
+					// Catch panics from AesIgeDecrypt
+					func() {
+						defer func() {
+							if r := recover(); r != nil {
+								logf(2, "Panic at offset %d: %v", offset, r)
+							}
+						}()
+
+						testRawP, testErr := crAuthKey.AesIgeDecrypt(msgKey, encData)
+
+						if testErr == nil && len(testRawP) >= 24 {
+							validOffsets = append(validOffsets, offset)
+							if offset == 0 {
+								logf(2, "Offset 0 decrypted preview: %02x", testRawP[:32])
+							}
+						}
+					}()
+				}
+			}
+		}
+
+		if len(validOffsets) == 0 {
+			logf(1, "No valid offset found for AesIgeDecrypt")
+			return
+		}
+
+		// Log all valid offsets
+		logf(1, "Found valid dec. Offset: %v", validOffsets)
+
+		// Use the first valid offset for actual decryption (you can change this)
+		chosenOffset := validOffsets[0]
+		msgKey := decrypted[chosenOffset : chosenOffset+16]
+		encData := padTo16(decrypted[chosenOffset+16:])
+		rawP, err = crAuthKey.AesIgeDecrypt(msgKey, encData)
+
+		logf(2, "Using offset %d for decryption, rawp %02x", chosenOffset, rawP)
+
+		if err == nil && len(rawP) >= 24 {
+			salt := int64(binary.LittleEndian.Uint64(rawP[0:8]))
+			sessionId := int64(binary.LittleEndian.Uint64(rawP[8:16]))
+			requestMsgId := int64(binary.LittleEndian.Uint64(rawP[16:24]))
+
+			logf(2, "C. RECEIVED FROM CLIENT:")
+			logf(2, "   Salt: 0x%x", salt)
+			logf(2, "   SessionId: 0x%x", sessionId)
+			logf(2, "   RequestMsgId: 0x%x", requestMsgId)
+			logf(2, "   Full decrypted payload: %02x", rawP)
+
+			o := bytesToTL2(rawP[16:]).Object
+			logf(1, "%T", o)
+			
+			// Handle different message types and send appropriate responses
+			switch obj := o.(type) {
+			case *mtproto.TLPingDelayDisconnect:
+				pongData := mtproto.NewEncodeBuf(88)
+				pongData.Int(0x347773c5)
+				pongData.Long(requestMsgId)
+				pongData.Long(obj.PingId)
+				cp.sendEncryptedMessage(pongData.GetBuf(), salt, sessionId, requestMsgId, "PingDelayDisconnect") // 0x347773c5 = 880243653
+			default:
+				if _, isAck := o.(*mtproto.TLMsgsAck); !isAck {	
+					pendingRequests[requestMsgId] = fmt.Sprintf("%T", o)
+					cp.replyMsg(o, requestMsgId, salt, sessionId)
+					markRequestCompleted(requestMsgId, fmt.Sprintf("Unhandled: %T", o))
+				}
+			}
+		}
+	}
+}
+
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 	connection = conn
@@ -134,110 +228,24 @@ func handleConnection(conn net.Conn) {
 				}
 			}
 		} else {
-			// handleAuthPacket(buff, n)
-			// cp.processPackets(buff)
-			hasTgnetDat := readTgnetDat()
-			if hasTgnetDat && crAuthKey != nil {
-				logf(2, "A. Raw received from client: %02x", buff[:n])
-
-				// CTR decrypt returns new buffer
-				decrypted := cp.cryp.Decrypt(buff[:n])
-				logf(2, "B. After CTR decrypt: %02x", decrypted)
-
-				var rawP []byte
-				var err error
-				var validOffsets []int
-
-				// First, find all valid offsets - NOW USE THE DECRYPTED BUFFER!
-				for offset := 0; offset <= len(decrypted)-16; offset++ {
-					// Check if we have enough space for 16-byte msgKey and some data
-					if offset+16 < len(decrypted) {
-						// Additional bounds checking to prevent slice errors
-						if offset >= 0 && offset+16 <= len(decrypted) && offset+16 < len(decrypted) {
-							msgKey := decrypted[offset : offset+16]   // Now this uses decrypted data
-							encData := padTo16(decrypted[offset+16:]) // And this too
-
-							// Catch panics from AesIgeDecrypt
-							func() {
-								defer func() {
-									if r := recover(); r != nil {
-										logf(2, "Panic at offset %d: %v", offset, r)
-									}
-								}()
-
-								testRawP, testErr := crAuthKey.AesIgeDecrypt(msgKey, encData)
-
-								if testErr == nil && len(testRawP) >= 24 {
-									validOffsets = append(validOffsets, offset)
-									if offset == 0 {
-										logf(2, "Offset 0 decrypted preview: %02x", testRawP[:32])
-									}
-								}
-							}()
-						}
-					}
-				}
-
-				if len(validOffsets) == 0 {
-					logf(1, "No valid offset found for AesIgeDecrypt")
-					continue
-				}
-
-				// Log all valid offsets
-				logf(1, "Found valid dec. Offset: %v", validOffsets)
-
-				// Use the first valid offset for actual decryption (you can change this)
-				chosenOffset := validOffsets[0]
-				msgKey := decrypted[chosenOffset : chosenOffset+16]
-				encData := padTo16(decrypted[chosenOffset+16:])
-				rawP, err = crAuthKey.AesIgeDecrypt(msgKey, encData)
-
-				logf(2, "Using offset %d for decryption, rawp %02x", chosenOffset, rawP)
-
-				if err == nil && len(rawP) >= 24 {
-					salt := int64(binary.LittleEndian.Uint64(rawP[0:8]))
-					sessionId := int64(binary.LittleEndian.Uint64(rawP[8:16]))
-					requestMsgId := int64(binary.LittleEndian.Uint64(rawP[16:24]))
-
-					logf(2, "C. RECEIVED FROM CLIENT:")
-					logf(2, "   Salt: 0x%x", salt)
-					logf(2, "   SessionId: 0x%x", sessionId)
-					logf(2, "   RequestMsgId: 0x%x", requestMsgId)
-					logf(2, "   Full decrypted payload: %02x", rawP)
-
-					o := bytesToTL2(rawP[16:]).Object
-					logf(1, "%T", o)
-
-					// Handle different message types and send appropriate responses
-					switch obj := o.(type) {
-					case *mtproto.TLPingDelayDisconnect:
-						pongData := mtproto.NewEncodeBuf(16)
-						pongData.Long(requestMsgId)
-						pongData.Long(obj.PingId)
-						cp.sendEncryptedMessage(cp.createRpcResult(requestMsgId, 0x347773c5, pongData.GetBuf()), salt, sessionId, requestMsgId, "PingDelayDisconnect") // 0x347773c5 = 880243653
-					default:
-						// For other message types, send session creation
-						logf(2, "D. SENDING SESSION MESSAGE for type %T", o)
-						// cp.sendSessionMsg(salt, sessionId, requestMsgId)
-					}
-				}
-			}
+			handleAuthenticatedMessage(cp, buff, n)
 		}
 		time.Sleep(500 * time.Millisecond)
 	}
 	conn.Close()
 }
 
-func readTgnetDat() bool {
-	file, err := os.Open("/home/u/dev/telegram/japp/mirror/config/tgnet.dat")
+func readAuthKey() bool {
+	authKey, err := os.ReadFile("auth_key.bin")
 	if err != nil {
-		logf(1, "tgnet.dat not found, continuing without it")
+		logf(1, "auth_key.bin not found, continuing without it")
 		return false
 	}
-	defer file.Close()
 
-	authKey := make([]byte, 256)
-	file.ReadAt(authKey, 0x88)
+	if len(authKey) != 256 {
+		logf(1, "Invalid auth_key.bin size: %d bytes (expected 256)", len(authKey))
+		return false
+	}
 
 	if bytes.Equal(authKey, make([]byte, 256)) {
 		return false
@@ -251,15 +259,14 @@ func readTgnetDat() bool {
 	crAuthKey = crypto.NewAuthKey(authKeyId, authKey)
 
 	// Log the auth key and calculated ID
-	logf(2, "Auth key from tgnet.dat: %02x", authKey)
+	logf(2, "Auth key loaded from auth_key.bin: %02x", authKey)
 	logf(2, "Calculated auth key ID: 0x%x", authKeyId)
 
-	file.Close()
 	return true
 }
 
 func main() {
-	
+
 	port := ":10443"
 	log.SetFlags(0)
 	listener, _ := net.Listen("tcp", port)
@@ -339,7 +346,7 @@ func (cp *ConnProp) processSubPacket(decrypted []byte) error {
 	if len(decrypted) <= 40 {
 		return nil
 	}
-	readTgnetDat()
+	readAuthKey()
 	if crAuthKey == nil {
 		if AuthKey == nil {
 			return nil
