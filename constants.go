@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"math/big"
-	"net"
 	"os"
 	"time"
 
@@ -27,26 +26,18 @@ const expiresTimeout = 3600
 
 type AesCTR128Crypto struct{ decrypt, encrypt *crypto.AesCTR128Encrypt }
 
-func newAesCTR128Crypto(d, e *crypto.AesCTR128Encrypt) *AesCTR128Crypto {
-	return &AesCTR128Crypto{d, e}
-}
+func newAesCTR128Crypto(d, e *crypto.AesCTR128Encrypt) *AesCTR128Crypto { return &AesCTR128Crypto{d, e} }
 func (e *AesCTR128Crypto) Encrypt(plaintext []byte) []byte {
-	if e == nil {
-		log.Println("Encrypt Called")
-		return plaintext
-	}
+	if e == nil { log.Println("Encrypt Called"); return plaintext }
 	return e.encrypt.Encrypt(plaintext)
 }
 func (e *AesCTR128Crypto) Decrypt(ciphertext []byte) []byte {
-	if e == nil || e.decrypt == nil {
-		return ciphertext
-	}
+	if e == nil || e.decrypt == nil { return ciphertext }
 	return e.decrypt.Encrypt(ciphertext)
 }
 
 func parseFromIncomingMessage(b []byte) (msgId int64, obj mtproto.TLObject, err error) {
 	dBuf := mtproto.NewDecodeBuf(b)
-
 	msgId = dBuf.Long()
 	_ = dBuf.Int()
 	obj = dBuf.Object()
@@ -59,39 +50,29 @@ func serializeToBuffer(x *mtproto.EncodeBuf, msgId int64, obj mtproto.TLObject) 
 	x.Long(msgId)
 	offset := x.GetOffset()
 	x.Int(0)
-	if err := obj.Encode(x, 0); err != nil {
-		return err
-	}
+	if err := obj.Encode(x, 0); err != nil { return err }
 	x.IntOffset(offset, int32(x.GetOffset()-offset-4))
 	return nil
 }
 
+func (cp *ConnProp) sendTLObjectResponse(obj mtproto.TLObject) { cp.conn.Write(cp.encode(obj)) }
 
 var (
 	cryptoCodec *AesCTR128Crypto
 	AuthKey     []byte
 	authKeyId   int64
 	crAuthKey    *crypto.AuthKey
-	msgIdSeq    int64
-	nextSeqNo   uint32
-	connection  net.Conn
 )
 
 func initializeCTRCodec(buffer []byte, n int) *AesCTR128Crypto {
-	logf(1, "initializeCTRCodec len of data %d", n)
 	encrypted := buffer[:n]
-	// os.WriteFile("../attempts/encode_multiple/init_ctr.bin", encrypted, 0644)
 	obfuscatedBuf := encrypted[:64]
 	var tmp [64]byte
-	for i := 0; i < 48; i++ {
-		tmp[i] = obfuscatedBuf[55-i]
-	}
+	for i := 0; i < 48; i++ { tmp[i] = obfuscatedBuf[55-i] }
 	encryptor, _ := crypto.NewAesCTR128Encrypt(tmp[:32], tmp[32:48])
 	decryptor, _ := crypto.NewAesCTR128Encrypt(obfuscatedBuf[8:40], obfuscatedBuf[40:56])
-	
 	cryptoCodec = newAesCTR128Crypto(decryptor, encryptor)
 	return cryptoCodec
-	// fmt.Printf("%# v\n", pretty.Formatter(cryptoCodec))
 }
 
 func handleReqDHParams(cp *ConnProp, obj mtproto.TLObject) ([]byte, []byte, []byte, []byte, error) {
@@ -100,14 +81,10 @@ func handleReqDHParams(cp *ConnProp, obj mtproto.TLObject) ([]byte, []byte, []by
 	innerData := rsa.Decrypt([]byte(reqDhParam.EncryptedData))
 	key := innerData[:32]
 	hash := crypto.Sha256Digest(innerData[32:])
-	for i := 0; i < 32; i++ {
-		key[i] = key[i] ^ hash[i]
-	}
-	paddedDataWithHash, _ := crypto.NewAES256IGECryptor(key, zeroIV).Decrypt(innerData[32:])
-	for i, j := 0, 191; i < j; i, j = i+1, j-1 {
-		paddedDataWithHash[i], paddedDataWithHash[j] = paddedDataWithHash[j], paddedDataWithHash[i]
-	}
-	dbuf := mtproto.NewDecodeBuf(paddedDataWithHash)
+	for i := 0; i < 32; i++ { key[i] = key[i] ^ hash[i] }
+	hashPadded, _ := crypto.NewAES256IGECryptor(key, zeroIV).Decrypt(innerData[32:])
+	for i, j := 0, 191; i < j; i, j = i+1, j-1 { hashPadded[i], hashPadded[j] = hashPadded[j], hashPadded[i] }
+	dbuf := mtproto.NewDecodeBuf(hashPadded)
 	o := dbuf.Object()
 	var (
 		handshakeType int
@@ -153,11 +130,7 @@ func handleReqDHParams(cp *ConnProp, obj mtproto.TLObject) ([]byte, []byte, []by
 	copy(tmpAesKeyAndIV[40:], sha1C[:])
 	copy(tmpAesKeyAndIV[60:], newNonce[:4])
 	tmpLen := 20 + len(serverDHInnerDataBuf)
-	if tmpLen%16 > 0 {
-		tmpLen = (tmpLen/16 + 1) * 16
-	} else {
-		tmpLen = 20 + len(serverDHInnerDataBuf)
-	}
+	if tmpLen%16 > 0 { tmpLen = (tmpLen/16 + 1) * 16 } else { tmpLen = 20 + len(serverDHInnerDataBuf) }
 	tmpEncryptedAnswer := make([]byte, tmpLen)
 	sha1Tmp := sha1.Sum(serverDHInnerDataBuf)
 	copy(tmpEncryptedAnswer, sha1Tmp[:])
@@ -173,12 +146,8 @@ func handleReqDHParams(cp *ConnProp, obj mtproto.TLObject) ([]byte, []byte, []by
 
 func handleSetClientDHParams(cp *ConnProp, obj mtproto.TLObject, nonce, serverNonce, newNonce, A []byte) error {
 	setClientDHParams, _ := obj.(*mtproto.TLSetClient_DHParams)
-	if !bytes.Equal(setClientDHParams.Nonce, nonce) {
-		return fmt.Errorf("onSetClientDHParams - Wrong Nonce")
-	}
-	if !bytes.Equal(setClientDHParams.ServerNonce, serverNonce) {
-		return fmt.Errorf("onSetClientDHParams - Wrong ServerNonce")
-	}
+	if !bytes.Equal(setClientDHParams.Nonce, nonce) { return fmt.Errorf("onSetClientDHParams - Wrong Nonce") }
+	if !bytes.Equal(setClientDHParams.ServerNonce, serverNonce) { return fmt.Errorf("onSetClientDHParams - Wrong ServerNonce")}
 	bEncryptedData := []byte(setClientDHParams.EncryptedData)
 	tmpAesKeyAndIv := make([]byte, 64)
 	sha1A := sha1.Sum(append(newNonce, serverNonce...))
@@ -190,23 +159,14 @@ func handleSetClientDHParams(cp *ConnProp, obj mtproto.TLObject, nonce, serverNo
 	copy(tmpAesKeyAndIv[60:], newNonce[:4])
 	d := crypto.NewAES256IGECryptor(tmpAesKeyAndIv[:32], tmpAesKeyAndIv[32:64])
 	decryptedData, err := d.Decrypt(bEncryptedData)
-	if err != nil {
-		return fmt.Errorf("onSetClientDHParams - AES256IGECryptor decrypt error")
-	}
+	if err != nil { return fmt.Errorf("onSetClientDHParams - AES256IGECryptor decrypt error")}
 	dBuf := mtproto.NewDecodeBuf(decryptedData[20:])
 	clientDHInnerData := mtproto.MakeTLClient_DHInnerData(nil)
 	clientDHInnerData.Data2.Constructor = mtproto.TLConstructor(dBuf.Int())
 	err = clientDHInnerData.Decode(dBuf)
-	if err != nil {
-		log.Printf("onSetClientDHParams - TLClient_DHInnerData decode error: %s", err)
-		return err
-	}
-	if !bytes.Equal(clientDHInnerData.GetNonce(), nonce) {
-		return fmt.Errorf("onSetClientDHParams - Wrong client_DHInnerData's Nonce")
-	}
-	if !bytes.Equal(clientDHInnerData.GetServerNonce(), serverNonce) {
-		return fmt.Errorf("onSetClientDHParams - Wrong client_DHInnerData's ServerNonce")
-	}
+	if err != nil { log.Printf("onSetClientDHParams - TLClient_DHInnerData decode error: %s", err); return err }
+	if !bytes.Equal(clientDHInnerData.GetNonce(), nonce) { return fmt.Errorf("onSetClientDHParams - Wrong client_DHInnerData's Nonce") }
+	if !bytes.Equal(clientDHInnerData.GetServerNonce(), serverNonce) { return fmt.Errorf("onSetClientDHParams - Wrong client_DHInnerData's ServerNonce") }
 	bigIntA := new(big.Int).SetBytes(A)
 	authKeyNum := new(big.Int)
 	authKeyNum.Exp(new(big.Int).SetBytes([]byte(clientDHInnerData.GetGB())), bigIntA, gBigIntDH2048P)
@@ -221,12 +181,7 @@ func handleSetClientDHParams(cp *ConnProp, obj mtproto.TLObject, nonce, serverNo
 	authKeyAuxHash = append(authKeyAuxHash, sha1E[:]...)
 	authKeyId = int64(binary.LittleEndian.Uint64(authKeyAuxHash[len(newNonce)+1+12 : len(newNonce)+1+12+8]))
 	
-	// Save the 256-byte authKey to auth_key.bin
-	if err := os.WriteFile("auth_key.bin", AuthKey, 0644); err != nil {
-		logf(1, "Failed to save auth key: %v", err)
-	} else {
-		logf(1, "Auth key saved to auth_key.bin (256 bytes)")
-	}
+	os.WriteFile("auth_key.bin", AuthKey, 0644); 
 	
 	dhGen := mtproto.MakeTLDhGenOk(&mtproto.SetClient_DHParamsAnswer{Nonce: nonce, ServerNonce: serverNonce, NewNonceHash1: calcNewNonceHash(newNonce, AuthKey, 0x01)}).To_SetClient_DHParamsAnswer()
 	cp.sendTLObjectResponse(dhGen)
@@ -237,14 +192,12 @@ func handleReqPqMulti(obj mtproto.TLObject) mtproto.TLObject {
 	reqPq, _ := obj.(*mtproto.TLReqPqMulti)
 	var pq = string([]byte{0x17, 0xED, 0x48, 0x94, 0x1A, 0x08, 0xF9, 0x81})
 	resPQ := mtproto.MakeTLResPQ(&mtproto.ResPQ{
-		// Constructor: mtproto.TLConstructor(mtproto.TLConstructor_CRC32_resPQ), 
 		Nonce: reqPq.Nonce, 
 		ServerNonce: crypto.GenerateNonce(16), 
 		Pq: pq, 
 		ServerPublicKeyFingerprints: []int64{-6205835210776354611},
 	}).To_ResPQ()
 	return resPQ
-	// err := sendEncryptedResponse(resPQ)
 }
 
 func calcNewNonceHash(newNonce, authKey []byte, b byte) []byte {
@@ -256,64 +209,4 @@ func calcNewNonceHash(newNonce, authKey []byte, b byte) []byte {
 	sha1E := sha1.Sum(authKeyAuxHash[:len(authKeyAuxHash)-12])
 	authKeyAuxHash = append(authKeyAuxHash, sha1E[:]...)
 	return authKeyAuxHash[len(authKeyAuxHash)-16:]
-}
-
-func GetConfigRpcResult(requestMsgId int64) []byte {
-	configBuf := mtproto.NewEncodeBuf(1024)
-	
-	// RPC result header
-	configBuf.Int(-212046591)  // rpc_result constructor (0xf35c6d01)
-	configBuf.Long(requestMsgId)  // req_msg_id
-	
-	// Config header
-	configBuf.Int(-870702050)  // config constructor (0xcc1a241e)
-	configBuf.Int(0x00001e4c)  // flags
-	
-	// Dynamic fields
-	now := int32(time.Now().Unix())
-	configBuf.Int(now)  // date
-	configBuf.Int(now + 3600)  // expires
-	
-	// Static config fields
-	configBuf.Int(-1132882121)  // boolFalse constructor
-	configBuf.Int(1)  // this_dc
-	configBuf.Int(0x1cb5c415)  // vector constructor
-	configBuf.Int(0)  // dc_options count
-	configBuf.String("apv2.stel.com")  // dc_txt_domain_name
-	configBuf.Int(200)  // chat_size_max
-	configBuf.Int(100000)  // megagroup_size_max
-	configBuf.Int(100)  // forwarded_count_max
-	configBuf.Int(210000)  // online_update_period_ms
-	configBuf.Int(5000)  // offline_blur_timeout_ms
-	configBuf.Int(30000)  // offline_idle_timeout_ms
-	configBuf.Int(300000)  // online_cloud_timeout_ms
-	configBuf.Int(30000)  // notify_cloud_delay_ms
-	configBuf.Int(1500)  // notify_default_delay_ms
-	configBuf.Int(60000)  // push_chat_period_ms
-	configBuf.Int(2)  // push_chat_limit
-	configBuf.Int(172800)  // edit_time_limit
-	configBuf.Int(2147483647)  // revoke_time_limit
-	configBuf.Int(2147483647)  // revoke_pm_time_limit
-	configBuf.Int(2419200)  // rating_e_decay
-	configBuf.Int(200)  // stickers_recent_limit
-	configBuf.Int(604800)  // channels_read_media_period
-	configBuf.Int(20000)  // call_receive_timeout_ms
-	configBuf.Int(90000)  // call_ring_timeout_ms
-	configBuf.Int(30000)  // call_connect_timeout_ms
-	configBuf.Int(10000)  // call_packet_timeout_ms
-	configBuf.String("https://teamgram.io/")  // me_url_prefix
-	
-	// Optional fields
-	configBuf.String("gif")  // gif_search_username
-	configBuf.String("foursquare")  // venue_search_username
-	configBuf.String("bing")  // img_search_username
-	configBuf.String("telegram")  // static_maps_provider
-	configBuf.Int(200)  // caption_length_max
-	configBuf.Int(4096)  // message_length_max
-	configBuf.Int(4)  // webfile_dc_id
-	configBuf.String("classic-zh-cn")  // suggested_lang_code
-	configBuf.Int(262834)  // lang_pack_version
-	configBuf.Int(0)  // base_lang_pack_version
-	
-	return configBuf.GetBuf()
 }
