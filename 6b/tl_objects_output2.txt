@@ -1,0 +1,109 @@
+--> 01_sent_data.bin 
+MsgId: 7573574191777969152
+Offset 504:
+TLInvokeWithLayer{
+  Constructor: -627372787
+  Layer: 156
+  Query: [440 items]
+}
+  Query: constructor:CRC32_initConnection_c1cd5ea9  api_id:4  device_model:"Samsung Galaxy A31"  system_version:"SDK 30"  app_version:"9.5.6 (32379) pbeta"  system_lang_code:"en-us"  lang_pack:"android"  lang_code:"en"  params:{predicate_name:"jsonObject"  constructor:CRC32_jsonObject  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"device_token"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"__FIREBASE_GENERATING_SINCE_1763360153__"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"data"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"installer"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"android"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"package_id"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"org.chatengine.messenger.beta"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"tz_offset"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"perf_cat"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber  value_FLOAT64:3}}}  query:"}\xd5\x0f\x80\x1e\xf8\xb5!s\xfaM\xc4\x1c\xd77\x83\xaaYrȯ\x0f\xb8t{\xafΓ\xa1\xe5b\x87\x02\xf3\x10\xd0Ҵ}\xcd\x084\x01\xb3\x16\x8a\x8e\xa1\tCgn) \xa4D\xe8|\xd1}"
+    Query: constructor:CRC32_langpack_getLanguages_800fd57d
+
+<-- 02_received_data.bin 
+MsgId: 7573574189976649739
+Offset 84:
+TLNewSessionCreated{
+  Data2: NewSession{
+      PredicateName: "new_session_created"
+      Constructor: -1631450872
+      FirstMsgId: 7573574191777969152
+      UniqueId: 5559553564796608472
+      ServerSalt: -7212681950144378351
+    }
+}
+
+<-- 03_received_data.bin 
+MsgId: 7573574189976649739
+Offset 84:
+TLNewSessionCreated{
+  Data2: NewSession{
+      PredicateName: "new_session_created"
+      Constructor: -1631450872
+      FirstMsgId: 7573574191777969152
+      UniqueId: 5559553564796608472
+      ServerSalt: -7212681950144378351
+    }
+}
+
+<-- 04_received_data.bin 
+MsgId: 7573574190045855761
+Offset 72:
+TLRpcResult{
+  ReqMsgId: 7573574191777969152
+}
+
+--> 05_sent_data.bin 
+MsgId: 7573574196880390144
+Offset 536:
+TLInvokeWithLayer{
+  Constructor: -627372787
+  Layer: 156
+  Query: [472 items]
+}
+  Query: constructor:CRC32_initConnection_c1cd5ea9  api_id:4  device_model:"Samsung Galaxy A31"  system_version:"SDK 30"  app_version:"9.5.6 (32379) pbeta"  system_lang_code:"en-us"  lang_pack:"android"  lang_code:"en"  params:{predicate_name:"jsonObject"  constructor:CRC32_jsonObject  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"device_token"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"__NO_GOOGLE_PLAY_SERVICES__"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"data"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"installer"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"android"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"package_id"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"org.chatengine.messenger.beta"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"tz_offset"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"perf_cat"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber  value_FLOAT64:3}}}  query:"&0\xb3\x1f\x00\x8e\xe23}\x9e2u\xc6}\xd8G\xea\xae?\xddџ\xf3\xcd\xd8AF\xda$\t\xe0\xaf\xc7\xd4\xe6^\xf6b\x0cd*\xea\xb9K\x8e\xb8\"\xe6\xa0K\xbbQ\xee$\x85\x0bN_\xca\x07\xa5\xbaz\r\x17\xc8\xdbZ\x12y\x89\x10b]\xa9\x01O\xd2\x0e\x01;\xb9N\xb0\xef̳1\x1ee*\x03\xd8_\x1b\x19J%)\xf6\x001\x97\xaa\x88\xdcAW"
+    Query: constructor:CRC32_help_getNearestDc
+
+--> 06_sent_data.bin 
+MsgId: 7573574196901865472
+Offset 680:
+TLInvokeWithLayer{
+  Constructor: -627372787
+  Layer: 156
+  Query: [616 items]
+}
+  Query: constructor:CRC32_initConnection_c1cd5ea9  api_id:4  device_model:"Samsung Galaxy A31"  system_version:"SDK 30"  app_version:"9.5.6 (32379) pbeta"  system_lang_code:"en-us"  lang_pack:"android"  lang_code:"en"  params:{predicate_name:"jsonObject"  constructor:CRC32_jsonObject  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"device_token"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"__NO_GOOGLE_PLAY_SERVICES__"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"data"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"installer"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"android"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"package_id"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"org.chatengine.messenger.beta"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"tz_offset"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"perf_cat"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber  value_FLOAT64:3}}}  query:"\xa8\x87Ws\x02en\x00\x00\x00\x00\x00\x02\xad\x91\xefq\x85[\xf0\x98o\xfa\x1c\x17\x80D\xba\xf2\xd4\x15Ml\xa4Q)\xd0\xf8\xf4\xd8\x17\xa8(M\x02\xd0\x0c\t\xf6\xe8\xba*\x96\x95\xd7?!ޟ\xf4\xe2n\x12\xa2%{,ݛ\x0c\xd17\x9b\\\xcb\xf0M.<{w\xe6M\r\xe2\xe1\xea)n\xf5\x1a,\xda^\xd9\xd6\xe2ٻ<>\xc7\xf4\xfa_]\x83\xe9t\x9aF\x95odU\xd6\x03\x0f\x07{\xd1\xc0\xbe\x11\t\xf2\xb7\x8e\xf1\x17=\r\x0c\x02\x98\x9e\xafg\xbc\xc5WO\xb5\x95\xe9\xec\n\xf3^(߼}\xc3<\xf2\xa3i\xb5\xe6\xa01\x90\x84r\xc87:\xfa\xf6\xe1\n\t\xc9_\xce%F%\xd2ۋ\x88x]۲\xb4JOW;\xc9\xc91\xda)\x8azydk\x87ٝ`\xd9@=\xbf\xc7\xcf\x10J]\x13\xc1\xad\xa5\x1c_U\x9c\x8a\x90T\x9f\xa1o\xb1\xaaw\x03Wً\xc7Ƽ\xf6\xa5)go\xa54\xf0R\x83L\x1a{"
+    Query: constructor:CRC32_help_getCountriesList  lang_code:"en"
+
+<-- 07_received_data.bin 
+MsgId: 7573574196869988377
+Offset 84:
+TLRpcResult{
+  ReqMsgId: 7573574196880390144
+  Result: TLNearestDc{
+      Data2: NearestDc{
+            PredicateName: "nearestDc"
+            Constructor: -1910892683
+            Country: "CN"
+            ThisDc: 1
+            NearestDc: 1
+          }
+    }
+}
+
+<-- 08_received_data.bin 
+MsgId: 7573574196876279841
+Offset 84:
+TLRpcResult{
+  ReqMsgId: 7573574196901865472
+  Result: TLHelpCountriesList{
+      Data2: Help_CountriesList{
+            PredicateName: "help_countriesList"
+            Constructor: -2016381538
+          }
+    }
+}
+
+--> 09_sent_data.bin 
+MsgId: 7573574236664672256
+Offset 132:
+TLAuthSendCode{
+  Constructor: -1502141361
+  PhoneNumber: "6281898219323"
+  ApiId: 4
+  ApiHash: "014b35b6184100b085b0d0572f9b5103"
+  Settings: CodeSettings{
+      PredicateName: "codeSettings"
+      Constructor: -1390068360
+    }
+}
+

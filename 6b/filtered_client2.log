@@ -1,0 +1,339 @@
+11-16 10:23:50.848  6684  6735 D tgnet   : called from sendRequest (Android)
+11-16 10:23:50.848  6684  6735 D tgnet   : [ConnectionsManager.cpp:1849] called from sendRequest (Android)
+11-16 10:23:50.848  6684  6747 D tgnet   : send request 0x7dcded218410 - 14TL_api_request
+11-16 10:23:50.848  6684  6747 D tgnet   : [ConnectionsManager.cpp:1876] send request 0x7dcded218410 - 14TL_api_request
+11-16 10:23:50.860  6684  6747 D tgnet   : wrap in layer 14TL_api_request, flags = 2
+11-16 10:23:50.860  6684  6747 D tgnet   : [ConnectionsManager.cpp:2944] wrap in layer 14TL_api_request, flags = 2
+11-16 10:23:50.860  6684  6747 D tgnet   : send request wrapped 0x7dcded21b050 - 15invokeWithLayer
+11-16 10:23:50.860  6684  6747 D tgnet   : [ConnectionsManager.cpp:1883] send request wrapped 0x7dcded21b050 - 15invokeWithLayer
+11-16 10:23:50.860  6684  6747 D tgnet   : messageId for token = 6, 0x6919a636dc28f800
+11-16 10:23:50.860  6684  6747 D tgnet   : [ConnectionsManager.cpp:2610] messageId for token = 6, 0x6919a636dc28f800
+11-16 10:23:50.860  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 1, messageid: 7573267002952316928  0x6919a636dc28f800): 15invokeWithLayer(0x7dcded21b050)
+11-16 10:23:50.860  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 1, messageid: 7573267002952316928  0x6919a636dc28f800): 15invokeWithLayer(0x7dcded21b050)
+11-16 10:23:50.872  6684  6747 D tgnet   : received message len 104 (currentPacketLength) equal to packet size
+11-16 10:23:50.872  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 104 (currentPacketLength) equal to packet size
+11-16 10:23:50.872  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 22TL_new_session_created
+11-16 10:23:50.872  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 22TL_new_session_created
+11-16 10:23:50.872  6684  6747 D tgnet   : process server response 0x7dcdfd213bd0 - 22TL_new_session_created
+11-16 10:23:50.872  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcdfd213bd0 - 22TL_new_session_created
+11-16 10:23:50.872  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) new session created (first message id: 0x6919a636dc28f800, server salt: 0xa0d740f0588345b6, unique id: 0x73985ca4288b6e1f)
+11-16 10:23:50.872  6684  6747 D tgnet   : [ConnectionsManager.cpp:1131] connection(0x7dcead211190, account0, dc1, type 1) new session created (first message id: 0x6919a636dc28f800, server salt: 0xa0d740f0588345b6, unique id: 0x73985ca4288b6e1f)
+11-16 10:23:50.877  6684  6747 D tgnet   : Config(0x7dcddd217950, /data/user/0/org.chatengine.messenger.beta/files/tgnet.dat) config write ok
+11-16 10:23:50.877  6684  6747 D tgnet   : [            Config.cpp: 129] Config(0x7dcddd217950, /data/user/0/org.chatengine.messenger.beta/files/tgnet.dat) config write ok
+11-16 10:23:50.877  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 2, messageid: 7573267003025331200  0x6919a636e0831400): 11TL_msgs_ack(0x7dcdfd213bd0)
+11-16 10:23:50.877  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 2, messageid: 7573267003025331200  0x6919a636e0831400): 11TL_msgs_ack(0x7dcdfd213bd0)
+11-16 10:23:50.896  6684  6747 D tgnet   : received message len 104 (currentPacketLength) equal to packet size
+11-16 10:23:50.897  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 104 (currentPacketLength) equal to packet size
+11-16 10:23:50.897  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 2, messageid: 7573267003111230464  0x6919a636e5a1cc00): 11TL_msgs_ack(0x7dcdfd213bd0)
+11-16 10:23:50.897  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 2, messageid: 7573267003111230464  0x6919a636e5a1cc00): 11TL_msgs_ack(0x7dcdfd213bd0)
+11-16 10:23:50.897  6684  6747 D tgnet   : received message len 88 (currentPacketLength) equal to packet size
+11-16 10:23:50.897  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 88 (currentPacketLength) equal to packet size
+11-16 10:23:50.897  6684  6747 D tgnet   : api request constructor 0x1cb5c415, don't parse
+11-16 10:23:50.897  6684  6747 D tgnet   : [ConnectionsManager.cpp:1096] api request constructor 0x1cb5c415, don't parse
+11-16 10:23:50.897  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 13TL_rpc_result
+11-16 10:23:50.897  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 13TL_rpc_result
+11-16 10:23:50.897  6684  6747 D tgnet   : process server response 0x7dcded21ad50 - 13TL_rpc_result
+11-16 10:23:50.897  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcded21ad50 - 13TL_rpc_result
+11-16 10:23:50.897  6684  6747 D tgnet   : message_id 7573267001139789841 connection(0x7dcead211190, account0, dc1, type 1) received rpc_result with 15TL_api_response
+11-16 10:23:50.897  6684  6747 D tgnet   : [ConnectionsManager.cpp:1267] message_id 7573267001139789841 connection(0x7dcead211190, account0, dc1, type 1) received rpc_result with 15TL_api_response
+11-16 10:23:50.897  6684  6747 D tgnet   : got response for request 0x7dcded218410 - 14TL_api_request
+11-16 10:23:50.897  6684  6747 D tgnet   : [ConnectionsManager.cpp:1303] got response for request 0x7dcded218410 - 14TL_api_request
+11-16 10:23:50.898  6684  6747 D tmessages: java received org.telegram.tgnet.TLRPC$Vector@6e30607 error = null
+11-16 10:23:50.909  6684  6684 D tmessages: OS name lineage_waydroid_x86_64-userdebug 11 rq3a.211001.001 135 test-keys lineage_waydroid_x86_64-userdebug 11 rq3a.211001.001 135 test-keys
+11-16 10:23:50.911  6684  6725 D MTProto : requestMsgId=138320391198000 requestingTime=63 request_token=6
+11-16 10:23:50.911  6684  6725 D MTProto : req -> TL_langpack_getLanguages : {}
+11-16 10:23:50.911  6684  6725 D MTProto : res -> Vector : {"objects":[]}
+11-16 10:23:50.911  6684  6725 D MTProto :  
+11-16 10:23:50.918  6684  6747 D tgnet   : Config(0x7dcddd217950, /data/user/0/org.chatengine.messenger.beta/files/tgnet.dat) config write ok
+11-16 10:23:50.918  6684  6747 D tgnet   : [            Config.cpp: 129] Config(0x7dcddd217950, /data/user/0/org.chatengine.messenger.beta/files/tgnet.dat) config write ok
+11-16 10:23:50.918  6684  6747 D tgnet   : dc1 init connection completed
+11-16 10:23:50.918  6684  6747 D tgnet   : [ConnectionsManager.cpp:1482] dc1 init connection completed
+11-16 10:23:50.918  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 2, messageid: 7573267003201424384  0x6919a636eb020c00): 11TL_msgs_ack(0x7dcdfd2067a0)
+11-16 10:23:50.918  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 2, messageid: 7573267003201424384  0x6919a636eb020c00): 11TL_msgs_ack(0x7dcdfd2067a0)
+11-16 10:23:50.944  6684  6684 D tmessages: switch to foreground
+11-16 10:23:50.987  6684  6737 D tmessages: checkKeepMedia start task
+11-16 10:23:50.987  6684  6684 D tmessages: app paused = false
+11-16 10:23:50.987  6684  6684 D tmessages: app resume count 1
+11-16 10:23:50.987  6684  6684 D tmessages: reset app pause time
+11-16 10:23:50.987  6684  6747 D tgnet   : wakeup network account0
+11-16 10:23:50.987  6684  6747 D tgnet   : [ConnectionsManager.cpp:3534] wakeup network account0
+11-16 10:23:50.988  6684  6737 D tmessages: external dir mounted
+11-16 10:23:50.989  6684  6737 D tmessages: check dir /storage/emulated/0/Android/data/org.chatengine.messenger.beta/cache 
+11-16 10:23:50.989  6684  6737 D tmessages: cache path = /storage/emulated/0/Android/data/org.chatengine.messenger.beta/cache
+11-16 10:23:51.007  6684  6737 D tmessages: image path = /storage/emulated/0/Android/data/org.chatengine.messenger.beta/files/Teamgram/Teamgram Images
+11-16 10:23:51.010  6684  6684 D tmessages: valid interface: name:eth0 (eth0)
+11-16 10:23:51.010  6684  6684 D tmessages: address: fe80::1549:e0aa:3df4:37c9%eth0
+11-16 10:23:51.010  6684  6684 D tmessages: address: 192.168.240.112
+11-16 10:23:51.010  6684  6684 D tmessages: address is good
+11-16 10:23:51.011  6684  6684 D tmessages: selected ip strategy 0
+11-16 10:23:51.012  6684  6684 D tmessages: switch to state 3
+11-16 10:23:51.012  6684  6735 D tmessages: send request org.telegram.tgnet.TLRPC$TL_account_getAutoDownloadSettings@b7eb01 with token = 7
+11-16 10:23:51.013  6684  6735 D tgnet   : called from sendRequest (Android)
+11-16 10:23:51.013  6684  6735 D tgnet   : [ConnectionsManager.cpp:1849] called from sendRequest (Android)
+11-16 10:23:51.013  6684  6735 D tgnet   : can't do request without login 14TL_api_request
+11-16 10:23:51.013  6684  6735 D tgnet   : [ConnectionsManager.cpp:1851] can't do request without login 14TL_api_request
+11-16 10:23:51.015  6684  6735 D tmessages: send request org.telegram.tgnet.TLRPC$TL_account_getSavedRingtones@baf8da6 with token = 8
+11-16 10:23:51.016  6684  6735 D tgnet   : called from sendRequest (Android)
+11-16 10:23:51.016  6684  6735 D tgnet   : [ConnectionsManager.cpp:1849] called from sendRequest (Android)
+11-16 10:23:51.016  6684  6735 D tgnet   : can't do request without login 14TL_api_request
+11-16 10:23:51.016  6684  6735 D tgnet   : [ConnectionsManager.cpp:1851] can't do request without login 14TL_api_request
+11-16 10:23:51.025  6684  6737 D tmessages: video path = /storage/emulated/0/Android/data/org.chatengine.messenger.beta/files/Teamgram/Teamgram Video
+11-16 10:23:51.035  6684  6684 D tmessages: applyLanguage: currentLocaleInfo is set
+11-16 10:23:51.044  6684  6737 D tmessages: audio path = /storage/emulated/0/Android/data/org.chatengine.messenger.beta/files/Teamgram/Teamgram Audio
+11-16 10:23:51.061  6684  6737 D tmessages: documents path = /storage/emulated/0/Android/data/org.chatengine.messenger.beta/files/Teamgram/Teamgram Documents
+11-16 10:23:51.079  6684  6737 D tmessages: files path = /storage/emulated/0/Android/data/org.chatengine.messenger.beta/files/Teamgram/Teamgram Files
+11-16 10:23:51.114  6684  6737 D tmessages: image path = /storage/emulated/0/Android/media/org.chatengine.messenger.beta/Teamgram/Teamgram Images
+11-16 10:23:51.146  6684  6737 D tmessages: video path = /storage/emulated/0/Android/media/org.chatengine.messenger.beta/Teamgram/Teamgram Video
+11-16 10:23:51.150  6684  6737 D tmessages: checkKeepMedia task end time 163 auto deleted info: files 0 size 0 KB   deleted by size limit info: files 0 size 0 KB unknownTimeFiles 0
+11-16 10:23:51.332  6684  6735 D tmessages: send request org.telegram.tgnet.TLRPC$TL_messages_getStickerSet@f5100c1 with token = 9
+11-16 10:23:51.332  6684  6735 D tgnet   : called from sendRequest (Android)
+11-16 10:23:51.332  6684  6735 D tgnet   : [ConnectionsManager.cpp:1849] called from sendRequest (Android)
+11-16 10:23:51.332  6684  6735 D tgnet   : can't do request without login 14TL_api_request
+11-16 10:23:51.332  6684  6735 D tgnet   : [ConnectionsManager.cpp:1851] can't do request without login 14TL_api_request
+11-16 10:23:51.616  6684  6684 D tmessages: No valid Google Play Services APK found.
+11-16 10:23:51.629  6684  6747 D tgnet   : Config(0x7dcddd217950, /data/user/0/org.chatengine.messenger.beta/files/tgnet.dat) config write ok
+11-16 10:23:51.629  6684  6747 D tgnet   : [            Config.cpp: 129] Config(0x7dcddd217950, /data/user/0/org.chatengine.messenger.beta/files/tgnet.dat) config write ok
+11-16 10:23:51.889  6684  6700 D StrictMode: 	at org.telegram.tgnet.ConnectionsManager.getInitFlags(ConnectionsManager.java:629)
+11-16 10:23:52.288  6684  6735 D tmessages: send request org.telegram.tgnet.TLRPC$TL_help_getNearestDc@8a15820 with token = 10
+11-16 10:23:52.289  6684  6735 D tgnet   : called from sendRequest (Android)
+11-16 10:23:52.289  6684  6735 D tgnet   : [ConnectionsManager.cpp:1849] called from sendRequest (Android)
+11-16 10:23:52.289  6684  6747 D tgnet   : send request 0x7dcded21c3d0 - 14TL_api_request
+11-16 10:23:52.289  6684  6747 D tgnet   : [ConnectionsManager.cpp:1876] send request 0x7dcded21c3d0 - 14TL_api_request
+11-16 10:23:52.289  6684  6747 D tgnet   : wrap in layer 14TL_api_request, flags = 2
+11-16 10:23:52.289  6684  6747 D tgnet   : [ConnectionsManager.cpp:2944] wrap in layer 14TL_api_request, flags = 2
+11-16 10:23:52.289  6684  6747 D tgnet   : send request wrapped 0x7dcded232810 - 15invokeWithLayer
+11-16 10:23:52.289  6684  6747 D tgnet   : [ConnectionsManager.cpp:1883] send request wrapped 0x7dcded232810 - 15invokeWithLayer
+11-16 10:23:52.289  6684  6747 D tgnet   : messageId for token = 10, 0x6919a63849fbe800
+11-16 10:23:52.289  6684  6747 D tgnet   : [ConnectionsManager.cpp:2610] messageId for token = 10, 0x6919a63849fbe800
+11-16 10:23:52.289  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 3, messageid: 7573267009089824768  0x6919a63849fbe800): 15invokeWithLayer(0x7dcded232810)
+11-16 10:23:52.289  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 3, messageid: 7573267009089824768  0x6919a63849fbe800): 15invokeWithLayer(0x7dcded232810)
+11-16 10:23:52.292  6684  6735 D tmessages: send request org.telegram.tgnet.TLRPC$TL_help_getCountriesList@780b3aa with token = 11
+11-16 10:23:52.293  6684  6735 D tgnet   : called from sendRequest (Android)
+11-16 10:23:52.293  6684  6735 D tgnet   : [ConnectionsManager.cpp:1849] called from sendRequest (Android)
+11-16 10:23:52.294  6684  6747 D tgnet   : send request 0x7dcded2377f0 - 14TL_api_request
+11-16 10:23:52.294  6684  6747 D tgnet   : [ConnectionsManager.cpp:1876] send request 0x7dcded2377f0 - 14TL_api_request
+11-16 10:23:52.294  6684  6747 D tgnet   : wrap in layer 14TL_api_request, flags = 2
+11-16 10:23:52.294  6684  6747 D tgnet   : [ConnectionsManager.cpp:2944] wrap in layer 14TL_api_request, flags = 2
+11-16 10:23:52.294  6684  6747 D tgnet   : send request wrapped 0x7dcded2194f0 - 15invokeWithLayer
+11-16 10:23:52.294  6684  6747 D tgnet   : [ConnectionsManager.cpp:1883] send request wrapped 0x7dcded2194f0 - 15invokeWithLayer
+11-16 10:23:52.294  6684  6747 D tgnet   : messageId for token = 11, 0x6919a6384b439800
+11-16 10:23:52.294  6684  6747 D tgnet   : [ConnectionsManager.cpp:2610] messageId for token = 11, 0x6919a6384b439800
+11-16 10:23:52.294  6684  6747 E tgnet   : connection(0x6919a63849fbe800) request (msg_id: 0)
+11-16 10:23:52.294  6684  6747 E tgnet   : connection(0x7dcead211190) (type: 1 == 1 && num: 0 == 0) || (token: 1 == 1)
+11-16 10:23:52.294  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 5, messageid: 7573267009111300096  0x6919a6384b439800): 15invokeWithLayer(0x7dcded2194f0)
+11-16 10:23:52.294  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 5, messageid: 7573267009111300096  0x6919a6384b439800): 15invokeWithLayer(0x7dcded2194f0)
+11-16 10:23:52.305  6684  6747 D tgnet   : received message len 104 (currentPacketLength) equal to packet size
+11-16 10:23:52.305  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 104 (currentPacketLength) equal to packet size
+11-16 10:23:52.305  6684  6747 D tgnet   : api request constructor 0x8e1a1775, don't parse
+11-16 10:23:52.305  6684  6747 D tgnet   : [ConnectionsManager.cpp:1096] api request constructor 0x8e1a1775, don't parse
+11-16 10:23:52.305  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 13TL_rpc_result
+11-16 10:23:52.305  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 13TL_rpc_result
+11-16 10:23:52.305  6684  6747 D tgnet   : process server response 0x7dcded2190d0 - 13TL_rpc_result
+11-16 10:23:52.305  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcded2190d0 - 13TL_rpc_result
+11-16 10:23:52.305  6684  6747 D tgnet   : message_id 7573267008486113305 connection(0x7dcead211190, account0, dc1, type 1) received rpc_result with 15TL_api_response
+11-16 10:23:52.305  6684  6747 D tgnet   : [ConnectionsManager.cpp:1267] message_id 7573267008486113305 connection(0x7dcead211190, account0, dc1, type 1) received rpc_result with 15TL_api_response
+11-16 10:23:52.305  6684  6747 D tgnet   : got response for request 0x7dcded21c3d0 - 14TL_api_request
+11-16 10:23:52.305  6684  6747 D tgnet   : [ConnectionsManager.cpp:1303] got response for request 0x7dcded21c3d0 - 14TL_api_request
+11-16 10:23:52.306  6684  6747 D tmessages: java received org.telegram.tgnet.TLRPC$TL_nearestDc@94e0b38 error = null
+11-16 10:23:52.307  6684  6725 D MTProto : requestMsgId=138320391198000 requestingTime=18 request_token=10
+11-16 10:23:52.308  6684  6725 D MTProto : req -> TL_help_getNearestDc : {}
+11-16 10:23:52.308  6684  6725 D MTProto : res -> TL_nearestDc : {"country":"CN","nearest_dc":1,"this_dc":1}
+11-16 10:23:52.308  6684  6725 D MTProto :  
+11-16 10:23:52.314  6684  6747 D tgnet   : Config(0x7dcddd217950, /data/user/0/org.chatengine.messenger.beta/files/tgnet.dat) config write ok
+11-16 10:23:52.314  6684  6747 D tgnet   : [            Config.cpp: 129] Config(0x7dcddd217950, /data/user/0/org.chatengine.messenger.beta/files/tgnet.dat) config write ok
+11-16 10:23:52.314  6684  6747 D tgnet   : dc1 init connection completed
+11-16 10:23:52.314  6684  6747 D tgnet   : [ConnectionsManager.cpp:1482] dc1 init connection completed
+11-16 10:23:52.314  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267009197199360  0x6919a63850625000): 11TL_msgs_ack(0x7dcdfd4502e0)
+11-16 10:23:52.314  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267009197199360  0x6919a63850625000): 11TL_msgs_ack(0x7dcdfd4502e0)
+11-16 10:23:52.314  6684  6747 D tgnet   : received message len 104 (currentPacketLength) equal to packet size
+11-16 10:23:52.314  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 104 (currentPacketLength) equal to packet size
+11-16 10:23:52.314  6684  6747 D tgnet   : api request constructor 0x87d0759e, don't parse
+11-16 10:23:52.314  6684  6747 D tgnet   : [ConnectionsManager.cpp:1096] api request constructor 0x87d0759e, don't parse
+11-16 10:23:52.314  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 13TL_rpc_result
+11-16 10:23:52.314  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 13TL_rpc_result
+11-16 10:23:52.314  6684  6747 D tgnet   : process server response 0x7dcded2190d0 - 13TL_rpc_result
+11-16 10:23:52.314  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcded2190d0 - 13TL_rpc_result
+11-16 10:23:52.314  6684  6747 D tgnet   : message_id 7573267008488210465 connection(0x7dcead211190, account0, dc1, type 1) received rpc_result with 15TL_api_response
+11-16 10:23:52.314  6684  6747 D tgnet   : [ConnectionsManager.cpp:1267] message_id 7573267008488210465 connection(0x7dcead211190, account0, dc1, type 1) received rpc_result with 15TL_api_response
+11-16 10:23:52.314  6684  6747 D tgnet   : got response for request 0x7dcded2377f0 - 14TL_api_request
+11-16 10:23:52.314  6684  6747 D tgnet   : [ConnectionsManager.cpp:1303] got response for request 0x7dcded2377f0 - 14TL_api_request
+11-16 10:23:52.315  6684  6747 D tmessages: java received org.telegram.tgnet.TLRPC$TL_help_countriesList@34b0950 error = null
+11-16 10:23:52.320  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267009222968320  0x6919a63851eb8400): 11TL_msgs_ack(0x7dcdfd207060)
+11-16 10:23:52.320  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267009222968320  0x6919a63851eb8400): 11TL_msgs_ack(0x7dcdfd207060)
+11-16 10:23:52.320  6684  6725 D MTProto : requestMsgId=138320391198000 requestingTime=27 request_token=11
+11-16 10:23:52.320  6684  6725 D MTProto : req -> TL_help_getCountriesList : {"hash":0,"lang_code":"en"}
+11-16 10:23:52.320  6684  6725 D MTProto : res -> TL_help_countriesList : {"countries":[],"hash":0}
+11-16 10:23:52.320  6684  6725 D MTProto :  
+11-16 10:23:52.537  6684  6735 D tmessages: send request org.telegram.tgnet.TLRPC$TL_help_getAppConfig@88754ec with token = 12
+11-16 10:23:52.537  6684  6735 D tgnet   : called from sendRequest (Android)
+11-16 10:23:52.537  6684  6735 D tgnet   : [ConnectionsManager.cpp:1849] called from sendRequest (Android)
+11-16 10:23:52.537  6684  6735 D tgnet   : can't do request without login 14TL_api_request
+11-16 10:23:52.537  6684  6735 D tgnet   : [ConnectionsManager.cpp:1851] can't do request without login 14TL_api_request
+11-16 10:23:52.761  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267011117048832  0x6919a638c2d0e400): 24TL_ping_delay_disconnect(0x7dcded24e350) ping_id: 1
+11-16 10:23:52.762  6684  6747 D tgnet   : [        Datacenter.cpp:1184] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267011117048832  0x6919a638c2d0e400): 24TL_ping_delay_disconnect(0x7dcded24e350) ping_id: 1
+11-16 10:23:52.762  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267011117048832  0x6919a638c2d0e400): 24TL_ping_delay_disconnect(0x7dcded24e350)
+11-16 10:23:52.762  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267011117048832  0x6919a638c2d0e400): 24TL_ping_delay_disconnect(0x7dcded24e350)
+11-16 10:23:52.764  6684  6747 D tgnet   : received message len 88 (currentPacketLength) equal to packet size
+11-16 10:23:52.765  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 88 (currentPacketLength) equal to packet size
+11-16 10:23:52.765  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:23:52.765  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:23:52.765  6684  6747 D tgnet   : process server response 0x7dcded22efd0 - 7TL_pong
+11-16 10:23:52.765  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcded22efd0 - 7TL_pong
+11-16 10:23:54.767  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267019732753408  0x6919a63ac45a1c00): 24TL_ping_delay_disconnect(0x7dcded229ff0) ping_id: 2
+11-16 10:23:54.767  6684  6747 D tgnet   : [        Datacenter.cpp:1184] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267019732753408  0x6919a63ac45a1c00): 24TL_ping_delay_disconnect(0x7dcded229ff0) ping_id: 2
+11-16 10:23:54.767  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267019732753408  0x6919a63ac45a1c00): 24TL_ping_delay_disconnect(0x7dcded229ff0)
+11-16 10:23:54.767  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267019732753408  0x6919a63ac45a1c00): 24TL_ping_delay_disconnect(0x7dcded229ff0)
+11-16 10:23:54.768  6684  6747 D tgnet   : received message len 88 (currentPacketLength) equal to packet size
+11-16 10:23:54.768  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 88 (currentPacketLength) equal to packet size
+11-16 10:23:54.769  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:23:54.769  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:23:54.769  6684  6747 D tgnet   : process server response 0x7dcded229ff0 - 7TL_pong
+11-16 10:23:54.769  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcded229ff0 - 7TL_pong
+11-16 10:23:56.770  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267028335572992  0x6919a63cc51eb800): 24TL_ping_delay_disconnect(0x7dcded22b670) ping_id: 3
+11-16 10:23:56.770  6684  6747 D tgnet   : [        Datacenter.cpp:1184] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267028335572992  0x6919a63cc51eb800): 24TL_ping_delay_disconnect(0x7dcded22b670) ping_id: 3
+11-16 10:23:56.770  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267028335572992  0x6919a63cc51eb800): 24TL_ping_delay_disconnect(0x7dcded22b670)
+11-16 10:23:56.770  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267028335572992  0x6919a63cc51eb800): 24TL_ping_delay_disconnect(0x7dcded22b670)
+11-16 10:23:56.772  6684  6747 D tgnet   : received message len 88 (currentPacketLength) equal to packet size
+11-16 10:23:56.772  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 88 (currentPacketLength) equal to packet size
+11-16 10:23:56.772  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:23:56.772  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:23:56.772  6684  6747 D tgnet   : process server response 0x7dcded22b670 - 7TL_pong
+11-16 10:23:56.772  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcded22b670 - 7TL_pong
+11-16 10:23:58.774  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267036942687232  0x6919a63ec624dc00): 24TL_ping_delay_disconnect(0x7dcded22b670) ping_id: 4
+11-16 10:23:58.774  6684  6747 D tgnet   : [        Datacenter.cpp:1184] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267036942687232  0x6919a63ec624dc00): 24TL_ping_delay_disconnect(0x7dcded22b670) ping_id: 4
+11-16 10:23:58.774  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267036942687232  0x6919a63ec624dc00): 24TL_ping_delay_disconnect(0x7dcded22b670)
+11-16 10:23:58.774  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267036942687232  0x6919a63ec624dc00): 24TL_ping_delay_disconnect(0x7dcded22b670)
+11-16 10:23:58.776  6684  6747 D tgnet   : received message len 88 (currentPacketLength) equal to packet size
+11-16 10:23:58.776  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 88 (currentPacketLength) equal to packet size
+11-16 10:23:58.776  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:23:58.776  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:23:58.776  6684  6747 D tgnet   : process server response 0x7dcded22b670 - 7TL_pong
+11-16 10:23:58.776  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcded22b670 - 7TL_pong
+11-16 10:24:00.778  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267045549802496  0x6919a640c72b0400): 24TL_ping_delay_disconnect(0x7dcded229450) ping_id: 5
+11-16 10:24:00.778  6684  6747 D tgnet   : [        Datacenter.cpp:1184] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267045549802496  0x6919a640c72b0400): 24TL_ping_delay_disconnect(0x7dcded229450) ping_id: 5
+11-16 10:24:00.778  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267045549802496  0x6919a640c72b0400): 24TL_ping_delay_disconnect(0x7dcded229450)
+11-16 10:24:00.778  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267045549802496  0x6919a640c72b0400): 24TL_ping_delay_disconnect(0x7dcded229450)
+11-16 10:24:00.779  6684  6747 D tgnet   : received message len 88 (currentPacketLength) equal to packet size
+11-16 10:24:00.780  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 88 (currentPacketLength) equal to packet size
+11-16 10:24:00.780  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:24:00.780  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:24:00.780  6684  6747 D tgnet   : process server response 0x7dcded229450 - 7TL_pong
+11-16 10:24:00.780  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcded229450 - 7TL_pong
+11-16 10:24:02.781  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267054152622080  0x6919a642c7efa000): 24TL_ping_delay_disconnect(0x7dcded229cf0) ping_id: 6
+11-16 10:24:02.781  6684  6747 D tgnet   : [        Datacenter.cpp:1184] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267054152622080  0x6919a642c7efa000): 24TL_ping_delay_disconnect(0x7dcded229cf0) ping_id: 6
+11-16 10:24:02.781  6684  6747 D tgnet   : send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267054152622080  0x6919a642c7efa000): 24TL_ping_delay_disconnect(0x7dcded229cf0)
+11-16 10:24:02.781  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcd6acb7b42141f, seqno: 6, messageid: 7573267054152622080  0x6919a642c7efa000): 24TL_ping_delay_disconnect(0x7dcded229cf0)
+11-16 10:24:02.782  6684  6747 D tgnet   : received message len 88 (currentPacketLength) equal to packet size
+11-16 10:24:02.782  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 88 (currentPacketLength) equal to packet size
+11-16 10:24:02.783  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:24:02.783  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:24:02.783  6684  6747 D tgnet   : process server response 0x7dcded229cf0 - 7TL_pong
+11-16 10:24:02.783  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcded229cf0 - 7TL_pong
+11-16 10:24:03.692  6684  6684 D tmessages: sim status = 0
+11-16 10:24:04.442  6684  6684 D tmessages: sim status = 0
+11-16 10:24:04.445  6684  6735 D tmessages: send request org.telegram.tgnet.TLRPC$TL_auth_sendCode@968857f with token = 13
+11-16 10:24:04.445  6684  6735 D tgnet   : called from sendRequest (Android)
+11-16 10:24:04.445  6684  6735 D tgnet   : [ConnectionsManager.cpp:1849] called from sendRequest (Android)
+11-16 10:24:04.452  6684  6747 D tgnet   : Config(0x7dcddd217950, /data/user/0/org.chatengine.messenger.beta/files/tgnet.dat) config write ok
+11-16 10:24:04.453  6684  6747 D tgnet   : [            Config.cpp: 129] Config(0x7dcddd217950, /data/user/0/org.chatengine.messenger.beta/files/tgnet.dat) config write ok
+11-16 10:24:04.453  6684  6747 D tgnet   : send request 0x7dcded22b850 - 14TL_api_request
+11-16 10:24:04.453  6684  6747 D tgnet   : [ConnectionsManager.cpp:1876] send request 0x7dcded22b850 - 14TL_api_request
+11-16 10:24:04.453  6684  6747 D tgnet   : send request wrapped 0x7dcded22b850 - 14TL_api_request
+11-16 10:24:04.453  6684  6747 D tgnet   : [ConnectionsManager.cpp:1883] send request wrapped 0x7dcded22b850 - 14TL_api_request
+11-16 10:24:04.453  6684  6747 D tgnet   : messageId for token = 13, 0x6919a64473f7d000
+11-16 10:24:04.453  6684  6747 D tgnet   : [ConnectionsManager.cpp:2610] messageId for token = 13, 0x6919a64473f7d000
+11-16 10:24:04.453  6684  6747 D tgnet   : send message (session: 0xabcdc7b422b38492, seqno: 1, messageid: 7573267061333807104  0x6919a64473f7d000): 14TL_api_request(0x7dcded22b850)
+11-16 10:24:04.453  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcdc7b422b38492, seqno: 1, messageid: 7573267061333807104  0x6919a64473f7d000): 14TL_api_request(0x7dcded22b850)
+11-16 10:24:04.456  6684  6747 D tgnet   : received message len 104 (currentPacketLength) equal to packet size
+11-16 10:24:04.456  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 104 (currentPacketLength) equal to packet size
+11-16 10:24:04.456  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 22TL_new_session_created
+11-16 10:24:04.456  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 22TL_new_session_created
+11-16 10:24:04.456  6684  6747 D tgnet   : process server response 0x7dcdfd491ea0 - 22TL_new_session_created
+11-16 10:24:04.456  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcdfd491ea0 - 22TL_new_session_created
+11-16 10:24:04.456  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) new session created (first message id: 0x6919a64473f7d000, server salt: 0xa0d740f0588345b6, unique id: 0x7f1d75a0b21207ee)
+11-16 10:24:04.456  6684  6747 D tgnet   : [ConnectionsManager.cpp:1131] connection(0x7dcead211190, account0, dc1, type 1) new session created (first message id: 0x6919a64473f7d000, server salt: 0xa0d740f0588345b6, unique id: 0x7f1d75a0b21207ee)
+11-16 10:24:04.462  6684  6747 D tgnet   : Config(0x7dcddd217950, /data/user/0/org.chatengine.messenger.beta/files/tgnet.dat) config write ok
+11-16 10:24:04.463  6684  6747 D tgnet   : [            Config.cpp: 129] Config(0x7dcddd217950, /data/user/0/org.chatengine.messenger.beta/files/tgnet.dat) config write ok
+11-16 10:24:04.463  6684  6747 D tgnet   : send message (session: 0xabcdc7b422b38492, seqno: 2, messageid: 7573267061376756736  0x6919a64476872c00): 11TL_msgs_ack(0x7dcdfd491ea0)
+11-16 10:24:04.463  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcdc7b422b38492, seqno: 2, messageid: 7573267061376756736  0x6919a64476872c00): 11TL_msgs_ack(0x7dcdfd491ea0)
+11-16 10:24:04.463  6684  6747 D tgnet   : received message len 104 (currentPacketLength) equal to packet size
+11-16 10:24:04.463  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 104 (currentPacketLength) equal to packet size
+11-16 10:24:04.463  6684  6747 D tgnet   : send message (session: 0xabcdc7b422b38492, seqno: 2, messageid: 7573267061376756740  0x6919a64476872c04): 11TL_msgs_ack(0x7dcdfd491ea0)
+11-16 10:24:04.463  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcdc7b422b38492, seqno: 2, messageid: 7573267061376756740  0x6919a64476872c04): 11TL_msgs_ack(0x7dcdfd491ea0)
+11-16 10:24:04.470  6684  6747 D tgnet   : received message len 152 (currentPacketLength) equal to packet size
+11-16 10:24:04.470  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 152 (currentPacketLength) equal to packet size
+11-16 10:24:04.470  6684  6747 D tgnet   : api request constructor 0x5e002502, don't parse
+11-16 10:24:04.470  6684  6747 D tgnet   : [ConnectionsManager.cpp:1096] api request constructor 0x5e002502, don't parse
+11-16 10:24:04.471  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 13TL_rpc_result
+11-16 10:24:04.471  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 13TL_rpc_result
+11-16 10:24:04.471  6684  6747 D tgnet   : process server response 0x7dcded229870 - 13TL_rpc_result
+11-16 10:24:04.471  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcded229870 - 13TL_rpc_result
+11-16 10:24:04.471  6684  6747 D tgnet   : message_id 7573267060371751009 connection(0x7dcead211190, account0, dc1, type 1) received rpc_result with 15TL_api_response
+11-16 10:24:04.471  6684  6747 D tgnet   : [ConnectionsManager.cpp:1267] message_id 7573267060371751009 connection(0x7dcead211190, account0, dc1, type 1) received rpc_result with 15TL_api_response
+11-16 10:24:04.471  6684  6747 D tgnet   : got response for request 0x7dcded22b850 - 14TL_api_request
+11-16 10:24:04.471  6684  6747 D tgnet   : [ConnectionsManager.cpp:1303] got response for request 0x7dcded22b850 - 14TL_api_request
+11-16 10:24:04.471  6684  6747 D tmessages: java received org.telegram.tgnet.TLRPC$TL_auth_sentCode@967b94c error = null
+11-16 10:24:04.475  6684  6747 D tgnet   : send message (session: 0xabcdc7b422b38492, seqno: 2, messageid: 7573267061428296704  0x6919a64479999c00): 11TL_msgs_ack(0x7dcdfd491ea0)
+11-16 10:24:04.475  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcdc7b422b38492, seqno: 2, messageid: 7573267061428296704  0x6919a64479999c00): 11TL_msgs_ack(0x7dcdfd491ea0)
+11-16 10:24:04.475  6684  6725 D MTProto : requestMsgId=138320391198000 requestingTime=30 request_token=13
+11-16 10:24:04.475  6684  6725 D MTProto : req -> TL_auth_sendCode : {"api_hash":"014b35b6184100b085b0d0572f9b5103","api_id":4,"phone_number":"6281798219323","settings":{"allow_app_hash":false,"allow_firebase":false,"allow_flashcall":false,"allow_missed_call":false,"app_sandbox":false,"current_number":false,"flags":64,"logout_tokens":[]}}
+11-16 10:24:04.475  6684  6725 D MTProto : res -> TL_auth_sentCode : {"flags":6,"next_type":{},"phone_code_hash":"11a8910f55edf1a55e5f872ed42f984d","timeout":60,"type":{"apple_signin_allowed":false,"flags":0,"google_signin_allowed":false,"length":5,"next_phone_login_date":0,"push_timeout":0,"reset_available_period":0,"reset_pending_date":0,"verifiedFirebase":false}}
+11-16 10:24:04.475  6684  6725 D MTProto :  
+11-16 10:24:05.476  6684  6747 D tgnet   : send message (session: 0xabcdc7b422b38492, seqno: 2, messageid: 7573267065727558656  0x6919a64579db2400): 24TL_ping_delay_disconnect(0x7dcded22b430) ping_id: 7
+11-16 10:24:05.476  6684  6747 D tgnet   : [        Datacenter.cpp:1184] send message (session: 0xabcdc7b422b38492, seqno: 2, messageid: 7573267065727558656  0x6919a64579db2400): 24TL_ping_delay_disconnect(0x7dcded22b430) ping_id: 7
+11-16 10:24:05.476  6684  6747 D tgnet   : send message (session: 0xabcdc7b422b38492, seqno: 2, messageid: 7573267065727558656  0x6919a64579db2400): 24TL_ping_delay_disconnect(0x7dcded22b430)
+11-16 10:24:05.476  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcdc7b422b38492, seqno: 2, messageid: 7573267065727558656  0x6919a64579db2400): 24TL_ping_delay_disconnect(0x7dcded22b430)
+11-16 10:24:05.478  6684  6747 D tgnet   : received message len 88 (currentPacketLength) equal to packet size
+11-16 10:24:05.478  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 88 (currentPacketLength) equal to packet size
+11-16 10:24:05.478  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:24:05.478  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:24:05.478  6684  6747 D tgnet   : process server response 0x7dcded22b430 - 7TL_pong
+11-16 10:24:05.478  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcded22b430 - 7TL_pong
+11-16 10:24:07.305  6684  6735 D tmessages: send request org.telegram.tgnet.TLRPC$TL_auth_signIn@e2ae29c with token = 14
+11-16 10:24:07.305  6684  6735 D tgnet   : called from sendRequest (Android)
+11-16 10:24:07.305  6684  6735 D tgnet   : [ConnectionsManager.cpp:1849] called from sendRequest (Android)
+11-16 10:24:07.305  6684  6747 D tgnet   : send request 0x7dcded252310 - 14TL_api_request
+11-16 10:24:07.305  6684  6747 D tgnet   : [ConnectionsManager.cpp:1876] send request 0x7dcded252310 - 14TL_api_request
+11-16 10:24:07.305  6684  6747 D tgnet   : send request wrapped 0x7dcded252310 - 14TL_api_request
+11-16 10:24:07.305  6684  6747 D tgnet   : [ConnectionsManager.cpp:1883] send request wrapped 0x7dcded252310 - 14TL_api_request
+11-16 10:24:07.305  6684  6747 D tgnet   : messageId for token = 14, 0x6919a6474e147c00
+11-16 10:24:07.305  6684  6747 D tgnet   : [ConnectionsManager.cpp:2610] messageId for token = 14, 0x6919a6474e147c00
+11-16 10:24:07.305  6684  6747 D tgnet   : send message (session: 0xabcdc7b422b38492, seqno: 3, messageid: 7573267073583053824  0x6919a6474e147c00): 14TL_api_request(0x7dcded252310)
+11-16 10:24:07.305  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcdc7b422b38492, seqno: 3, messageid: 7573267073583053824  0x6919a6474e147c00): 14TL_api_request(0x7dcded252310)
+11-16 10:24:07.313  6684  6747 D tgnet   : received message len 88 (currentPacketLength) equal to packet size
+11-16 10:24:07.313  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 88 (currentPacketLength) equal to packet size
+11-16 10:24:07.313  6684  6747 D tgnet   : api request constructor 0x44747e9a, don't parse
+11-16 10:24:07.313  6684  6747 D tgnet   : [ConnectionsManager.cpp:1096] api request constructor 0x44747e9a, don't parse
+11-16 10:24:07.313  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 13TL_rpc_result
+11-16 10:24:07.313  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 13TL_rpc_result
+11-16 10:24:07.313  6684  6747 D tgnet   : process server response 0x7dcded252e50 - 13TL_rpc_result
+11-16 10:24:07.313  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcded252e50 - 13TL_rpc_result
+11-16 10:24:07.313  6684  6747 D tgnet   : message_id 7573267072927400049 connection(0x7dcead211190, account0, dc1, type 1) received rpc_result with 15TL_api_response
+11-16 10:24:07.313  6684  6747 D tgnet   : [ConnectionsManager.cpp:1267] message_id 7573267072927400049 connection(0x7dcead211190, account0, dc1, type 1) received rpc_result with 15TL_api_response
+11-16 10:24:07.313  6684  6747 D tgnet   : got response for request 0x7dcded252310 - 14TL_api_request
+11-16 10:24:07.313  6684  6747 D tgnet   : [ConnectionsManager.cpp:1303] got response for request 0x7dcded252310 - 14TL_api_request
+11-16 10:24:07.313  6684  6747 D tmessages: java received org.telegram.tgnet.TLRPC$TL_auth_authorizationSignUpRequired@5518c88 error = null
+11-16 10:24:07.316  6684  6747 D tgnet   : send message (session: 0xabcdc7b422b38492, seqno: 4, messageid: 7573267073630298112  0x6919a64750e56000): 11TL_msgs_ack(0x7dcdfd493b80)
+11-16 10:24:07.316  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcdc7b422b38492, seqno: 4, messageid: 7573267073630298112  0x6919a64750e56000): 11TL_msgs_ack(0x7dcdfd493b80)
+11-16 10:24:07.316  6684  6725 D MTProto : requestMsgId=138320391198000 requestingTime=11 request_token=14
+11-16 10:24:07.316  6684  6725 D MTProto : req -> TL_auth_signIn : {"flags":1,"phone_code":"12345","phone_code_hash":"11a8910f55edf1a55e5f872ed42f984d","phone_number":"6281798219323"}
+11-16 10:24:07.316  6684  6725 D MTProto : res -> TL_auth_authorizationSignUpRequired : {"flags":0}
+11-16 10:24:07.316  6684  6725 D MTProto :  
+11-16 10:24:08.317  6684  6747 D tgnet   : send message (session: 0xabcdc7b422b38492, seqno: 4, messageid: 7573267077929561088  0x6919a6485126ec00): 24TL_ping_delay_disconnect(0x7dcded255c70) ping_id: 8
+11-16 10:24:08.317  6684  6747 D tgnet   : [        Datacenter.cpp:1184] send message (session: 0xabcdc7b422b38492, seqno: 4, messageid: 7573267077929561088  0x6919a6485126ec00): 24TL_ping_delay_disconnect(0x7dcded255c70) ping_id: 8
+11-16 10:24:08.317  6684  6747 D tgnet   : send message (session: 0xabcdc7b422b38492, seqno: 4, messageid: 7573267077929561088  0x6919a6485126ec00): 24TL_ping_delay_disconnect(0x7dcded255c70)
+11-16 10:24:08.317  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcdc7b422b38492, seqno: 4, messageid: 7573267077929561088  0x6919a6485126ec00): 24TL_ping_delay_disconnect(0x7dcded255c70)
+11-16 10:24:08.319  6684  6747 D tgnet   : received message len 88 (currentPacketLength) equal to packet size
+11-16 10:24:08.319  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 88 (currentPacketLength) equal to packet size
+11-16 10:24:08.319  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:24:08.319  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:24:08.319  6684  6747 D tgnet   : process server response 0x7dcded229150 - 7TL_pong
+11-16 10:24:08.319  6684  6747 D tgnet   : [ConnectionsManager.cpp:1122] process server response 0x7dcded229150 - 7TL_pong
+11-16 10:24:10.321  6684  6747 D tgnet   : send message (session: 0xabcdc7b422b38492, seqno: 4, messageid: 7573267086536675328  0x6919a64a522d1000): 24TL_ping_delay_disconnect(0x7dcded254950) ping_id: 9
+11-16 10:24:10.321  6684  6747 D tgnet   : [        Datacenter.cpp:1184] send message (session: 0xabcdc7b422b38492, seqno: 4, messageid: 7573267086536675328  0x6919a64a522d1000): 24TL_ping_delay_disconnect(0x7dcded254950) ping_id: 9
+11-16 10:24:10.321  6684  6747 D tgnet   : send message (session: 0xabcdc7b422b38492, seqno: 4, messageid: 7573267086536675328  0x6919a64a522d1000): 24TL_ping_delay_disconnect(0x7dcded254950)
+11-16 10:24:10.321  6684  6747 D tgnet   : [        Datacenter.cpp:1186] send message (session: 0xabcdc7b422b38492, seqno: 4, messageid: 7573267086536675328  0x6919a64a522d1000): 24TL_ping_delay_disconnect(0x7dcded254950)
+11-16 10:24:10.323  6684  6747 D tgnet   : received message len 88 (currentPacketLength) equal to packet size
+11-16 10:24:10.323  6684  6747 D tgnet   : [        Connection.cpp: 275] received message len 88 (currentPacketLength) equal to packet size
+11-16 10:24:10.324  6684  6747 D tgnet   : connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong
+11-16 10:24:10.324  6684  6747 D tgnet   : [ConnectionsManager.cpp:1008] connection(0x7dcead211190, account0, dc1, type 1) received object 7TL_pong

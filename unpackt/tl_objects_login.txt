@@ -1,0 +1,620 @@
+--> 01_sent_data.bin 
+MsgId: 7572071017855037440
+Offset 536: constructor:CRC32_invokeWithLayer layer:156 query:"\xa9^\xcd\xc1\x02\x00\x00\x00\x04\x00\x00\x00\x12Samsung Galaxy A31\x00\x06SDK 30\x00\x139.5.6 (32379) pbeta\x05en-us\x00\x00\x07android\x02en\x00\x9d\xd4\xc1\x99\x15ĵ\x1c\x06\x00\x00\x00\xd9\x1b\xde\xc0\x0cdevice_token\x00\x00\x00zv\x1e\xb7(__FIREBASE_GENERATING_SINCE_1763010168__\x00\x00\x00\xd9\x1b\xde\xc0\x04data\x00\x00\x00zv\x1e\xb7@A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB\x00\x00\x00\xd9\x1b\xde\xc0\tinstaller\x00\x00zv\x1e\xb7\x07android\xd9\x1b\xde\xc0\npackage_id\x00zv\x1e\xb7\x1dorg.chatengine.messenger.beta\x00\x00\xd9\x1b\xde\xc0\ttz_offset\x00\x00\xa4\xdf\xe0+\x00\x00\x00\x00\x00\x00\x00\x00\xd9\x1b\xde\xc0\x08perf_cat\x00\x00\x00\xa4\xdf\xe0+\x00\x00\x00\x00\x00\x00\x08@}\xd5\x0f\x80ò45\xc8\xf3~Yt\x04h 3\x9f\xe4\x1f\xa1g\x13\xdb\x7f\xf6\xac\x06\"\x80\x8a\xf8\xf7\x9d\xe5\x80#\xd5S\xbaP\xe0Q\x82\x07\x07\x9e~8\xee\x9d*\x9c-\x85\xea*|S\xae\x08ͭ|\x0c\x80\xa0yۡ=\x87wh\xc8X<\xdc\x15\xea\x80Ϙ'\xed\x1c\x19\x04\x9f:\xd97"
+  Query: constructor:CRC32_initConnection_c1cd5ea9 api_id:4 device_model:"Samsung Galaxy A31" system_version:"SDK 30" app_version:"9.5.6 (32379) pbeta" system_lang_code:"en-us" lang_pack:"android" lang_code:"en" params:{predicate_name:"jsonObject" constructor:CRC32_jsonObject value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"device_token" value:{predicate_name:"jsonString" constructor:CRC32_jsonString value_STRING:"__FIREBASE_GENERATING_SINCE_1763010168__"}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"data" value:{predicate_name:"jsonString" constructor:CRC32_jsonString value_STRING:"A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB"}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"installer" value:{predicate_name:"jsonString" constructor:CRC32_jsonString value_STRING:"android"}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"package_id" value:{predicate_name:"jsonString" constructor:CRC32_jsonString value_STRING:"org.chatengine.messenger.beta"}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"tz_offset" value:{predicate_name:"jsonNumber" constructor:CRC32_jsonNumber}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"perf_cat" value:{predicate_name:"jsonNumber" constructor:CRC32_jsonNumber value_FLOAT64:3}}} query:"}\xd5\x0f\x80ò45\xc8\xf3~Yt\x04h 3\x9f\xe4\x1f\xa1g\x13\xdb\x7f\xf6\xac\x06\"\x80\x8a\xf8\xf7\x9d\xe5\x80#\xd5S\xbaP\xe0Q\x82\x07\x07\x9e~8\xee\x9d*\x9c-\x85\xea*|S\xae\x08ͭ|\x0c\x80\xa0yۡ=\x87wh\xc8X<\xdc\x15\xea\x80Ϙ'\xed\x1c\x19\x04\x9f:\xd97"
+    Query: constructor:CRC32_langpack_getLanguages_800fd57d
+
+<-- 02_received_data.bin 
+MsgId: 7572071015948222475
+Offset 84: data2:{predicate_name:"new_session_created" constructor:CRC32_new_session_created first_msg_id:7572071017855037440 unique_id:463380069436767004 server_salt:5302332540171750822}
+
+--> 03_sent_data.bin 
+MsgId: 7572071017953821696
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071015948222475}
+
+<-- 04_received_data.bin 
+MsgId: 7572071015948222475
+Offset 84: data2:{predicate_name:"new_session_created" constructor:CRC32_new_session_created first_msg_id:7572071017855037440 unique_id:463380069436767004 server_salt:5302332540171750822}
+
+--> 05_sent_data.bin 
+MsgId: 7572071018142799872
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071015948222475}
+
+<-- 06_received_data.bin 
+MsgId: 7572071016063565841
+Offset 72: {rpc_result#f35c6d01: req_msg_id: 7572071017855037440, result: %!s(<nil>)}
+
+--> 07_sent_data.bin 
+MsgId: 7572071018237289472
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071016063565841}
+
+--> 08_sent_data.bin 
+MsgId: 7572071025366934528
+
+<-- 09_received_data.bin 
+MsgId: 7572071023992897563
+
+--> 010_sent_data.bin 
+MsgId: 7572071033995524096
+
+<-- 011_received_data.bin 
+MsgId: 7572071032605900835
+
+--> 012_sent_data.bin 
+MsgId: 7572071035709215744
+Offset 504: constructor:CRC32_invokeWithLayer layer:156 query:"\xa9^\xcd\xc1\x02\x00\x00\x00\x04\x00\x00\x00\x12Samsung Galaxy A31\x00\x06SDK 30\x00\x139.5.6 (32379) pbeta\x05en-us\x00\x00\x07android\x02en\x00\x9d\xd4\xc1\x99\x15ĵ\x1c\x06\x00\x00\x00\xd9\x1b\xde\xc0\x0cdevice_token\x00\x00\x00zv\x1e\xb7\x1b__NO_GOOGLE_PLAY_SERVICES__\xd9\x1b\xde\xc0\x04data\x00\x00\x00zv\x1e\xb7@A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB\x00\x00\x00\xd9\x1b\xde\xc0\tinstaller\x00\x00zv\x1e\xb7\x07android\xd9\x1b\xde\xc0\npackage_id\x00zv\x1e\xb7\x1dorg.chatengine.messenger.beta\x00\x00\xd9\x1b\xde\xc0\ttz_offset\x00\x00\xa4\xdf\xe0+\x00\x00\x00\x00\x00\x00\x00\x00\xd9\x1b\xde\xc0\x08perf_cat\x00\x00\x00\xa4\xdf\xe0+\x00\x00\x00\x00\x00\x00\x08@&0\xb3\x1ft.$\x94b\x9aX6\xad\x94n\xdeهkDƶo(\xcbm\x8e\xd6#\x07\xe5\xa6U\x1e\x91D\xb0\xd8\xe0\xee\xae\xd9w \x11\x01\x85b\xc7o\xf6AE\x83\"\xd1J\r\x07\xd2\xc8\xf4)\x80\xbc\xc6:Qq\xafzg\x03\xf7\xc5\xf7"
+  Query: constructor:CRC32_initConnection_c1cd5ea9 api_id:4 device_model:"Samsung Galaxy A31" system_version:"SDK 30" app_version:"9.5.6 (32379) pbeta" system_lang_code:"en-us" lang_pack:"android" lang_code:"en" params:{predicate_name:"jsonObject" constructor:CRC32_jsonObject value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"device_token" value:{predicate_name:"jsonString" constructor:CRC32_jsonString value_STRING:"__NO_GOOGLE_PLAY_SERVICES__"}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"data" value:{predicate_name:"jsonString" constructor:CRC32_jsonString value_STRING:"A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB"}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"installer" value:{predicate_name:"jsonString" constructor:CRC32_jsonString value_STRING:"android"}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"package_id" value:{predicate_name:"jsonString" constructor:CRC32_jsonString value_STRING:"org.chatengine.messenger.beta"}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"tz_offset" value:{predicate_name:"jsonNumber" constructor:CRC32_jsonNumber}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"perf_cat" value:{predicate_name:"jsonNumber" constructor:CRC32_jsonNumber value_FLOAT64:3}}} query:"&0\xb3\x1ft.$\x94b\x9aX6\xad\x94n\xdeهkDƶo(\xcbm\x8e\xd6#\x07\xe5\xa6U\x1e\x91D\xb0\xd8\xe0\xee\xae\xd9w \x11\x01\x85b\xc7o\xf6AE\x83\"\xd1J\r\x07\xd2\xc8\xf4)\x80\xbc\xc6:Qq\xafzg\x03\xf7\xc5\xf7"
+    Query: constructor:CRC32_help_getNearestDc
+
+--> 013_sent_data.bin 
+MsgId: 7572071035717806080
+Offset 648: constructor:CRC32_invokeWithLayer layer:156 query:"\xa9^\xcd\xc1\x02\x00\x00\x00\x04\x00\x00\x00\x12Samsung Galaxy A31\x00\x06SDK 30\x00\x139.5.6 (32379) pbeta\x05en-us\x00\x00\x07android\x02en\x00\x9d\xd4\xc1\x99\x15ĵ\x1c\x06\x00\x00\x00\xd9\x1b\xde\xc0\x0cdevice_token\x00\x00\x00zv\x1e\xb7\x1b__NO_GOOGLE_PLAY_SERVICES__\xd9\x1b\xde\xc0\x04data\x00\x00\x00zv\x1e\xb7@A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB\x00\x00\x00\xd9\x1b\xde\xc0\tinstaller\x00\x00zv\x1e\xb7\x07android\xd9\x1b\xde\xc0\npackage_id\x00zv\x1e\xb7\x1dorg.chatengine.messenger.beta\x00\x00\xd9\x1b\xde\xc0\ttz_offset\x00\x00\xa4\xdf\xe0+\x00\x00\x00\x00\x00\x00\x00\x00\xd9\x1b\xde\xc0\x08perf_cat\x00\x00\x00\xa4\xdf\xe0+\x00\x00\x00\x00\x00\x00\x08@\xa8\x87Ws\x02en\x00\x00\x00\x00\x005\x01Mg\xb0\xe7\xdd49ʲCK峗\xff\"\xfa\xbcشs\xfa\xec\xf9\x07\x1d\xb6{\xeb7\xd0\x06Ɣ:\x06*/o\xed\xed\xad\xbe`\xb8\x01\x04#\xc7\xc4s'\x00\xb1\xf76\xa6\xe5\x06g\xe2,t\xf8\xd04WA\xa7<\x06\xaa\xd8\"\xed\xe3\xd9\xc3\xcbŕ-\xfe:n\xa2\xcb\x0f\x81|׫ў\xedr^\xf3\x177@\xce]\x8c\x85\xf2\x9f\xe4\xd4D\x91c}\xf1E\x82\x029U\x9baZ\x9e\x9f\xa5\xba\n\x1e\x179u\xed\x9c\x1f\xb4\x89݉\x05\xa8\xaa\xb9\xe6O\xc8!\x876\xbd\xb41\xf3\x9f\xe7,\xc6W\x9b\xa3\xef6\xaaG\x82\xdaG$\x12u\xee\xd0,\n\xa2\xf5\xab\\\x83^\x98\xdaϳ\x02\xeb\xb0p\x87Q\x01D\xc2H\xe3\xde|\xb3\xfd6=/\x1d˄A4"
+  Query: constructor:CRC32_initConnection_c1cd5ea9 api_id:4 device_model:"Samsung Galaxy A31" system_version:"SDK 30" app_version:"9.5.6 (32379) pbeta" system_lang_code:"en-us" lang_pack:"android" lang_code:"en" params:{predicate_name:"jsonObject" constructor:CRC32_jsonObject value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"device_token" value:{predicate_name:"jsonString" constructor:CRC32_jsonString value_STRING:"__NO_GOOGLE_PLAY_SERVICES__"}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"data" value:{predicate_name:"jsonString" constructor:CRC32_jsonString value_STRING:"A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB"}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"installer" value:{predicate_name:"jsonString" constructor:CRC32_jsonString value_STRING:"android"}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"package_id" value:{predicate_name:"jsonString" constructor:CRC32_jsonString value_STRING:"org.chatengine.messenger.beta"}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"tz_offset" value:{predicate_name:"jsonNumber" constructor:CRC32_jsonNumber}} value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue" constructor:CRC32_jsonObjectValue key:"perf_cat" value:{predicate_name:"jsonNumber" constructor:CRC32_jsonNumber value_FLOAT64:3}}} query:"\xa8\x87Ws\x02en\x00\x00\x00\x00\x005\x01Mg\xb0\xe7\xdd49ʲCK峗\xff\"\xfa\xbcشs\xfa\xec\xf9\x07\x1d\xb6{\xeb7\xd0\x06Ɣ:\x06*/o\xed\xed\xad\xbe`\xb8\x01\x04#\xc7\xc4s'\x00\xb1\xf76\xa6\xe5\x06g\xe2,t\xf8\xd04WA\xa7<\x06\xaa\xd8\"\xed\xe3\xd9\xc3\xcbŕ-\xfe:n\xa2\xcb\x0f\x81|׫ў\xedr^\xf3\x177@\xce]\x8c\x85\xf2\x9f\xe4\xd4D\x91c}\xf1E\x82\x029U\x9baZ\x9e\x9f\xa5\xba\n\x1e\x179u\xed\x9c\x1f\xb4\x89݉\x05\xa8\xaa\xb9\xe6O\xc8!\x876\xbd\xb41\xf3\x9f\xe7,\xc6W\x9b\xa3\xef6\xaaG\x82\xdaG$\x12u\xee\xd0,\n\xa2\xf5\xab\\\x83^\x98\xdaϳ\x02\xeb\xb0p\x87Q\x01D\xc2H\xe3\xde|\xb3\xfd6=/\x1d˄A4"
+    Query: constructor:CRC32_help_getCountriesList lang_code:"en"
+
+<-- 014_received_data.bin 
+MsgId: 7572071035684519977
+Offset 84: {rpc_result#f35c6d01: req_msg_id: 7572071035709215744, result: *mtproto.TLNearestDc}
+
+--> 015_sent_data.bin 
+MsgId: 7572071035868130304
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071035684519977}
+
+<-- 016_received_data.bin 
+MsgId: 7572071035688714289
+Offset 84: {rpc_result#f35c6d01: req_msg_id: 7572071035717806080, result: *mtproto.TLHelpCountriesList}
+
+--> 017_sent_data.bin 
+MsgId: 7572071035889604608
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071035688714289}
+
+--> 018_sent_data.bin 
+MsgId: 7572071046450929664
+
+<-- 019_received_data.bin 
+MsgId: 7572071045274796091
+
+--> 020_sent_data.bin 
+MsgId: 7572071055075223552
+
+<-- 021_received_data.bin 
+MsgId: 7572071053885702211
+
+--> 022_sent_data.bin 
+MsgId: 7572071063712402432
+
+<-- 023_received_data.bin 
+MsgId: 7572071062496608331
+
+--> 024_sent_data.bin 
+MsgId: 7572071072336697344
+
+<-- 025_received_data.bin 
+MsgId: 7572071071105417299
+
+--> 026_sent_data.bin 
+MsgId: 7572071074875023360
+Offset 132: constructor:CRC32_auth_sendCode phone_number:"6281298219323" api_id:4 api_hash:"014b35b6184100b085b0d0572f9b5103" settings:{predicate_name:"codeSettings" constructor:CRC32_codeSettings_ad253d78}
+
+<-- 027_received_data.bin 
+MsgId: 7572071074544746587
+Offset 84: data2:{predicate_name:"new_session_created" constructor:CRC32_new_session_created first_msg_id:7572071074875023360 unique_id:1535108507850666354 server_salt:5302332540171750822}
+
+--> 028_sent_data.bin 
+MsgId: 7572071074943741952
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071074544746587}
+
+<-- 029_received_data.bin 
+MsgId: 7572071074544746587
+Offset 84: data2:{predicate_name:"new_session_created" constructor:CRC32_new_session_created first_msg_id:7572071074875023360 unique_id:1535108507850666354 server_salt:5302332540171750822}
+
+--> 030_sent_data.bin 
+MsgId: 7572071074952332288
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071074544746587}
+
+<-- 031_received_data.bin 
+MsgId: 7572071074769141857
+Offset 128: {rpc_result#f35c6d01: req_msg_id: 7572071074875023360, result: *mtproto.TLAuthSentCode}
+
+--> 032_sent_data.bin 
+MsgId: 7572071075416188928
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071074769141857}
+
+--> 033_sent_data.bin 
+MsgId: 7572071084014712832
+
+<-- 034_received_data.bin 
+MsgId: 7572071083401019499
+
+--> 035_sent_data.bin 
+MsgId: 7572071085178649600
+Offset 124: constructor:CRC32_auth_signIn_8d52a951 phone_number:"6281298219323" phone_code_hash:"391b8b674cd42b734f0d3daee668846f" phone_code_FLAGSTRING:{value:"12345"}
+
+<-- 036_received_data.bin 
+MsgId: 7572071084774654065
+Offset 160: {rpc_result#f35c6d01: req_msg_id: 7572071085178649600, result: *mtproto.TLAuthAuthorization}
+
+--> 037_sent_data.bin 
+MsgId: 7572071087012600832
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071084774654065}
+
+--> 038_sent_data.bin 
+MsgId: 7572071090968265728
+Offset 60: constructor:CRC32_help_getPromoData
+
+<-- 039_received_data.bin 
+MsgId: 7572071088992026745
+Offset 76: {rpc_result#f35c6d01: req_msg_id: 7572071090968265728, result: *mtproto.TLHelpPromoDataEmpty}
+
+--> 040_sent_data.bin 
+MsgId: 7572071091079934976
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071088992026745}
+
+--> 041_sent_data.bin 
+MsgId: 7572071091191603200
+Offset 64: constructor:CRC32_account_updateStatus offline:{predicate_name:"boolFalse" constructor:CRC32_boolFalse}
+
+--> 042_sent_data.bin 
+MsgId: 7572071091191603204
+Offset 60: constructor:CRC32_help_getTermsOfServiceUpdate
+
+--> 043_sent_data.bin 
+MsgId: 7572071091200193536
+Offset 60: constructor:CRC32_help_getPromoData
+
+<-- 044_received_data.bin 
+MsgId: 7572071089124147329
+Offset 76: {rpc_result#f35c6d01: req_msg_id: 7572071091191603204, result: *mtproto.TLHelpTermsOfServiceUpdateEmpty}
+
+--> 045_sent_data.bin 
+MsgId: 7572071091290387456
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071089124147329}
+
+<-- 046_received_data.bin 
+MsgId: 7572071089132535945
+Offset 76: {rpc_result#f35c6d01: req_msg_id: 7572071091200193536, result: *mtproto.TLHelpPromoDataEmpty}
+
+--> 047_sent_data.bin 
+MsgId: 7572071091303272448
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071089132535945}
+
+<-- 048_received_data.bin 
+MsgId: 7572071089132535945
+Offset 76: {rpc_result#f35c6d01: req_msg_id: 7572071091200193536, result: *mtproto.TLHelpPromoDataEmpty}
+
+--> 049_sent_data.bin 
+MsgId: 7572071091320453120
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071089134633105}
+
+--> 050_sent_data.bin 
+MsgId: 7572071091346222080
+Offset 64: constructor:CRC32_account_getNotifySettings peer:{predicate_name:"inputNotifyChats" constructor:CRC32_inputNotifyChats}
+
+--> 051_sent_data.bin 
+MsgId: 7572071091350517760
+Offset 64: constructor:CRC32_account_getNotifySettings peer:{predicate_name:"inputNotifyUsers" constructor:CRC32_inputNotifyUsers}
+
+--> 052_sent_data.bin 
+MsgId: 7572071091350517764
+Offset 64: constructor:CRC32_account_getNotifySettings peer:{predicate_name:"inputNotifyBroadcasts" constructor:CRC32_inputNotifyBroadcasts}
+
+--> 053_sent_data.bin 
+MsgId: 7572071091350517768
+Offset 60: constructor:CRC32_account_getContactSignUpNotification
+
+--> 054_sent_data.bin 
+MsgId: 7572071091354812416
+Offset 60: constructor:CRC32_help_getInviteText
+
+--> 055_sent_data.bin 
+MsgId: 7572071091354812420
+Offset 80: constructor:CRC32_messages_getStickers emoticon:"📂⭐️"
+
+--> 056_sent_data.bin 
+MsgId: 7572071091359107072
+Offset 68: constructor:CRC32_messages_getStickerSet_c8a0ec74 stickerset:{predicate_name:"inputStickerSetPremiumGifts" constructor:CRC32_inputStickerSetPremiumGifts}
+
+--> 057_sent_data.bin 
+MsgId: 7572071091359107076
+Offset 68: constructor:CRC32_messages_getStickerSet_c8a0ec74 stickerset:{predicate_name:"inputStickerSetEmojiGenericAnimations" constructor:CRC32_inputStickerSetEmojiGenericAnimations}
+
+--> 058_sent_data.bin 
+MsgId: 7572071091363402752
+Offset 64: constructor:CRC32_messages_getPinnedDialogs
+
+<-- 059_received_data.bin 
+MsgId: 7572071091399557273
+Offset 88: {rpc_result#f35c6d01: req_msg_id: 7572071091346222080, result: *mtproto.TLPeerNotifySettings}
+
+--> 060_sent_data.bin 
+MsgId: 7572071091449302016
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071091399557273}
+
+<-- 061_received_data.bin 
+MsgId: 7572071091405848737
+Offset 88: {rpc_result#f35c6d01: req_msg_id: 7572071091350517760, result: *mtproto.TLPeerNotifySettings}
+
+--> 062_sent_data.bin 
+MsgId: 7572071091462187008
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071091405848737}
+
+<-- 063_received_data.bin 
+MsgId: 7572071091420528809
+Offset 72: {rpc_result#f35c6d01: req_msg_id: 7572071091350517768, result: *mtproto.TLBoolTrue}
+
+--> 064_sent_data.bin 
+MsgId: 7572071091470776320
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071091420528809}
+
+<-- 065_received_data.bin 
+MsgId: 7572071091424723121
+Offset 72: {rpc_result#f35c6d01: req_msg_id: 7572071091359107076, result: *mtproto.TLMessagesStickerSetNotModified}
+
+--> 066_sent_data.bin 
+MsgId: 7572071091487955968
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071091424723121}
+
+<-- 067_received_data.bin 
+MsgId: 7572071091428917433
+Offset 72: {rpc_result#f35c6d01: req_msg_id: 7572071091359107072, result: *mtproto.TLMessagesStickerSetNotModified}
+
+--> 068_sent_data.bin 
+MsgId: 7572071091496546304
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071091428917433}
+
+<-- 069_received_data.bin 
+MsgId: 7572071091428917433
+Offset 72: {rpc_result#f35c6d01: req_msg_id: 7572071091359107072, result: *mtproto.TLMessagesStickerSetNotModified}
+
+--> 070_sent_data.bin 
+MsgId: 7572071091543790592
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071091431014593}
+
+<-- 071_received_data.bin 
+MsgId: 7572071091428917433
+Offset 72: {rpc_result#f35c6d01: req_msg_id: 7572071091359107072, result: *mtproto.TLMessagesStickerSetNotModified}
+
+--> 072_sent_data.bin 
+MsgId: 7572071091552380928
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071091433111753}
+
+<-- 073_received_data.bin 
+MsgId: 7572071091428917433
+Offset 72: {rpc_result#f35c6d01: req_msg_id: 7572071091359107072, result: *mtproto.TLMessagesStickerSetNotModified}
+
+--> 074_sent_data.bin 
+MsgId: 7572071091560971264
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071091435208913}
+
+<-- 075_received_data.bin 
+MsgId: 7572071091462471897
+Offset 128: {rpc_result#f35c6d01: req_msg_id: 7572071091363402752, result: *mtproto.TLMessagesPeerDialogs}
+
+--> 076_sent_data.bin 
+MsgId: 7572071091655459840
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071091462471897}
+
+--> 077_sent_data.bin 
+MsgId: 7572071092836576256
+Offset 60: constructor:CRC32_langpack_getLanguages_800fd57d
+
+--> 078_sent_data.bin 
+MsgId: 7572071092840870912
+
+<-- 079_received_data.bin 
+MsgId: 7572071092100006115
+
+<-- 080_received_data.bin 
+MsgId: 7572071092102103273
+Offset 72: {rpc_result#f35c6d01: req_msg_id: 7572071092836576256, result: %!s(<nil>)}
+
+--> 081_sent_data.bin 
+MsgId: 7572071092866640896
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071092102103273}
+
+--> 082_sent_data.bin 
+MsgId: 7572071093098568704
+Offset 60: constructor:CRC32_help_getPremiumPromo
+
+--> 083_sent_data.bin 
+MsgId: 7572071093098568708
+Offset 64: constructor:CRC32_messages_getAvailableReactions
+
+<-- 084_received_data.bin 
+MsgId: 7572071092225835249
+Offset 84: {rpc_result#f35c6d01: req_msg_id: 7572071093098568708, result: *mtproto.TLMessagesAvailableReactions}
+
+--> 085_sent_data.bin 
+MsgId: 7572071093124338688
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071092225835249}
+
+<-- 086_received_data.bin 
+MsgId: 7572071092227932409
+Offset 104: {rpc_result#f35c6d01: req_msg_id: 7572071093098568704, result: *mtproto.TLRpcError}
+
+--> 087_sent_data.bin 
+MsgId: 7572071093128634368
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071092227932409}
+
+--> 088_sent_data.bin 
+MsgId: 7572071093278957568
+Offset 68: constructor:CRC32_messages_getAttachMenuBots
+
+<-- 089_received_data.bin 
+MsgId: 7572071092316012801
+Offset 104: {rpc_result#f35c6d01: req_msg_id: 7572071093278957568, result: *mtproto.TLRpcError}
+
+--> 090_sent_data.bin 
+MsgId: 7572071093313317888
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071092316012801}
+
+--> 091_sent_data.bin 
+MsgId: 7572071094872390656
+Offset 60: constructor:CRC32_updates_getState
+
+--> 092_sent_data.bin 
+MsgId: 7572071094923930624
+Offset 68: constructor:CRC32_messages_getAttachMenuBots
+
+<-- 093_received_data.bin 
+MsgId: 7572071093127610633
+Offset 92: {rpc_result#f35c6d01: req_msg_id: 7572071094872390656, result: *mtproto.TLUpdatesState}
+
+--> 094_sent_data.bin 
+MsgId: 7572071094971174912
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093127610633}
+
+<-- 095_received_data.bin 
+MsgId: 7572071093131804945
+Offset 104: {rpc_result#f35c6d01: req_msg_id: 7572071094923930624, result: *mtproto.TLRpcError}
+
+--> 096_sent_data.bin 
+MsgId: 7572071094979765248
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093131804945}
+
+--> 097_sent_data.bin 
+MsgId: 7572071095048483840
+Offset 92: constructor:CRC32_messages_getStickerSet_c8a0ec74 stickerset:{predicate_name:"inputStickerSetShortName" constructor:CRC32_inputStickerSetShortName short_name:"tg_placeholders_android"}
+
+--> 098_sent_data.bin 
+MsgId: 7572071095052779520
+Offset 68: constructor:CRC32_contacts_getContacts
+
+--> 099_sent_data.bin 
+MsgId: 7572071095052779524
+Offset 92: constructor:CRC32_messages_getPeerDialogs peers:{predicate_name:"inputDialogPeer" constructor:CRC32_inputDialogPeer peer:{predicate_name:"inputPeerUser" constructor:CRC32_inputPeerUser user_id:777001 access_hash:6279878546724348992}}
+
+--> 0100_sent_data.bin 
+MsgId: 7572071095052779528
+Offset 64: constructor:CRC32_users_getFullUser id:{predicate_name:"inputUserSelf" constructor:CRC32_inputUserSelf}
+
+--> 0101_sent_data.bin 
+MsgId: 7572071095057074176
+Offset 88: constructor:CRC32_messages_getDialogs exclude_pinned:true offset_peer:{predicate_name:"inputPeerEmpty" constructor:CRC32_inputPeerEmpty} limit:100
+
+--> 0102_sent_data.bin 
+MsgId: 7572071095057074180
+Offset 68: constructor:CRC32_messages_getFavedStickers
+
+--> 0103_sent_data.bin 
+MsgId: 7572071095061368832
+Offset 80: constructor:CRC32_messages_getStickers emoticon:"👋⭐️"
+
+--> 0104_sent_data.bin 
+MsgId: 7572071095065664512
+Offset 68: constructor:CRC32_messages_getFeaturedStickers
+
+--> 0105_sent_data.bin 
+MsgId: 7572071095065664516
+Offset 68: constructor:CRC32_messages_getFeaturedEmojiStickers
+
+--> 0106_sent_data.bin 
+MsgId: 7572071095065664520
+Offset 64: constructor:CRC32_messages_getAvailableReactions
+
+--> 0107_sent_data.bin 
+MsgId: 7572071095069959168
+Offset 76: constructor:CRC32_messages_getStickerSet_c8a0ec74 stickerset:{predicate_name:"inputStickerSetDice" constructor:CRC32_inputStickerSetDice emoticon:"🎯"}
+
+--> 0108_sent_data.bin 
+MsgId: 7572071095074253824
+Offset 76: constructor:CRC32_messages_getStickerSet_c8a0ec74 stickerset:{predicate_name:"inputStickerSetDice" constructor:CRC32_inputStickerSetDice emoticon:"🎲"}
+
+--> 0109_sent_data.bin 
+MsgId: 7572071095104318464
+Offset 80: constructor:CRC32_contacts_getTopPeers correspondents:true bots_inline:true limit:20
+
+--> 0110_sent_data.bin 
+MsgId: 7572071095108614144
+Offset 68: constructor:CRC32_messages_getStickerSet_c8a0ec74 stickerset:{predicate_name:"inputStickerSetAnimatedEmoji" constructor:CRC32_inputStickerSetAnimatedEmoji}
+
+--> 0111_sent_data.bin 
+MsgId: 7572071095112908800
+Offset 60: constructor:CRC32_messages_getDialogFiltersF19ED96D
+
+<-- 0112_received_data.bin 
+MsgId: 7572071093221982489
+Offset 128: {rpc_result#f35c6d01: req_msg_id: 7572071095052779524, result: *mtproto.TLMessagesPeerDialogs}
+
+--> 0113_sent_data.bin 
+MsgId: 7572071095181628416
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093221982489}
+
+<-- 0114_received_data.bin 
+MsgId: 7572071093226176801
+Offset 72: {rpc_result#f35c6d01: req_msg_id: 7572071095048483840, result: *mtproto.TLMessagesStickerSetNotModified}
+
+--> 0115_sent_data.bin 
+MsgId: 7572071095194513408
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093226176801}
+
+<-- 0116_received_data.bin 
+MsgId: 7572071093226176801
+Offset 72: {rpc_result#f35c6d01: req_msg_id: 7572071095048483840, result: *mtproto.TLMessagesStickerSetNotModified}
+
+--> 0117_sent_data.bin 
+MsgId: 7572071095211693056
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093234565417}
+
+<-- 0118_received_data.bin 
+MsgId: 7572071093245051185
+Offset 108: {rpc_result#f35c6d01: req_msg_id: 7572071095057074176, result: *mtproto.TLMessagesDialogsSlice}
+
+--> 0119_sent_data.bin 
+MsgId: 7572071095237463040
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093245051185}
+
+<-- 0120_received_data.bin 
+MsgId: 7572071093268119865
+Offset 208: {rpc_result#f35c6d01: req_msg_id: 7572071095052779528, result: *mtproto.TLUsersUserFull}
+
+--> 0121_sent_data.bin 
+MsgId: 7572071095284707328
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093268119865}
+
+<-- 0122_received_data.bin 
+MsgId: 7572071093270217025
+Offset 96: {rpc_result#f35c6d01: req_msg_id: 7572071095057074180, result: *mtproto.TLMessagesFavedStickers}
+
+--> 0123_sent_data.bin 
+MsgId: 7572071095293297664
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093270217025}
+
+<-- 0124_received_data.bin 
+MsgId: 7572071093270217025
+Offset 96: {rpc_result#f35c6d01: req_msg_id: 7572071095057074180, result: *mtproto.TLMessagesFavedStickers}
+
+--> 0125_sent_data.bin 
+MsgId: 7572071095297592320
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093272314185}
+
+<-- 0126_received_data.bin 
+MsgId: 7572071093270217025
+Offset 96: {rpc_result#f35c6d01: req_msg_id: 7572071095057074180, result: *mtproto.TLMessagesFavedStickers}
+
+--> 0127_sent_data.bin 
+MsgId: 7572071095301886976
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093274411345}
+
+<-- 0128_received_data.bin 
+MsgId: 7572071093270217025
+Offset 96: {rpc_result#f35c6d01: req_msg_id: 7572071095057074180, result: *mtproto.TLMessagesFavedStickers}
+
+--> 0129_sent_data.bin 
+MsgId: 7572071095310477312
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093276508505}
+
+<-- 0130_received_data.bin 
+MsgId: 7572071093270217025
+Offset 96: {rpc_result#f35c6d01: req_msg_id: 7572071095057074180, result: *mtproto.TLMessagesFavedStickers}
+
+--> 0131_sent_data.bin 
+MsgId: 7572071095327656960
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093278605665}
+
+<-- 0132_received_data.bin 
+MsgId: 7572071093270217025
+Offset 96: {rpc_result#f35c6d01: req_msg_id: 7572071095057074180, result: *mtproto.TLMessagesFavedStickers}
+
+--> 0133_sent_data.bin 
+MsgId: 7572071095370606592
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093280702825}
+
+<-- 0134_received_data.bin 
+MsgId: 7572071093270217025
+Offset 96: {rpc_result#f35c6d01: req_msg_id: 7572071095057074180, result: *mtproto.TLMessagesFavedStickers}
+
+--> 0135_sent_data.bin 
+MsgId: 7572071095383491584
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093282799985}
+
+<-- 0136_received_data.bin 
+MsgId: 7572071093270217025
+Offset 96: {rpc_result#f35c6d01: req_msg_id: 7572071095057074180, result: *mtproto.TLMessagesFavedStickers}
+
+--> 0137_sent_data.bin 
+MsgId: 7572071095392081920
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093284897145}
+
+<-- 0138_received_data.bin 
+MsgId: 7572071093270217025
+Offset 96: {rpc_result#f35c6d01: req_msg_id: 7572071095057074180, result: *mtproto.TLMessagesFavedStickers}
+
+--> 0139_sent_data.bin 
+MsgId: 7572071095396376576
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093286994305}
+
+--> 0140_sent_data.bin 
+MsgId: 7572071095400671232
+Offset 60: constructor:CRC32_contacts_getStatuses
+
+--> 0141_sent_data.bin 
+MsgId: 7572071095400671236
+Offset 60: constructor:CRC32_messages_getAllDrafts
+
+<-- 0142_received_data.bin 
+MsgId: 7572071093289091465
+Offset 96: {rpc_result#f35c6d01: req_msg_id: 7572071095104318464, result: *mtproto.TLContactsTopPeers}
+
+--> 0143_sent_data.bin 
+MsgId: 7572071095422146560
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093289091465}
+
+<-- 0144_received_data.bin 
+MsgId: 7572071093368783249
+Offset 72: {rpc_result#f35c6d01: req_msg_id: 7572071095400671232, result: %!s(<nil>)}
+
+--> 0145_sent_data.bin 
+MsgId: 7572071095456505856
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093368783249}
+
+<-- 0146_received_data.bin 
+MsgId: 7572071093383463321
+Offset 180: {rpc_result#f35c6d01: req_msg_id: 7572071095400671236, result: *mtproto.TLUpdates}
+
+--> 0147_sent_data.bin 
+MsgId: 7572071095520930816
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071093383463321}
+
+--> 0148_sent_data.bin 
+MsgId: 7572071104119455744
+
+<-- 0149_received_data.bin 
+MsgId: 7572071102009049507
+
+--> 0150_sent_data.bin 
+MsgId: 7572071114277052416
+
+--> 0151_sent_data.bin 
+MsgId: 7572071114285642752
+Offset 64: constructor:CRC32_account_updateStatus offline:{predicate_name:"boolTrue" constructor:CRC32_boolTrue}
+
+<-- 0152_received_data.bin 
+MsgId: 7572071113560162731
+
+<-- 0153_received_data.bin 
+MsgId: 7572071113572745649
+Offset 72: {rpc_result#f35c6d01: req_msg_id: 7572071114285642752, result: *mtproto.TLBoolTrue}
+
+--> 0154_sent_data.bin 
+MsgId: 7572071114337182720
+Offset 76: data2:{predicate_name:"msgs_ack" constructor:CRC32_msgs_ack msg_ids:7572071113572745649}
+
+--> 0155_sent_data.bin 
+MsgId: 7572071123275009024
+
+<-- 0156_received_data.bin 
+MsgId: 7572071122353521083
+
+--> 0157_sent_data.bin 
+MsgId: 7572071132247195648
+
+<-- 0158_received_data.bin 
+MsgId: 7572071131128005059
+
+--> 0159_sent_data.bin 
+MsgId: 7572071141219382272
+
+<-- 0160_received_data.bin 
+MsgId: 7572071139902489035
+
