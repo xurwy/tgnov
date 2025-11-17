@@ -1,92 +1,70 @@
 --> 01_sent_data.bin 
-MsgId: 7573573197896767488
-Offset 568:
-TLInvokeWithLayer{
-  Constructor: -627372787
-  Layer: 156
-  Query: [504 items]
-}
-  Query: constructor:CRC32_initConnection_c1cd5ea9  api_id:4  device_model:"Samsung Galaxy A31"  system_version:"SDK 30"  app_version:"9.5.6 (32379) pbeta"  system_lang_code:"en-us"  lang_pack:"android"  lang_code:"en"  params:{predicate_name:"jsonObject"  constructor:CRC32_jsonObject  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"device_token"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"__FIREBASE_GENERATING_SINCE_1763359921__"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"data"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"installer"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"android"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"package_id"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"org.chatengine.messenger.beta"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"tz_offset"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"perf_cat"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber  value_FLOAT64:3}}}  query:"}\xd5\x0f\x80\x9b\xa1\x13\x82m\x02\x84\xa8\xcf\x16ĺ\x9fcGʣ\xf0\x05\tw0\xd3\xf7`\xd7ε/DVR\x98W\xc0xܿ>Y\x8c\x00\x12\x1frX\x87\xb5YUtN?\x84\x1d\x05\x16JL\xfd\x00M\x06o\xf9\r\x95.\xc0\x95\xd4)\x9d\x91u\xe4r\xc7\x06W\x1f\xf3F\x90ٰyq\xc9\x12\x8b\x9f\xa4\x86\xe2\x1f\xf5\xfa\xd19i\x0b\xceк?\xbc4i\xb2\x96\xd4U\xe5\xfbB\x9e\xaa\xfb\x0f"
-    Query: constructor:CRC32_langpack_getLanguages_800fd57d
-
---> 02_sent_data.bin 
-MsgId: 7573573199984120832
+MsgId: 7573652944753574912
 Offset 552:
 TLInvokeWithLayer{
   Constructor: -627372787
   Layer: 156
   Query: [488 items]
 }
-  Query: constructor:CRC32_initConnection_c1cd5ea9  api_id:4  device_model:"Samsung Galaxy A31"  system_version:"SDK 30"  app_version:"9.5.6 (32379) pbeta"  system_lang_code:"en-us"  lang_pack:"android"  lang_code:"en"  params:{predicate_name:"jsonObject"  constructor:CRC32_jsonObject  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"device_token"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"__NO_GOOGLE_PLAY_SERVICES__"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"data"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"installer"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"android"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"package_id"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"org.chatengine.messenger.beta"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"tz_offset"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"perf_cat"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber  value_FLOAT64:3}}}  query:"&0\xb3\x1f|\x92\xe0\x0bKI\x98\xf4\x17\xb8L\x87\xad\xb6G[\xceE3\x1dK30\x15\xd6C\xe1\xd2\xe0Y\xcb=X\x1e\x08X\xbc\x02\xbf\xf9\x90 \x07\x8eX\x06\x96^N\x94)'\x00\xec\xa8\xddMr`\x88,i\x02\x19\x88\x03\n\x10>H\xfa\xe4=[\n\xb8\xcct\x1f3\xb9\x84p\x97UJP\xce\xdf]`\xde%z\x00\tR\xd3\xdd\xfc\xa5\x0b\x0c\xb9\x15iW\x8d\xacw/}v\xee\x94v\x94<\xac\x91"
-    Query: constructor:CRC32_help_getNearestDc
+  Query: constructor:CRC32_initConnection_c1cd5ea9  api_id:4  device_model:"Samsung Galaxy A31"  system_version:"SDK 30"  app_version:"9.5.6 (32379) pbeta"  system_lang_code:"en-us"  lang_pack:"android"  lang_code:"en"  params:{predicate_name:"jsonObject"  constructor:CRC32_jsonObject  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"device_token"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"__FIREBASE_GENERATING_SINCE_1763378488__"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"data"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"installer"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"android"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"package_id"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"org.chatengine.messenger.beta"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"tz_offset"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"perf_cat"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber  value_FLOAT64:3}}}  query:"}\xd5\x0f\x80\xff\xcew\x01\xbb\x87\x98\xe1j\xb5\x99\x0e.^\x165\xcfD\x94\xd2ǟI홄\xc8\xf6\x89e9\x19\xd8\x1f\x0c\x82\xc9[\x176\xfdG\x9dc\xe4Z@s8l5\xbfZ\x8ct\xd5_\x169zJ\x00\x95V\xca\xfa.\xfd\x04\x1f\xd5\xe2`\x90\x85\xc69\x0f\xc5\x04\x85\x13\xe0\xe8Ԑ\x1fu׶:\xb3Ž\x9dĂ\xb4\xe7h&"
+    Query: constructor:CRC32_langpack_getLanguages_800fd57d
 
---> 03_sent_data.bin 
-MsgId: 7573573199988416512
-Offset 680:
-TLInvokeWithLayer{
-  Constructor: -627372787
-  Layer: 156
-  Query: [616 items]
-}
-  Query: constructor:CRC32_initConnection_c1cd5ea9  api_id:4  device_model:"Samsung Galaxy A31"  system_version:"SDK 30"  app_version:"9.5.6 (32379) pbeta"  system_lang_code:"en-us"  lang_pack:"android"  lang_code:"en"  params:{predicate_name:"jsonObject"  constructor:CRC32_jsonObject  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"device_token"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"__NO_GOOGLE_PLAY_SERVICES__"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"data"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"installer"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"android"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"package_id"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"org.chatengine.messenger.beta"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"tz_offset"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"perf_cat"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber  value_FLOAT64:3}}}  query:"\xa8\x87Ws\x02en\x00\x00\x00\x00\x00\x02\xb5\x94X\xb7\xf8\xfb\xe3#\xfa\x9bӄ\x92\xa4\x97\xc0F5\xa2坞TL\xa1Oe\xb9\xbbM\x85\x15\x81\xc0\xe4\xe8\x97\xdbA͞#\xf3C\xf5\xa7\x9e\x96\"\xd5κ\xd1,\x18\xaeI\xe9\xd2\xdf\x12z\xda\xf7\xb8iF\x9e\x02~\xe0e\x0b\xa6\xf1&\x19\x99\x19\xd3ήV\x85\xeeY\xbe.r\x93\xa1W\xb3\x1b\u00953\x98\x1b\xec\x96\x1e0\x1e\x95\x83\x93j\xf0q\x17\xe2\xf8x\xf4w\x84ɫ\xe74\xcbh\x91\x84[\x95zuI\xb0\xb6Ή\x1dD|\x9f\x11,\x0f,K\xf3%c\xae@\xf8~\x11\x02\xddv:\x05\x9a\x1eekQN\x01\x03\x0fT\x1fV\xfd\xb3\xb8\x90\xfd\xf9\xcd\xf6\xa3\n\xc3\xe0]\xc9\r\xf1e\xd7%\x03\xc6\x19\x0c\x00,\x81\xe6/;\xab\xab\xbax\xbfãO!0\xc7A\xd1u3\x95\xf0WgL\x96\x9c\xc5J\x86\xb8ݤ\xec\x81Ze\x95\xf4\x93v4\xb2\x00\xa5\xbfv"
-    Query: constructor:CRC32_help_getCountriesList  lang_code:"en"
-
-<-- 04_received_data.bin 
-MsgId: 7573573200787589685
+<-- 02_received_data.bin 
+MsgId: 7573652945451968465
 Offset 84:
 TLNewSessionCreated{
   Data2: NewSession{
       PredicateName: "new_session_created"
       Constructor: -1631450872
-      FirstMsgId: 7573573199988416512
-      UniqueId: 1763359923425509507
-      ServerSalt: 7854573494123615672
+      FirstMsgId: 7573652944753574912
+      UniqueId: 1763378490432103365
+      ServerSalt: -5928893277021587356
     }
 }
 
+<-- 03_received_data.bin 
+MsgId: 7573652945452369265
+Offset 72:
+TLRpcResult{
+  ReqMsgId: 7573652944753574912
+}
+
+--> 04_sent_data.bin 
+MsgId: 7573652950040680448
+Offset 60:
+TLHelpGetNearestDc{
+  Constructor: 531836966
+}
+
 <-- 05_received_data.bin 
-MsgId: 7573573200787589685
+MsgId: 7573652949486423133
 Offset 84:
-TLNewSessionCreated{
-  Data2: NewSession{
-      PredicateName: "new_session_created"
-      Constructor: -1631450872
-      FirstMsgId: 7573573199988416512
-      UniqueId: 1763359923425509507
-      ServerSalt: 7854573494123615672
+TLRpcResult{
+  ReqMsgId: 7573652950040680448
+  Result: TLNearestDc{
+      Data2: NearestDc{
+            PredicateName: "nearestDc"
+            Constructor: -1910892683
+            Country: "CN"
+            ThisDc: 1
+            NearestDc: 1
+          }
     }
 }
 
 --> 06_sent_data.bin 
-MsgId: 7573573202247569416
-Offset 864:
-TLMsgContainer{
-  Messages: [TLMessage2{
-        MsgId: 7573573202247569408
-        Seqno: 7
-        Bytes: 392
-        Object: TLInvokeWithLayer{
-                Constructor: ...
-                Layer: ...
-                Query: ...
-              }
-      }, TLMessage2{
-        MsgId: 7573573202247569412
-        Seqno: 9
-        Bytes: 376
-        Object: TLInvokeWithLayer{
-                Constructor: ...
-                Layer: ...
-                Query: ...
-              }
-      }]
+MsgId: 7573652950079334400
+Offset 68:
+TLHelpGetCountriesList{
+  Constructor: 1935116200
+  LangCode: "en"
 }
 
 <-- 07_received_data.bin 
-MsgId: 7573573200787952253
-Offset 76:
+MsgId: 7573652949989814045
+Offset 84:
 TLRpcResult{
-  ReqMsgId: 7573573199988416512
+  ReqMsgId: 7573652950079334400
   Result: TLHelpCountriesList{
       Data2: Help_CountriesList{
             PredicateName: "help_countriesList"
@@ -95,62 +73,8 @@ TLRpcResult{
     }
 }
 
-<-- 08_received_data.bin 
-MsgId: 7573573201294272409
-Offset 84:
-TLNewSessionCreated{
-  Data2: NewSession{
-      PredicateName: "new_session_created"
-      Constructor: -1631450872
-      FirstMsgId: 7573573202247569408
-      UniqueId: 1763359923932192113
-      ServerSalt: 7854573494123615672
-    }
-}
-
-<-- 09_received_data.bin 
-MsgId: 7573573201294272409
-Offset 84:
-TLNewSessionCreated{
-  Data2: NewSession{
-      PredicateName: "new_session_created"
-      Constructor: -1631450872
-      FirstMsgId: 7573573202247569408
-      UniqueId: 1763359923932192113
-      ServerSalt: 7854573494123615672
-    }
-}
-
-<-- 010_received_data.bin 
-MsgId: 7573573201294724177
-Offset 72:
-TLRpcResult{
-  ReqMsgId: 7573573202247569408
-}
-
-<-- 011_received_data.bin 
-MsgId: 7573573201294724177
-Offset 72:
-TLRpcResult{
-  ReqMsgId: 7573573202247569408
-}
-
-<-- 012_received_data.bin 
-MsgId: 7573573201294724177
-Offset 72:
-TLRpcResult{
-  ReqMsgId: 7573573202247569408
-}
-
-<-- 013_received_data.bin 
-MsgId: 7573573201294724177
-Offset 72:
-TLRpcResult{
-  ReqMsgId: 7573573202247569408
-}
-
---> 014_sent_data.bin 
-MsgId: 7573573239794172928
+--> 08_sent_data.bin 
+MsgId: 7573652998294637568
 Offset 132:
 TLAuthSendCode{
   Constructor: -1502141361
@@ -163,42 +87,80 @@ TLAuthSendCode{
     }
 }
 
+<-- 09_received_data.bin 
+MsgId: 7573652996965844657
+Offset 120:
+TLRpcResult{
+  ReqMsgId: 7573652998294637568
+  Result: TLAuthSentCode{
+      Data2: Auth_SentCode{
+            PredicateName: "auth_sentCode"
+            Constructor: 1577067778
+            Type: Auth_SentCodeType{
+                    PredicateName: ...
+                    Constructor: ...
+                    Length: ...
+                  }
+            PhoneCodeHash: "21e22a8d47e7fc8241239f6a0102786c"
+          }
+    }
+}
+
+--> 010_sent_data.bin 
+MsgId: 7573653008813011968
+Offset 124:
+TLAuthSignIn{
+  Constructor: -1923962543
+  PhoneNumber: "6281298219323"
+  PhoneCodeHash: "21e22a8d47e7fc8241239f6a0102786c"
+  PhoneCode_FLAGSTRING: StringValue{
+      Value: "12345"
+    }
+}
+
+<-- 011_received_data.bin 
+MsgId: 7573653006004567981
+Offset 76:
+TLRpcResult{
+  ReqMsgId: 7573653008813011968
+  Result: TLAuthAuthorizationSignUpRequired{
+      Data2: Auth_Authorization{
+            PredicateName: "auth_authorizationSignUpRequired"
+            Constructor: 1148485274
+          }
+    }
+}
+
+--> 012_sent_data.bin 
+MsgId: 7573653021770929152
+
+<-- 013_received_data.bin 
+MsgId: 7573653018906985273
+
+--> 014_sent_data.bin 
+MsgId: 7573653033350160384
+Offset 120:
+TLAuthSignUp{
+  Constructor: -2131827673
+  PhoneNumber: "6281298219323"
+  PhoneCodeHash: "21e22a8d47e7fc8241239f6a0102786c"
+  FirstName: "u"
+  LastName: "r"
+}
+
 <-- 015_received_data.bin 
-MsgId: 7573573239199397957
-Offset 84:
-TLNewSessionCreated{
-  Data2: NewSession{
-      PredicateName: "new_session_created"
-      Constructor: -1631450872
-      FirstMsgId: 7573573239794172928
-      UniqueId: 1763359932182612004
-      ServerSalt: 7854573494123615672
-    }
-}
-
-<-- 016_received_data.bin 
-MsgId: 7573573239199574913
-Offset 84:
-TLNewSessionCreated{
-  Data2: NewSession{
-      PredicateName: "new_session_created"
-      Constructor: -1631450872
-      FirstMsgId: 7573573239794172928
-      UniqueId: 1763359932182790128
-      ServerSalt: 7854573494123615672
-    }
-}
-
-<-- 017_received_data.bin 
-MsgId: 7573573239199574913
-Offset 84:
-TLNewSessionCreated{
-  Data2: NewSession{
-      PredicateName: "new_session_created"
-      Constructor: -1631450872
-      FirstMsgId: 7573573239794172928
-      UniqueId: 1763359932182790128
-      ServerSalt: 7854573494123615672
+MsgId: 7573653031487304213
+Offset 80:
+TLRpcResult{
+  ReqMsgId: 7573653033350160384
+  Result: TLAuthAuthorization{
+      Data2: Auth_Authorization{
+            PredicateName: "auth_authorization"
+            Constructor: 782418132
+            User: User{
+                    Constructor: ...
+                  }
+          }
     }
 }
 

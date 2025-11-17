@@ -107,3 +107,148 @@ TLAuthSendCode{
     }
 }
 
+<-- 010_received_data.bin 
+MsgId: 7573574236051079211
+Offset 84:
+TLNewSessionCreated{
+  Data2: NewSession{
+      PredicateName: "new_session_created"
+      Constructor: -1631450872
+      FirstMsgId: 7573574236664672256
+      UniqueId: 1361938575740626158
+      ServerSalt: -7212681950144378351
+    }
+}
+
+<-- 011_received_data.bin 
+MsgId: 7573574236051079211
+Offset 84:
+TLNewSessionCreated{
+  Data2: NewSession{
+      PredicateName: "new_session_created"
+      Constructor: -1631450872
+      FirstMsgId: 7573574236664672256
+      UniqueId: 1361938575740626158
+      ServerSalt: -7212681950144378351
+    }
+}
+
+<-- 012_received_data.bin 
+MsgId: 7573574236080439345
+Offset 128:
+TLRpcResult{
+  ReqMsgId: 7573574236664672256
+  Result: TLAuthSentCode{
+      Data2: Auth_SentCode{
+            PredicateName: "auth_sentCode"
+            Constructor: 1577067778
+            Type: Auth_SentCodeType{
+                    PredicateName: ...
+                    Constructor: ...
+                    Length: ...
+                  }
+            PhoneCodeHash: "36891d7cc121160a715dfb77fcd0ecbe"
+            NextType: Auth_CodeType{
+                    PredicateName: ...
+                    Constructor: ...
+                  }
+            Timeout: Int32Value{
+                    Value: ...
+                  }
+          }
+    }
+}
+
+--> 013_sent_data.bin 
+MsgId: 7573574244833699840
+Offset 124:
+TLAuthSignIn{
+  Constructor: -1923962543
+  PhoneNumber: "6281898219323"
+  PhoneCodeHash: "36891d7cc121160a715dfb77fcd0ecbe"
+  PhoneCode_FLAGSTRING: StringValue{
+      Value: "12345"
+    }
+}
+
+<-- 014_received_data.bin 
+MsgId: 7573574244443881529
+Offset 76:
+TLRpcResult{
+  ReqMsgId: 7573574244833699840
+  Result: TLAuthAuthorizationSignUpRequired{
+      Data2: Auth_Authorization{
+            PredicateName: "auth_authorizationSignUpRequired"
+            Constructor: 1148485274
+          }
+    }
+}
+
+--> 015_sent_data.bin 
+MsgId: 7573574269508287488
+Offset 120:
+TLAuthSignUp{
+  Constructor: -2131827673
+  PhoneNumber: "6281898219323"
+  PhoneCodeHash: "36891d7cc121160a715dfb77fcd0ecbe"
+  FirstName: "U"
+  LastName: "R"
+}
+
+<-- 016_received_data.bin 
+MsgId: 7573574267573370945
+Offset 140:
+TLRpcResult{
+  ReqMsgId: 7573574269508287488
+  Result: TLAuthAuthorization{
+      Data2: Auth_Authorization{
+            PredicateName: "auth_authorization"
+            Constructor: 782418132
+            User: User{
+                    PredicateName: ...
+                    Constructor: ...
+                    Id: ...
+                    Self: ...
+                    Contact: ...
+                    MutualContact: ...
+                    AccessHash: ...
+                    FirstName: ...
+                    LastName: ...
+                    Phone: ...
+                    Status: ...
+                  }
+          }
+    }
+}
+
+--> 017_sent_data.bin 
+MsgId: 7573574270934216704
+Offset 60:
+TLHelpGetPromoData{
+  Constructor: -1063816159
+}
+
+<-- 018_received_data.bin 
+MsgId: 7573574270360485961
+Offset 76:
+TLRpcResult{
+  ReqMsgId: 7573574270934216704
+  Result: TLHelpPromoDataEmpty{
+      Data2: Help_PromoData{
+            PredicateName: "help_promoDataEmpty"
+            Constructor: -1728664459
+            Expires: 1763363772
+          }
+    }
+}
+
+--> 019_sent_data.bin 
+MsgId: 7573574271093130240
+Offset 64:
+TLAccountUpdateStatus{
+  Constructor: 1713919532
+  Offline: Bool{
+      PredicateName: "boolFalse"
+      Constructor: -1132882121
+    }
+}

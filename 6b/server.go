@@ -18,7 +18,7 @@ var ctr, ctrIsInitialized int
 type ConnProp struct { 
 	conn net.Conn
 	cryp *AesCTR128Crypto
-	sessionCreated map[int64]bool  // Track which msgIds have received session created
+	sessionCreated map[int64]bool
 }
 
 func handleConnection(conn net.Conn) {
@@ -52,18 +52,14 @@ func handleConnection(conn net.Conn) {
 					}
 				}
 			} else { // authenticated
-				fmt.Println("authenticated")
-				decrypted := cp.cryp.Decrypt(buffer[:n])
+					decrypted := cp.cryp.Decrypt(buffer[:n])
 				for offset := 0; offset <= len(decrypted)-32; offset++ {
 					if offset+16 >= len(decrypted) { continue }
 					func() {
 						defer func() { recover() }()
 						if rawP, err := crAuthKey.AesIgeDecrypt(decrypted[offset:offset+16], padTo16(decrypted[offset+16:])); err == nil && len(rawP) >= 24 {
-							fmt.Println("aes err", err)
-							salt, sessionId, msgId := int64(binary.LittleEndian.Uint64(rawP[0:8])), int64(binary.LittleEndian.Uint64(rawP[8:16])), int64(binary.LittleEndian.Uint64(rawP[16:24]))
-							if o := bytesToTL2(rawP[16:]).Object; o != nil { 
-								ctr++; cp.replyMsg(o, msgId, salt, sessionId) 
-							}
+								salt, sessionId, msgId := int64(binary.LittleEndian.Uint64(rawP[0:8])), int64(binary.LittleEndian.Uint64(rawP[8:16])), int64(binary.LittleEndian.Uint64(rawP[16:24]))
+							if o := bytesToTL2(rawP[16:]).Object; o != nil { ctr++; cp.replyMsg(o, msgId, salt, sessionId) }
 						}
 					}()
 				}
@@ -98,33 +94,18 @@ func (cp *ConnProp) send(body []byte, salt, sessionId, msgId int64) {
 
 func (cp *ConnProp) handleRPCQuery(query mtproto.TLObject, msgId int64) *mtproto.EncodeBuf {
 	buf := mtproto.NewEncodeBuf(512)
-	buf.Int(-212046591) // rpc_result constructor
-	buf.Long(msgId)     // req_msg_id
+	buf.Int(-212046591)
+	buf.Long(msgId)
 	
 	switch query.(type) {
 	case *mtproto.TLLangpackGetLanguages:
-		fmt.Println("Handling langpack.getLanguages")
-		// Return empty languages vector
-		buf.Int(481674261) // vector constructor
-		buf.Int(0)           // count = 0
+		buf.Int(481674261); buf.Int(0)
 	case *mtproto.TLHelpGetNearestDc:
-		fmt.Println("Handling help.getNearestDc")
-		// nearestDc constructor: -1910892683
-		buf.Int(-1910892683) // nearestDc
-		buf.String("CN")     // country
-		buf.Int(1)           // this_dc
-		buf.Int(1)           // nearest_dc
+		buf.Int(-1910892683); buf.String("CN"); buf.Int(1); buf.Int(1)
 	case *mtproto.TLHelpGetCountriesList:
-		fmt.Println("Handling help.getCountriesList")
-		// help.countriesList constructor: -2016381538
-		buf.Int(-2016381538) // help.countriesList
-		buf.Int(481674261)  // vector constructor for countries
-		buf.Int(0)           // count = 0 (no countries)
-		buf.Int(0)           // hash = 0
+		buf.Int(-2016381538); buf.Int(481674261); buf.Int(0); buf.Int(0)
 	default:
-		// For unknown queries, send empty result
-		buf.Int(481674261) // vector constructor
-		buf.Int(0)           // count = 0
+		buf.Int(481674261); buf.Int(0)
 	}
 	
 	return buf
@@ -135,7 +116,6 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 	case *mtproto.TLPingDelayDisconnect:
 		buf := mtproto.NewEncodeBuf(88)
 		buf.Int(0x347773c5); buf.Long(msgId); buf.Long(obj.PingId)
-		fmt.Printf("ping_id %d\n", obj.PingId)
 		cp.send(buf.GetBuf(), salt, sessionId, msgId)
 	case *mtproto.TLDestroySession:
 		destroyData := mtproto.NewEncodeBuf(8); destroyData.Long(obj.SessionId)
@@ -143,78 +123,65 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		buf.Int(-212046591); buf.Long(msgId); buf.Int(-501201412); buf.Bytes(destroyData.GetBuf())
 		cp.send(buf.GetBuf(), salt, sessionId, msgId)
 	case *mtproto.TLInvokeWithLayer:
-		fmt.Printf("%d %# v\n", msgId, o)
 		invLayer := o.(*mtproto.TLInvokeWithLayer)
-		
-		// Send NewSessionCreated ONCE if not already sent for this msgId
 		if !cp.sessionCreated[msgId] {
 			buf := mtproto.NewEncodeBuf(512)
 			buf.Int(-1631450872); buf.Long(msgId); buf.Long(time.Now().UnixNano()); buf.Long(salt)
 			cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
 			cp.sessionCreated[msgId] = true
 		}
-		
-		// Find the innermost query
 		var query mtproto.TLObject
 		for qBytes := invLayer.Query; len(qBytes) > 0; {
 			qBuf := mtproto.NewDecodeBuf(qBytes)
 			if qObj := qBuf.Object(); qObj != nil {
 				query = qObj
-				// Check for nested Query field
 				v := reflect.ValueOf(qObj)
 				if v.Kind() == reflect.Ptr { v = v.Elem() }
 				if v.Kind() == reflect.Struct {
 					if field := v.FieldByName("Query"); field.IsValid() && !field.IsNil() {
-						if nextBytes, ok := field.Interface().([]byte); ok && len(nextBytes) > 0 {
-							qBytes = nextBytes
-							continue
-						}
+						if nextBytes, ok := field.Interface().([]byte); ok && len(nextBytes) > 0 { qBytes = nextBytes; continue }
 					}
 				}
 			}
 			break
 		}
-		
-		// Handle RPC query - send the result
 		buf := cp.handleRPCQuery(query, msgId)
 		cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
 		
 	case *mtproto.TLAuthSendCode:
-		fmt.Printf("%d TLAuthSendCode\n", msgId)
-		authSendCode := o.(*mtproto.TLAuthSendCode)
-		fmt.Printf("Phone: %s\n", authSendCode.PhoneNumber)
-		
-		// Send auth.sentCode result directly
+		fmt.Printf("%d TLAuthSendCode Phone: %s\n", msgId, o.(*mtproto.TLAuthSendCode).PhoneNumber)
 		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591)  // rpc_result constructor
-		buf.Long(msgId)      // req_msg_id
-		buf.Int(0x5e002502)  // auth.sentCode constructor (TL_auth_sentCode)
-		
-		// flags: bit 0 (type), bit 4 (timeout) = 0x11 = 17
-		buf.Int(17)          // flags (has type and timeout only, no next_type)
-		
-		// type: auth.sentCodeTypeSms (correct constructor)
-		buf.Int(-1073693790) // auth.sentCodeTypeSms constructor (0xc000bba2)
-		buf.Int(5)           // length (SMS code length)
-		
-		// phone_code_hash
-		buf.String("21e22a8d47e7fc8241239f6a0102786c")
-		
-		// timeout (optional, included because of flag bit 4)
-		buf.Int(120)         // 120 seconds timeout
-		
+		buf.Int(-212046591); buf.Long(msgId); buf.Int(0x5e002502); buf.Int(17)
+		buf.Int(-1073693790); buf.Int(5); buf.String("21e22a8d47e7fc8241239f6a0102786c"); buf.Int(120)
 		cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
-		
 	case *mtproto.TLMsgContainer:
 		for _, m := range obj.Messages { cp.replyMsg(m.Object, m.MsgId, salt, sessionId) }
+	case *mtproto.TLAuthSignIn:
+		fmt.Printf("%d TLAuthSignIn Phone: %s, Code: %s\n", msgId, o.(*mtproto.TLAuthSignIn).PhoneNumber, o.(*mtproto.TLAuthSignIn).PhoneCode_FLAGSTRING.Value)
+		buf := mtproto.NewEncodeBuf(512)
+		buf.Int(-212046591); buf.Long(msgId); buf.Int(1148485274); buf.Int(0)
+		cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
+	case *mtproto.TLAuthSignUp:
+		authSignUp := o.(*mtproto.TLAuthSignUp)
+		fmt.Printf("%d TLAuthSignUp Phone: %s, Name: %s %s\n", msgId, authSignUp.PhoneNumber, authSignUp.FirstName, authSignUp.LastName)
+		buf := mtproto.NewEncodeBuf(512)
+		buf.Int(-212046591); buf.Long(msgId); buf.Int(782418132); buf.Int(0); buf.Int(-742634630)
+		buf.Int(int32(0x400 | 0x800 | 0x1000 | 0x1 | 0x2 | 0x4 | 0x10 | 0x40))
+		buf.Long(12345); buf.Long(12345678)
+		buf.String(authSignUp.FirstName); buf.String(authSignUp.LastName); buf.String(authSignUp.PhoneNumber)
+		buf.Int(-496024847)
+		cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
+	case *mtproto.TLHelpGetPromoData:
+		buf := mtproto.NewEncodeBuf(512)
+		buf.Int(-212046591); buf.Long(msgId); buf.Int(-1728664459); buf.Int(int32(time.Now().Unix() + 3600))
+		cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
+	case *mtproto.TLAccountUpdateStatus:
+		buf := mtproto.NewEncodeBuf(512)
+		buf.Int(-212046591); buf.Long(msgId); buf.Int(-1720552011)
+		cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
 	case *mtproto.TLLangpackGetLanguages, *mtproto.TLHelpGetNearestDc, *mtproto.TLHelpGetCountriesList:
-		// Handle direct RPC queries (not wrapped in invokeWithLayer)
-		fmt.Printf("Direct RPC query: %T\n", o)
 		buf := cp.handleRPCQuery(o, msgId)
 		cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
-	default:
-		// Check if it's any other RPC query that should be handled
-		fmt.Printf("Unknown message type: %T\n", o)
 	}
 }
 
