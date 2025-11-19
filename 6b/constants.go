@@ -32,7 +32,7 @@ func (e *AesCTR128Crypto) Encrypt(plaintext []byte) []byte {
 	return e.encrypt.Encrypt(plaintext)
 }
 func (e *AesCTR128Crypto) Decrypt(ciphertext []byte) []byte {
-	if e == nil || e.decrypt == nil { fmt.Printf("ctr %02x\n", ciphertext[:10]); return ciphertext }
+	if e == nil || e.decrypt == nil { fmt.Printf("ctr decrypt err %02x\n", ciphertext[:10]); return ciphertext }
 	return e.decrypt.Encrypt(ciphertext)
 }
 

@@ -189,7 +189,7 @@ func processQuery(queryBytes []byte, out *os.File, indent string) {
 }
 
 func main() {
-	out, _ := os.Create("tl_objects_output2.txt")
+	out, _ := os.Create("tl_objects_output3.txt")
 	defer out.Close()
 	files, _ := ioutil.ReadDir("/home/u/dev/telegram/japp/mirror/CommData1")
 	sort.Slice(files, func(i, j int) bool {

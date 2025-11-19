@@ -1,0 +1,766 @@
+--> 0_sent_data.bin 
+MsgId: 7574453784617580544
+Offset 664:
+TLInvokeWithLayer{
+  Constructor: -627372787
+  Layer: 156
+  Query: [600 items]
+}
+  Query: constructor:CRC32_initConnection_c1cd5ea9  api_id:4  device_model:"Samsung Galaxy A31"  system_version:"SDK 30"  app_version:"9.5.6 (32379) pbeta"  system_lang_code:"en-us"  lang_pack:"android"  lang_code:"en"  params:{predicate_name:"jsonObject"  constructor:CRC32_jsonObject  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"device_token"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"__FIREBASE_GENERATING_SINCE_1763564948__"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"data"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"A08D7DC323DDF71EF3201944397E0D3CCE7D40847263E11F328B68BBE19229AB"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"installer"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"android"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"package_id"  value:{predicate_name:"jsonString"  constructor:CRC32_jsonString  value_STRING:"org.chatengine.messenger.beta"}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"tz_offset"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber}}  value_VECTORJSONOBJECTVALUE:{predicate_name:"jsonObjectValue"  constructor:CRC32_jsonObjectValue  key:"perf_cat"  value:{predicate_name:"jsonNumber"  constructor:CRC32_jsonNumber  value_FLOAT64:3}}}  query:"}\xd5\x0f\x80\x81mq\xa9\x0f_gnܵ\xf1\xb7\x95\n\x84W!M\x07\xbd\"\"\x0b\xc1\xc3R/cŸ\x99k띗\xb6\xa7\xdfaѝ\xbc\x93\xb4\xf8۝N\xb4\n%\xc7\xe9\x9a|5E\xa7\x8e\x83!i4>\x18\x18\x91\xbcPq\x81K\xa4\xfe\xf3\xec\xe3\xdb\x1f\xec!M\xc8>Y\x9d\xf5@5\x19\xa5\xe1\xb3Q\xcf8\\\xb8\xb8\\5ߚǅ\x04\xa37\xbdä\xe7&\xfb@ܧ\xb6<K\x0bX\xa9\x7f\x11\xfcd\xaa3\x9c\xada\xdf\x01%\xf9\xdd\x1b\x1a\xa7\xa4/\th\x1f\x9ak\xaf\x86l\xe4I\xbe\xd90נ\xbar#\xed\xea\xafkA-\x86u\x1c}\xad\x04\x84\x08F,\xb6=\x9e\xf37\x0fҹp}\xae~L\xeaW\xee\x1f\x1a\xc8\xe0\x8cg[\x9cM\xf4\xaf\xd5\xf9\x1b\xa3k\xcfe\xd0f\xc4"
+    Query: constructor:CRC32_langpack_getLanguages_800fd57d
+
+<-- 1_received_data.bin 
+MsgId: 7574453785115806521
+Offset 84:
+TLNewSessionCreated{
+  Data2: NewSession{
+      PredicateName: "new_session_created"
+      Constructor: -1631450872
+      FirstMsgId: 7574453784617580544
+      UniqueId: 1763564950493930680
+      ServerSalt: 1152762306391981069
+    }
+}
+
+<-- 2_received_data.bin 
+MsgId: 7574453785115936621
+Offset 72:
+TLRpcResult{
+  ReqMsgId: 7574453784617580544
+}
+
+--> 3_sent_data.bin 
+MsgId: 7574453793259054080
+Offset 60:
+TLHelpGetNearestDc{
+  Constructor: 531836966
+}
+
+<-- 4_received_data.bin 
+MsgId: 7574453793223451781
+Offset 84:
+TLRpcResult{
+  ReqMsgId: 7574453793259054080
+  Result: TLNearestDc{
+      Data2: NearestDc{
+            PredicateName: "nearestDc"
+            Constructor: -1910892683
+            Country: "CN"
+            ThisDc: 1
+            NearestDc: 1
+          }
+    }
+}
+
+--> 5_sent_data.bin 
+MsgId: 7574453793267644416
+Offset 68:
+TLHelpGetCountriesList{
+  Constructor: 1935116200
+  LangCode: "en"
+}
+
+<-- 6_received_data.bin 
+MsgId: 7574453793725885485
+Offset 84:
+TLRpcResult{
+  ReqMsgId: 7574453793267644416
+  Result: TLHelpCountriesList{
+      Data2: Help_CountriesList{
+            PredicateName: "help_countriesList"
+            Constructor: -2016381538
+          }
+    }
+}
+
+--> 7_sent_data.bin 
+MsgId: 7574453821043197952
+Offset 132:
+TLAuthSendCode{
+  Constructor: -1502141361
+  PhoneNumber: "6281298219323"
+  ApiId: 4
+  ApiHash: "014b35b6184100b085b0d0572f9b5103"
+  Settings: CodeSettings{
+      PredicateName: "codeSettings"
+      Constructor: -1390068360
+    }
+}
+
+<-- 8_received_data.bin 
+MsgId: 7574453819462396389
+Offset 196:
+TLMsgContainer{
+  Messages: [TLMessage2{
+        MsgId: 7574453819462395113
+        Seqno: 1
+        Bytes: 28
+        Object: TLNewSessionCreated{
+                Data2: ...
+              }
+      }, TLMessage2{
+        MsgId: 7574453819462395457
+        Seqno: 3
+        Bytes: 72
+        Object: TLRpcResult{
+                ReqMsgId: ...
+                Result: ...
+              }
+      }]
+}
+
+--> 9_sent_data.bin 
+MsgId: 7574453836668289024
+Offset 124:
+TLAuthSignIn{
+  Constructor: -1923962543
+  PhoneNumber: "6281298219323"
+  PhoneCodeHash: "ca87f629f5730ce2a350240e94e66706"
+  PhoneCode_FLAGSTRING: StringValue{
+      Value: "12345"
+    }
+}
+
+<-- 10_received_data.bin 
+MsgId: 7574453836279969921
+Offset 76:
+TLRpcResult{
+  ReqMsgId: 7574453836668289024
+  Result: TLAuthAuthorizationSignUpRequired{
+      Data2: Auth_Authorization{
+            PredicateName: "auth_authorizationSignUpRequired"
+            Constructor: 1148485274
+          }
+    }
+}
+
+--> 11_sent_data.bin 
+MsgId: 7574453852984869888
+Offset 120:
+TLAuthSignUp{
+  Constructor: -2131827673
+  PhoneNumber: "6281298219323"
+  PhoneCodeHash: "ca87f629f5730ce2a350240e94e66706"
+  FirstName: "u"
+  LastName: "i"
+}
+
+<-- 12_received_data.bin 
+MsgId: 7574453849964707737
+Offset 140:
+TLRpcResult{
+  ReqMsgId: 7574453852984869888
+  Result: TLAuthAuthorization{
+      Data2: Auth_Authorization{
+            PredicateName: "auth_authorization"
+            Constructor: 782418132
+            User: User{
+                    PredicateName: ...
+                    Constructor: ...
+                    Id: ...
+                    Self: ...
+                    Contact: ...
+                    MutualContact: ...
+                    AccessHash: ...
+                    FirstName: ...
+                    LastName: ...
+                    Phone: ...
+                    Status: ...
+                  }
+          }
+    }
+}
+
+--> 13_sent_data.bin 
+MsgId: 7574453854028547072
+Offset 60:
+TLHelpGetPromoData{
+  Constructor: -1063816159
+}
+
+--> 14_sent_data.bin 
+MsgId: 7574453854200345600
+Offset 68:
+TLRpcDropAnswer{
+  Constructor: 1491380032
+  ReqMsgId: 7574453854028547072
+}
+
+--> 15_sent_data.bin 
+MsgId: 7574453854204640256
+Offset 60:
+TLHelpGetPromoData{
+  Constructor: -1063816159
+}
+
+--> 16_sent_data.bin 
+MsgId: 7574453854208935936
+Offset 64:
+TLAccountUpdateStatus{
+  Constructor: 1713919532
+  Offline: Bool{
+      PredicateName: "boolFalse"
+      Constructor: -1132882121
+    }
+}
+
+--> 17_sent_data.bin 
+MsgId: 7574453854213230592
+Offset 60:
+TLHelpGetTermsOfServiceUpdate{
+  Constructor: 749019089
+}
+
+--> 18_sent_data.bin 
+MsgId: 7574453854264770560
+Offset 64:
+TLAccountGetNotifySettings{
+  Constructor: 313765169
+  Peer: InputNotifyPeer{
+      PredicateName: "inputNotifyChats"
+      Constructor: 1251338318
+    }
+}
+
+--> 19_sent_data.bin 
+MsgId: 7574453854264770564
+Offset 64:
+TLAccountGetNotifySettings{
+  Constructor: 313765169
+  Peer: InputNotifyPeer{
+      PredicateName: "inputNotifyUsers"
+      Constructor: 423314455
+    }
+}
+
+--> 20_sent_data.bin 
+MsgId: 7574453854264770568
+Offset 64:
+TLAccountGetNotifySettings{
+  Constructor: 313765169
+  Peer: InputNotifyPeer{
+      PredicateName: "inputNotifyBroadcasts"
+      Constructor: -1311015810
+    }
+}
+
+--> 21_sent_data.bin 
+MsgId: 7574453854269065216
+Offset 60:
+TLAccountGetContactSignUpNotification{
+  Constructor: -1626880216
+}
+
+--> 22_sent_data.bin 
+MsgId: 7574453854269065220
+Offset 60:
+TLHelpGetInviteText{
+  Constructor: 1295590211
+}
+
+--> 23_sent_data.bin 
+MsgId: 7574453854269065224
+Offset 80:
+TLMessagesGetStickers{
+  Constructor: -710552671
+  Emoticon: "📂⭐️"
+}
+
+--> 24_sent_data.bin 
+MsgId: 7574453854269065228
+Offset 68:
+TLMessagesGetStickerSet{
+  Constructor: -928977804
+  Stickerset: InputStickerSet{
+      PredicateName: "inputStickerSetPremiumGifts"
+      Constructor: -930399486
+    }
+}
+
+--> 25_sent_data.bin 
+MsgId: 7574453854269065232
+Offset 68:
+TLMessagesGetStickerSet{
+  Constructor: -928977804
+  Stickerset: InputStickerSet{
+      PredicateName: "inputStickerSetEmojiGenericAnimations"
+      Constructor: 80008398
+    }
+}
+
+--> 26_sent_data.bin 
+MsgId: 7574453854273359872
+Offset 64:
+TLMessagesGetPinnedDialogs{
+  Constructor: -692498958
+}
+
+--> 27_sent_data.bin 
+MsgId: 7574453854586892288
+Offset 60:
+TLLangpackGetLanguages{
+  Constructor: -2146445955
+}
+
+--> 28_sent_data.bin 
+MsgId: 7574453854702857216
+Offset 60:
+TLHelpGetPremiumPromo{
+  Constructor: -1206152236
+}
+
+--> 29_sent_data.bin 
+MsgId: 7574453854702857220
+Offset 64:
+TLMessagesGetAvailableReactions{
+  Constructor: 417243308
+}
+
+--> 30_sent_data.bin 
+MsgId: 7574453854883245056
+Offset 68:
+TLMessagesGetAttachMenuBots{
+  Constructor: 385663691
+}
+
+--> 31_sent_data.bin 
+MsgId: 7574453857700744192
+Offset 60:
+TLUpdatesGetState{
+  Constructor: -304838614
+}
+
+--> 32_sent_data.bin 
+MsgId: 7574453857726514176
+Offset 68:
+TLMessagesGetAttachMenuBots{
+  Constructor: 385663691
+}
+
+--> 33_sent_data.bin 
+MsgId: 7574453857739398144
+Offset 92:
+TLMessagesGetStickerSet{
+  Constructor: -928977804
+  Stickerset: InputStickerSet{
+      PredicateName: "inputStickerSetShortName"
+      Constructor: -2044933984
+      ShortName: "tg_placeholders_android"
+    }
+}
+
+--> 34_sent_data.bin 
+MsgId: 7574453857743693824
+Offset 68:
+TLContactsGetContacts{
+  Constructor: 1574346258
+}
+
+--> 35_sent_data.bin 
+MsgId: 7574453857743693828
+Offset 92:
+TLMessagesGetPeerDialogs{
+  Constructor: -462373635
+  Peers: [InputDialogPeer{
+        PredicateName: "inputDialogPeer"
+        Constructor: -55902537
+        Peer: InputPeer{
+                PredicateName: ...
+                Constructor: ...
+                UserId: ...
+                AccessHash: ...
+              }
+      }]
+}
+
+--> 36_sent_data.bin 
+MsgId: 7574453857743693832
+Offset 64:
+TLUsersGetFullUser{
+  Constructor: -1240508136
+  Id: InputUser{
+      PredicateName: "inputUserSelf"
+      Constructor: -138301121
+    }
+}
+
+--> 37_sent_data.bin 
+MsgId: 7574453857743693836
+Offset 68:
+TLMessagesGetFavedStickers{
+  Constructor: 82946729
+}
+
+--> 38_sent_data.bin 
+MsgId: 7574453857743693840
+Offset 80:
+TLMessagesGetStickers{
+  Constructor: -710552671
+  Emoticon: "👋⭐️"
+}
+
+--> 39_sent_data.bin 
+MsgId: 7574453857743693844
+Offset 64:
+TLMessagesGetAvailableReactions{
+  Constructor: 417243308
+}
+
+--> 40_sent_data.bin 
+MsgId: 7574453857747988480
+Offset 88:
+TLMessagesGetDialogs{
+  Constructor: -1594569905
+  ExcludePinned: true
+  OffsetPeer: InputPeer{
+      PredicateName: "inputPeerEmpty"
+      Constructor: 2134579434
+    }
+  Limit: 100
+}
+
+--> 41_sent_data.bin 
+MsgId: 7574453857752283136
+Offset 80:
+TLContactsGetTopPeers{
+  Constructor: -1758168906
+  Correspondents: true
+  BotsInline: true
+  Limit: 20
+}
+
+--> 42_sent_data.bin 
+MsgId: 7574453857752283140
+Offset 68:
+TLMessagesGetFeaturedStickers{
+  Constructor: 1685588756
+}
+
+--> 43_sent_data.bin 
+MsgId: 7574453857752283144
+Offset 68:
+TLMessagesGetFeaturedEmojiStickers{
+  Constructor: 248473398
+}
+
+--> 44_sent_data.bin 
+MsgId: 7574453857752283148
+Offset 76:
+TLMessagesGetStickerSet{
+  Constructor: -928977804
+  Stickerset: InputStickerSet{
+      PredicateName: "inputStickerSetDice"
+      Constructor: -427863538
+      Emoticon: "🎯"
+    }
+}
+
+--> 45_sent_data.bin 
+MsgId: 7574453857752283152
+Offset 76:
+TLMessagesGetStickerSet{
+  Constructor: -928977804
+  Stickerset: InputStickerSet{
+      PredicateName: "inputStickerSetDice"
+      Constructor: -427863538
+      Emoticon: "🎲"
+    }
+}
+
+--> 46_sent_data.bin 
+MsgId: 7574453857756578816
+Offset 68:
+TLMessagesGetStickerSet{
+  Constructor: -928977804
+  Stickerset: InputStickerSet{
+      PredicateName: "inputStickerSetAnimatedEmoji"
+      Constructor: 42402760
+    }
+}
+
+--> 47_sent_data.bin 
+MsgId: 7574453857782347776
+Offset 60:
+TLMessagesGetDialogFiltersF19ED96D{
+  Constructor: -241247891
+}
+
+--> 48_sent_data.bin 
+MsgId: 7574453862249114624
+
+<-- 49_received_data.bin 
+MsgId: 7574453867216159073
+
+--> 50_sent_data.bin 
+MsgId: 7574453888143471616
+Offset 1040:
+TLMsgContainer{
+  Messages: [34 items]
+}
+
+--> 51_sent_data.bin 
+MsgId: 7574453913870325760
+Offset 60:
+TLMessagesGetSuggestedDialogFilters{
+  Constructor: -1566780372
+}
+
+--> 52_sent_data.bin 
+MsgId: 7574453913874621440
+Offset 60:
+TLAccountGetPassword{
+  Constructor: 1418342645
+}
+
+--> 53_sent_data.bin 
+MsgId: 7574453913874621444
+Offset 124:
+TLMessagesGetSearchCounters{
+  Constructor: 11435201
+  Peer: InputPeer{
+      PredicateName: "inputPeerUser"
+      Constructor: -571955892
+      UserId: 777009
+      AccessHash: 7748176802034418738
+    }
+  Filters: [MessagesFilter{
+        PredicateName: "inputMessagesFilterPhotoVideo"
+        Constructor: 1458172132
+      }, MessagesFilter{
+        PredicateName: "inputMessagesFilterDocument"
+        Constructor: -1629621880
+      }, MessagesFilter{
+        PredicateName: "inputMessagesFilterRoundVoice"
+        Constructor: 2054952868
+      }, MessagesFilter{
+        PredicateName: "inputMessagesFilterUrl"
+        Constructor: 2129714567
+      }, MessagesFilter{
+        PredicateName: "inputMessagesFilterMusic"
+        Constructor: 928101534
+      }, MessagesFilter{
+        PredicateName: "inputMessagesFilterGif"
+        Constructor: -3644025
+      }, MessagesFilter{
+        PredicateName: "inputMessagesFilterPhotos"
+        Constructor: -1777752804
+      }, MessagesFilter{
+        PredicateName: "inputMessagesFilterVideo"
+        Constructor: -1614803355
+      }]
+}
+
+--> 54_sent_data.bin 
+MsgId: 7574453914003470336
+Offset 60:
+TLAccountGetAccountTTL{
+  Constructor: 150761757
+}
+
+--> 55_sent_data.bin 
+MsgId: 7574453914007764992
+Offset 60:
+TLAccountGetGlobalPrivacySettings{
+  Constructor: -349483786
+}
+
+--> 56_sent_data.bin 
+MsgId: 7574453914007764996
+Offset 64:
+TLAccountGetPrivacy{
+  Constructor: -623130288
+  Key: InputPrivacyKey{
+      PredicateName: "inputPrivacyKeyStatusTimestamp"
+      Constructor: 1335282456
+    }
+}
+
+--> 57_sent_data.bin 
+MsgId: 7574453914007765000
+Offset 64:
+TLAccountGetPrivacy{
+  Constructor: -623130288
+  Key: InputPrivacyKey{
+      PredicateName: "inputPrivacyKeyChatInvite"
+      Constructor: -1107622874
+    }
+}
+
+--> 58_sent_data.bin 
+MsgId: 7574453914007765004
+Offset 64:
+TLAccountGetPrivacy{
+  Constructor: -623130288
+  Key: InputPrivacyKey{
+      PredicateName: "inputPrivacyKeyPhoneCall"
+      Constructor: -88417185
+    }
+}
+
+--> 59_sent_data.bin 
+MsgId: 7574453914007765008
+Offset 128:
+TLMessagesSearch{
+  Constructor: -1593989278
+  Peer: InputPeer{
+      PredicateName: "inputPeerUser"
+      Constructor: -571955892
+      UserId: 777009
+      AccessHash: 7748176802034418738
+    }
+  Filter: MessagesFilter{
+      PredicateName: "inputMessagesFilterPhotoVideo"
+      Constructor: 1458172132
+    }
+  Limit: 50
+}
+
+--> 60_sent_data.bin 
+MsgId: 7574453914007765012
+Offset 64:
+TLAccountGetPrivacy{
+  Constructor: -623130288
+  Key: InputPrivacyKey{
+      PredicateName: "inputPrivacyKeyPhoneP2P"
+      Constructor: -610373422
+    }
+}
+
+--> 61_sent_data.bin 
+MsgId: 7574453914007765016
+Offset 64:
+TLAccountGetPrivacy{
+  Constructor: -623130288
+  Key: InputPrivacyKey{
+      PredicateName: "inputPrivacyKeyProfilePhoto"
+      Constructor: 1461304012
+    }
+}
+
+--> 62_sent_data.bin 
+MsgId: 7574453914007765020
+Offset 64:
+TLAccountGetPrivacy{
+  Constructor: -623130288
+  Key: InputPrivacyKey{
+      PredicateName: "inputPrivacyKeyForwards"
+      Constructor: -1529000952
+    }
+}
+
+--> 63_sent_data.bin 
+MsgId: 7574453914007765024
+Offset 64:
+TLAccountGetPrivacy{
+  Constructor: -623130288
+  Key: InputPrivacyKey{
+      PredicateName: "inputPrivacyKeyPhoneNumber"
+      Constructor: 55761658
+    }
+}
+
+--> 64_sent_data.bin 
+MsgId: 7574453914012059648
+Offset 64:
+TLAccountGetPrivacy{
+  Constructor: -623130288
+  Key: InputPrivacyKey{
+      PredicateName: "inputPrivacyKeyAddedByPhone"
+      Constructor: -786326563
+    }
+}
+
+--> 65_sent_data.bin 
+MsgId: 7574453914012059652
+Offset 64:
+TLAccountGetPrivacy{
+  Constructor: -623130288
+  Key: InputPrivacyKey{
+      PredicateName: "inputPrivacyKeyVoiceMessages"
+      Constructor: -1360618136
+    }
+}
+
+--> 66_sent_data.bin 
+MsgId: 7574453914055009280
+Offset 92:
+TLMessagesGetWebPage32CA8F91{
+  Constructor: 852135825
+  Url: "https://teamgram.org/faq"
+}
+
+--> 67_sent_data.bin 
+MsgId: 7574453914076484608
+Offset 80:
+TLPhotosGetUserPhotos{
+  Constructor: -1848823128
+  UserId: InputUser{
+      PredicateName: "inputUserSelf"
+      Constructor: -138301121
+    }
+  Limit: 80
+}
+
+--> 68_sent_data.bin 
+MsgId: 7574453922902642688
+Offset 1600:
+TLMsgContainer{
+  Messages: [51 items]
+}
+
+--> 69_sent_data.bin 
+MsgId: 7574453945116213248
+
+--> 70_sent_data.bin 
+MsgId: 7574453946735416320
+Offset 60:
+TLAuthLogOut{
+  Constructor: 1047706137
+}
+
+--> 71_sent_data.bin 
+MsgId: 7574453946834200576
+Offset 68:
+TLRpcDropAnswer{
+  Constructor: 1491380032
+  ReqMsgId: 7574453913874621444
+}
+
+--> 72_sent_data.bin 
+MsgId: 7574453946838495232
+Offset 68:
+TLRpcDropAnswer{
+  Constructor: 1491380032
+  ReqMsgId: 7574453914007765008
+}
+
+--> 73_sent_data.bin 
+MsgId: 7574453946838495236
+Offset 68:
+TLRpcDropAnswer{
+  Constructor: 1491380032
+  ReqMsgId: 7574453914076484608
+}
+
+--> 74_sent_data.bin 
+MsgId: 7574453947237926912
+Offset 68:
+TLMessagesGetAttachMenuBots{
+  Constructor: 385663691
+}
+
+--> 75_sent_data.bin 
+MsgId: 7574453947237926916
+Offset 68:
+TLRpcDropAnswer{
+  Constructor: 1491380032
+  ReqMsgId: 7574453854204640256
+}
+
+--> 76_sent_data.bin 
+MsgId: 7574453947237926920
+Offset 60:
+TLHelpGetPromoData{
+  Constructor: -1063816159
+}
+

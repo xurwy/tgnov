@@ -62,7 +62,7 @@ func findObjectsInBytes(data []byte, label string) {
 
 func main() {
     // Read the binary file
-    data, err := ioutil.ReadFile("/home/u/dev/telegram/japp/mirror/CommData1/2_received_data.bin")
+    data, err := ioutil.ReadFile("/home/u/dev/telegram/japp/mirror/CommData1/50_sent_data.bin")
     if err != nil {
         panic(err)
     }
@@ -72,11 +72,11 @@ func main() {
     // Use the abstracted function to find objects
     findObjectsInBytes(data, "Main file")
     
-    fmt.Println("\n=== Trying with standard message structure ===")
-    // Try unpacking as standard message from start
-    if len(data) >= 16 {
-        unpackMessage(data)
-    }
+//     fmt.Println("\n=== Trying with standard message structure ===")
+//     // Try unpacking as standard message from start
+//     if len(data) >= 16 {
+//         unpackMessage(data)
+//     }
 }
 
 func unpackMessage(data []byte) {
@@ -90,7 +90,7 @@ func unpackMessage(data []byte) {
 }
 
 func main2() {
-	data, err := ioutil.ReadFile("/home/u/dev/telegram/japp/mirror/CommData1/3_sent_data.bin")
+	data, err := ioutil.ReadFile("/home/u/dev/telegram/japp/mirror/CommData1/14_received_data.bin")
 	fmt.Println("datafile len", len(data))
 	if err != nil {
 		panic(err)
