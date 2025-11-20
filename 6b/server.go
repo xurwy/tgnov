@@ -12,7 +12,6 @@ import (
 
 	"github.com/teamgram/proto/mtproto"
 	"github.com/teamgram/proto/mtproto/crypto"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 var ctr, ctrIsInitialized int
@@ -100,7 +99,7 @@ func (cp *ConnProp) handleRPCQuery(query mtproto.TLObject, msgId int64) *mtproto
 	
 	switch query.(type) {
 	case *mtproto.TLLangpackGetLanguages:
-		buf.Int(481674261); buf.Int(0)
+		buf.Int(481674261); buf.Int(62)
 	case *mtproto.TLHelpGetNearestDc:
 		buf.Int(-1910892683); buf.String("CN"); buf.Int(1); buf.Int(1)
 	case *mtproto.TLHelpGetCountriesList:
@@ -153,7 +152,7 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		fmt.Printf("%d TLAuthSendCode Phone: %s\n", msgId, o.(*mtproto.TLAuthSendCode).PhoneNumber)
 		buf := mtproto.NewEncodeBuf(512)
 		buf.Int(-212046591); buf.Long(msgId); buf.Int(0x5e002502); buf.Int(17)
-		buf.Int(-1073693790); buf.Int(5); buf.String("21e22a8d47e7fc8241239f6a0102786c"); buf.Int(60)
+		buf.Int(-1073693790); buf.Int(5); buf.String("21e22a8d47e7fc8241239f6a0102786c"); buf.Int(120)
 		cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
 	case *mtproto.TLMsgContainer:
 		for _, m := range obj.Messages { cp.replyMsg(m.Object, m.MsgId, salt, sessionId) }
@@ -165,40 +164,14 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 	case *mtproto.TLAuthSignUp:
 		authSignUp := o.(*mtproto.TLAuthSignUp)
 		fmt.Printf("%d TLAuthSignUp Phone: %s, Name: %s %s\n", msgId, authSignUp.PhoneNumber, authSignUp.FirstName, authSignUp.LastName)
-		
-		user := mtproto.MakeTLUser(&mtproto.User{
-			Id:            777009,
-			Self:          true,
-			Contact:       true,
-			MutualContact: true,
-			AccessHash:    &wrapperspb.Int64Value{Value: 7748176802034418738},
-			FirstName:     &wrapperspb.StringValue{Value: authSignUp.FirstName},
-			LastName:      &wrapperspb.StringValue{Value: authSignUp.LastName},
-			Phone:         &wrapperspb.StringValue{Value: authSignUp.PhoneNumber},
-			Status: &mtproto.UserStatus{
-				PredicateName: "userStatusOnline",
-				Constructor:   -306628279,
-				Expires:       1763554375,
-			},
-		}).To_User()
-		
-		authAuth := mtproto.MakeTLAuthAuthorization(&mtproto.Auth_Authorization{
-			SetupPasswordRequired: false,
-			OtherwiseReloginDays:  nil,
-			TmpSessions:           nil,
-			FutureAuthToken:       nil,
-			User:                  user,
-		})
-		
 		buf := mtproto.NewEncodeBuf(512)
-		
-		buf.Int(-212046591) // rpc_result constructor  
-		buf.Long(msgId)     // ReqMsgId
-		authAuth.Encode(buf, 158)
-		
+		buf.Int(-212046591); buf.Long(msgId); buf.Int(782418132); buf.Int(0); buf.Int(-742634630)
+		buf.Int(int32(0x400 | 0x800 | 0x1000 | 0x1 | 0x2 | 0x4 | 0x10 | 0x40))
+		buf.Long(12345); buf.Long(12345678)
+		buf.String(authSignUp.FirstName); buf.String(authSignUp.LastName); buf.String(authSignUp.PhoneNumber)
+		buf.Int(-496024847)
 		cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
 	case *mtproto.TLHelpGetPromoData:
-		fmt.Println("from TLHelpGetPromoData")
 		buf := mtproto.NewEncodeBuf(512)
 		buf.Int(-212046591); buf.Long(msgId); buf.Int(-1728664459); buf.Int(int32(time.Now().Unix() + 3600))
 		cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
