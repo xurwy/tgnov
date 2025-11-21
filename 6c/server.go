@@ -201,65 +201,6 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 	case *mtproto.TLMsgContainer:
 		fmt.Println("Going inside TLMsgContainer")
 		for _, m := range obj.Messages { cp.replyMsg(m.Object, m.MsgId, salt, sessionId) }
-	case *mtproto.TLUsersGetFullUser:
-		user := mtproto.MakeTLUser(&mtproto.User{
-			Id:            777010,
-			Self:          true,
-			Contact:       true,
-			MutualContact: true,
-			AccessHash:    &wrapperspb.Int64Value{Value: 9110083885959396583},
-			FirstName:     &wrapperspb.StringValue{Value: "Y"},
-			LastName:      &wrapperspb.StringValue{Value: "Y"},
-			Status: &mtproto.UserStatus{
-				PredicateName: "userStatusOffline",
-				Constructor:   0x8c703f,
-				Expires:       0,
-			},
-		}).To_User()
-		
-		userFull := mtproto.MakeTLUserFull(&mtproto.UserFull{
-			Blocked:                 false,
-			PhoneCallsPrivate:       false,
-			CanPinMessage:           true,
-			HasScheduled:            false,
-			VoiceMessagesForbidden:  false,
-			TranslationsDisabled:    false,
-			StoriesPinnedAvailable:  false,
-			BlockedMyStoriesFrom:    false,
-			WallpaperOverridden:     false,
-			Id:                      777010,
-			Settings:                nil,
-			PersonalPhoto:           nil,
-			FallbackPhoto:           nil,
-			NotifySettings:          nil,
-			BotInfo:                 nil,
-			PinnedMsgId:             nil,
-			CommonChatsCount:        0,
-			FolderId:                nil,
-			TtlPeriod:               nil,
-			ThemeEmoticon:           nil,
-			PrivateForwardName:      nil,
-			BotGroupAdminRights:     nil,
-			BotBroadcastAdminRights: nil,
-			PremiumGifts:            nil,
-			Wallpaper:               nil,
-			Stories_FLAGPEERSTORIES: nil,
-			Stories_FLAGUSERSTORIES: nil,
-			Birthday:                nil,
-			PersonalChannelId:       nil,
-		}).To_UserFull()
-		
-		usersUserFull := mtproto.MakeTLUsersUserFull(&mtproto.Users_UserFull{
-			FullUser: userFull,
-			Chats:    []*mtproto.Chat{},
-			Users:    []*mtproto.User{user},
-		})
-		
-		buf := mtproto.NewEncodeBuf(1024)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		usersUserFull.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
 	case *mtproto.TLAccountUpdateStatus:
 		boolTrue := mtproto.MakeTLBoolTrue(nil)
 		buf := mtproto.NewEncodeBuf(512)
@@ -332,6 +273,65 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		buf.Int(-212046591) // rpc_result constructor
 		buf.Long(msgId)
 		peerDialogs.Encode(buf, 158)
+		cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
+	case *mtproto.TLUsersGetFullUser:
+		user := mtproto.MakeTLUser(&mtproto.User{
+			Id:            777010,
+			Self:          true,
+			Contact:       true,
+			MutualContact: true,
+			AccessHash:    &wrapperspb.Int64Value{Value: 9110083885959396583},
+			FirstName:     &wrapperspb.StringValue{Value: "Y"},
+			LastName:      &wrapperspb.StringValue{Value: "Y"},
+			Status: &mtproto.UserStatus{
+				PredicateName: "userStatusOffline",
+				Constructor:   0x8c703f,
+				Expires:       0,
+			},
+		}).To_User()
+		
+		userFull := mtproto.MakeTLUserFull(&mtproto.UserFull{
+			Blocked:                 false,
+			PhoneCallsPrivate:       false,
+			CanPinMessage:           true,
+			HasScheduled:            false,
+			VoiceMessagesForbidden:  false,
+			TranslationsDisabled:    false,
+			StoriesPinnedAvailable:  false,
+			BlockedMyStoriesFrom:    false,
+			WallpaperOverridden:     false,
+			Id:                      777010,
+			Settings:                nil,
+			PersonalPhoto:           nil,
+			FallbackPhoto:           nil,
+			NotifySettings:          nil,
+			BotInfo:                 nil,
+			PinnedMsgId:             nil,
+			CommonChatsCount:        0,
+			FolderId:                nil,
+			TtlPeriod:               nil,
+			ThemeEmoticon:           nil,
+			PrivateForwardName:      nil,
+			BotGroupAdminRights:     nil,
+			BotBroadcastAdminRights: nil,
+			PremiumGifts:            nil,
+			Wallpaper:               nil,
+			Stories_FLAGPEERSTORIES: nil,
+			Stories_FLAGUSERSTORIES: nil,
+			Birthday:                nil,
+			PersonalChannelId:       nil,
+		}).To_UserFull()
+		
+		usersUserFull := mtproto.MakeTLUsersUserFull(&mtproto.Users_UserFull{
+			FullUser: userFull,
+			Chats:    []*mtproto.Chat{},
+			Users:    []*mtproto.User{user},
+		})
+		
+		buf := mtproto.NewEncodeBuf(1024)
+		buf.Int(-212046591) // rpc_result constructor
+		buf.Long(msgId)
+		usersUserFull.Encode(buf, 158)
 		cp.send(buf.GetBuf(), salt, sessionId, mtproto.GenerateMessageId())
 	case *mtproto.TLMessagesGetPeerDialogs, *mtproto.TLMessagesGetDialogs:
 		dialogs := mtproto.MakeTLMessagesDialogsSlice(&mtproto.Messages_Dialogs{
