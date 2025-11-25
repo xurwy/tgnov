@@ -1,0 +1,9 @@
+package mpretty
+
+    import "github.com/xurwy/mpretty"
+
+    package mpretty provides pretty-printing for Go values.
+
+Documentation
+
+    http://godoc.org/github.com/kr/pretty

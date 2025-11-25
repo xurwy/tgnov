@@ -28,6 +28,8 @@ var (
 	gBigIntDH2048P, gBigIntDH2048G = new(big.Int).SetBytes(dh2048P), new(big.Int).SetBytes(dh2048G)
 )
 
+const expiresTimeout = 3600
+
 type AesCTR128Crypto struct{ decrypt, encrypt *crypto.AesCTR128Encrypt }
 
 func newAesCTR128Crypto(d, e *crypto.AesCTR128Encrypt) *AesCTR128Crypto { return &AesCTR128Crypto{d, e} }
@@ -308,182 +310,6 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		authAuth.Encode(buf, 158)
 		
 		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLHelpGetPromoData:
-		promoData := mtproto.MakeTLHelpPromoDataEmpty(&mtproto.Help_PromoData{
-			Expires: int32(time.Now().Unix() + 3600),
-		})
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		promoData.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLMsgContainer:
-		fmt.Println("Going inside TLMsgContainer")
-		for _, m := range obj.Messages { 
-			// Process each message in the container asynchronously
-			cp.replyMsg(m.Object, m.MsgId, salt, sessionId) 
-		}
-	case *mtproto.TLUsersGetFullUser:
-		fmt.Println("========== FROM *mtproto.TLUsersGetFullUser ========")
-		// response := createUserFullResponse(msgId)
-		// cp.send(response, salt, sessionId)
-	case *mtproto.TLAccountUpdateStatus:
-		boolTrue := mtproto.MakeTLBoolTrue(nil)
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		boolTrue.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLLangpackGetLanguages, *mtproto.TLHelpGetNearestDc, *mtproto.TLHelpGetCountriesList:
-		buf := cp.handleQuery(o, msgId)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLHelpGetTermsOfServiceUpdate:
-		termsUpdate := mtproto.MakeTLHelpTermsOfServiceUpdateEmpty(&mtproto.Help_TermsOfServiceUpdate{
-			Expires: int32(time.Now().Unix() + 3600),
-		})
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		termsUpdate.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLAccountGetNotifySettings:
-		notifySettings := mtproto.MakeTLPeerNotifySettings(&mtproto.PeerNotifySettings{
-			ShowPreviews: mtproto.MakeTLBoolTrue(nil).To_Bool(),
-			Silent:       mtproto.MakeTLBoolFalse(nil).To_Bool(),
-			MuteUntil:    &wrapperspb.Int32Value{Value: 0},
-		})
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		notifySettings.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLAccountGetContactSignUpNotification:
-		boolFalse := mtproto.MakeTLBoolTrue(nil)
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		boolFalse.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLMessagesGetStickers:
-		stickers := mtproto.MakeTLMessagesStickers(&mtproto.Messages_Stickers{
-			Hash:     0,
-			Stickers: []*mtproto.Document{},
-		})
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		stickers.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLMessagesGetStickerSet:
-		stickerSetNotModified := mtproto.MakeTLMessagesStickerSetNotModified(nil)
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		stickerSetNotModified.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLMessagesGetPinnedDialogs, *mtproto.TLMessagesGetPeerDialogs:
-		peerDialogs := mtproto.MakeTLMessagesPeerDialogs(&mtproto.Messages_PeerDialogs{
-			Dialogs:  []*mtproto.Dialog{},
-			Messages: []*mtproto.Message{},
-			Chats:    []*mtproto.Chat{},
-			Users:    []*mtproto.User{},
-			State: mtproto.MakeTLUpdatesState(&mtproto.Updates_State{
-				Pts:         1,
-				Qts:         0,
-				Date:        int32(time.Now().Unix()),
-				Seq:         -1,
-				UnreadCount: 0,
-			}).To_Updates_State(),
-		})
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		peerDialogs.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLMessagesGetDialogs:
-		dialogs := mtproto.MakeTLMessagesDialogsSlice(&mtproto.Messages_Dialogs{
-			Dialogs:  []*mtproto.Dialog{},
-			Messages: []*mtproto.Message{},
-			Chats:    []*mtproto.Chat{},
-			Users:    []*mtproto.User{},
-			Count:    0,
-		})
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		dialogs.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-
-	case *mtproto.TLHelpGetPremiumPromo, *mtproto.TLMessagesGetAttachMenuBots, *mtproto.TLMessagesGetDialogFiltersF19ED96D, *mtproto.TLHelpGetInviteText:
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591); buf.Long(msgId); buf.Int(558156313); buf.Int(400); buf.String("ERR_ENTERPRISE_IS_BLOCKED")
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLMessagesGetAvailableReactions:
-		availableReactionsNotModified := mtproto.MakeTLMessagesAvailableReactionsNotModified(nil)
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		availableReactionsNotModified.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLUpdatesGetState:
-		updatesState := mtproto.MakeTLUpdatesState(&mtproto.Updates_State{
-			Pts:         1,
-			Qts:         0,
-			Date:        int32(time.Now().Unix()),
-			Seq:         -1,
-			UnreadCount: 0,
-		})
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		updatesState.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLContactsGetContacts:
-		contacts := mtproto.MakeTLContactsContacts(&mtproto.Contacts_Contacts{
-			Contacts:   []*mtproto.Contact{},
-			SavedCount: 0,
-			Users:      []*mtproto.User{},
-		})
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		contacts.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLMessagesGetFavedStickers:
-		favedStickers := mtproto.MakeTLMessagesFavedStickers(&mtproto.Messages_FavedStickers{
-			Hash:     0,
-			Packs:    []*mtproto.StickerPack{},
-			Stickers: []*mtproto.Document{},
-		})
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		favedStickers.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLMessagesGetFeaturedStickers, *mtproto.TLMessagesGetFeaturedEmojiStickers:
-		featuredStickers := mtproto.MakeTLMessagesFeaturedStickers(&mtproto.Messages_FeaturedStickers{
-			Hash:     0,
-			Count:    0,
-			Sets:     []*mtproto.StickerSetCovered{},
-			Unread:   []int64{},
-		})
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		featuredStickers.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLContactsGetTopPeers:
-		
-		topPeers := mtproto.MakeTLContactsTopPeers(&mtproto.Contacts_TopPeers{
-			Categories: []*mtproto.TopPeerCategoryPeers{},
-			Chats:      []*mtproto.Chat{},
-			Users:      []*mtproto.User{},
-		})
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor  
-		buf.Long(msgId)   
-		topPeers.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
 	case *mtproto.TLContactsGetStatuses:
 		contactsStatuses := &mtproto.Vector_ContactStatus{
 			Datas: []*mtproto.ContactStatus{},
@@ -493,62 +319,299 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		buf.Long(msgId)
 		contactsStatuses.Encode(buf, 158)
 		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLMessagesGetAllDrafts:
-		user := mtproto.MakeTLUser(&mtproto.User{
-			Id:            777008,
-			Self:          true,
-			Contact:       true,
-			MutualContact: true,
-			AccessHash:    &wrapperspb.Int64Value{Value: 8646839358227092202},
-			FirstName:     &wrapperspb.StringValue{Value: "U"},
-			LastName:      &wrapperspb.StringValue{Value: "T"},
-			Phone:         &wrapperspb.StringValue{Value: "6281698219323"},
-			Status: &mtproto.UserStatus{
-				PredicateName: "userStatusOnline",
-				Constructor:   -306628279,
-				Expires:       int32(time.Now().Unix() + 60),
-			},
-		}).To_User()
-		
-		updates := mtproto.MakeTLUpdates(&mtproto.Updates{
-			Updates: []*mtproto.Update{},
-			Users:   []*mtproto.User{user},
-			Chats:   []*mtproto.Chat{},
-			Date:    int32(time.Now().Unix()),
-			Seq:     0,
-		})
-		
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		updates.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLContactsImportContacts:
-		importedContacts := mtproto.MakeTLContactsImportedContacts(&mtproto.Contacts_ImportedContacts{
-			Imported:       []*mtproto.ImportedContact{},
-			PopularInvites: []*mtproto.PopularContact{},
-			RetryContacts:  []int64{},
-			Users:          []*mtproto.User{},
-		})
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		importedContacts.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLRpcDropAnswer:
-		// Client is dropping/cancelling a previous RPC call
-		// Just acknowledge it with RpcAnswerDropped 
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		buf.Int(-1539647305) // rpc_answer_dropped constructor
-		buf.Long(msgId) // msg_id
-		buf.Int(0) // seq_no
-		buf.Int(0) // bytes
-		cp.send(buf.GetBuf(), salt, sessionId)
+	case *mtproto.TLMsgContainer:
+		fmt.Println("Going inside TLMsgContainer")
+		for _, m := range obj.Messages { 
+			switch m.Object.(type) {
+			case *mtproto.TLAccountGetNotifySettings:
+				fmt.Printf("TLAccountGetNotifySettings %d\n", msgId)
+				notifySettings := mtproto.MakeTLPeerNotifySettings(&mtproto.PeerNotifySettings{
+					ShowPreviews: mtproto.MakeTLBoolTrue(nil).To_Bool(),
+					Silent:       mtproto.MakeTLBoolFalse(nil).To_Bool(),
+					MuteUntil:    &wrapperspb.Int32Value{Value: 0},
+				})
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(m.MsgId)
+				notifySettings.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLUsersGetFullUser:
+				fmt.Printf("mtproto.TLUsersGetFullUser %d\n", msgId)
+				response := createUserFullResponse(msgId)
+				cp.send(response, salt, sessionId)
+			case *mtproto.TLAccountUpdateStatus:
+				boolTrue := mtproto.MakeTLBoolTrue(nil)
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(msgId)
+				boolTrue.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLLangpackGetLanguages, *mtproto.TLHelpGetNearestDc, *mtproto.TLHelpGetCountriesList:
+				buf := cp.handleQuery(o, msgId)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLHelpGetTermsOfServiceUpdate:
+				termsUpdate := mtproto.MakeTLHelpTermsOfServiceUpdateEmpty(&mtproto.Help_TermsOfServiceUpdate{
+					Expires: int32(time.Now().Unix() + 3600),
+				})
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(m.MsgId)
+				termsUpdate.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLAccountGetContactSignUpNotification:
+				boolFalse := mtproto.MakeTLBoolTrue(nil)
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(msgId)
+				boolFalse.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLMessagesGetStickers:
+				stickers := mtproto.MakeTLMessagesStickers(&mtproto.Messages_Stickers{
+					Hash:     0,
+					Stickers: []*mtproto.Document{},
+				})
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(m.MsgId)
+				stickers.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLMessagesGetStickerSet:
+				stickerSetNotModified := mtproto.MakeTLMessagesStickerSetNotModified(nil)
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(m.MsgId)
+				stickerSetNotModified.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLMessagesGetPinnedDialogs:
+				peerDialogs := mtproto.MakeTLMessagesPeerDialogs(&mtproto.Messages_PeerDialogs{
+					Dialogs:  []*mtproto.Dialog{},
+					Messages: []*mtproto.Message{},
+					Chats:    []*mtproto.Chat{},
+					Users:    []*mtproto.User{},
+					State: mtproto.MakeTLUpdatesState(&mtproto.Updates_State{
+						Pts:         1,
+						Qts:         0,
+						Date:        int32(time.Now().Unix()),
+						Seq:         -1,
+						UnreadCount: 0,
+					}).To_Updates_State(),
+				})
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(m.MsgId)
+				peerDialogs.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLMessagesGetPeerDialogs, *mtproto.TLMessagesGetDialogs:
+				dialogs := mtproto.MakeTLMessagesDialogsSlice(&mtproto.Messages_Dialogs{
+					Dialogs:  []*mtproto.Dialog{},
+					Messages: []*mtproto.Message{},
+					Chats:    []*mtproto.Chat{},
+					Users:    []*mtproto.User{},
+					Count:    0,
+				})
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(m.MsgId)
+				dialogs.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLHelpGetPremiumPromo, *mtproto.TLMessagesGetAttachMenuBots, *mtproto.TLMessagesGetDialogFiltersF19ED96D, *mtproto.TLHelpGetInviteText:
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591); buf.Long(msgId); buf.Int(558156313); buf.Int(400); buf.String("ERR_ENTERPRISE_IS_BLOCKED")
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLMessagesGetAvailableReactions:
+				availableReactionsNotModified := mtproto.MakeTLMessagesAvailableReactionsNotModified(nil)
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(m.MsgId)
+				availableReactionsNotModified.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLUpdatesGetState:
+				updatesState := mtproto.MakeTLUpdatesState(&mtproto.Updates_State{
+					Pts:         1,
+					Qts:         0,
+					Date:        int32(time.Now().Unix()),
+					Seq:         -1,
+					UnreadCount: 0,
+				})
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(m.MsgId)
+				updatesState.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLContactsGetContacts:
+				contacts := mtproto.MakeTLContactsContacts(&mtproto.Contacts_Contacts{
+					Contacts:   []*mtproto.Contact{},
+					SavedCount: 0,
+					Users:      []*mtproto.User{},
+				})
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(m.MsgId)
+				contacts.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLMessagesGetFavedStickers:
+				favedStickers := mtproto.MakeTLMessagesFavedStickers(&mtproto.Messages_FavedStickers{
+					Hash:     0,
+					Packs:    []*mtproto.StickerPack{},
+					Stickers: []*mtproto.Document{},
+				})
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(m.MsgId)
+				favedStickers.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLMessagesGetFeaturedStickers, *mtproto.TLMessagesGetFeaturedEmojiStickers:
+				featuredStickers := mtproto.MakeTLMessagesFeaturedStickers(&mtproto.Messages_FeaturedStickers{
+					Hash:     0,
+					Count:    0,
+					Sets:     []*mtproto.StickerSetCovered{},
+					Unread:   []int64{},
+				})
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(m.MsgId)
+				featuredStickers.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLContactsGetTopPeers:
+				
+				topPeers := mtproto.MakeTLContactsTopPeers(&mtproto.Contacts_TopPeers{
+					Categories: []*mtproto.TopPeerCategoryPeers{},
+					Chats:      []*mtproto.Chat{},
+					Users:      []*mtproto.User{},
+				})
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor  
+				buf.Long(m.MsgId)   
+				topPeers.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLMessagesGetAllDrafts:
+				user := mtproto.MakeTLUser(&mtproto.User{
+					Id:            777008,
+					Self:          true,
+					Contact:       true,
+					MutualContact: true,
+					AccessHash:    &wrapperspb.Int64Value{Value: 8646839358227092202},
+					FirstName:     &wrapperspb.StringValue{Value: "U"},
+					LastName:      &wrapperspb.StringValue{Value: "T"},
+					Phone:         &wrapperspb.StringValue{Value: "6281698219323"},
+					Status: &mtproto.UserStatus{
+						PredicateName: "userStatusOnline",
+						Constructor:   -306628279,
+						Expires:       int32(time.Now().Unix() + 60),
+					},
+				}).To_User()
+				
+				updates := mtproto.MakeTLUpdates(&mtproto.Updates{
+					Updates: []*mtproto.Update{},
+					Users:   []*mtproto.User{user},
+					Chats:   []*mtproto.Chat{},
+					Date:    int32(time.Now().Unix()),
+					Seq:     0,
+				})
+				
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(m.MsgId)
+				updates.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			case *mtproto.TLContactsImportContacts:
+				importedContacts := mtproto.MakeTLContactsImportedContacts(&mtproto.Contacts_ImportedContacts{
+					Imported:       []*mtproto.ImportedContact{},
+					PopularInvites: []*mtproto.PopularContact{},
+					RetryContacts:  []int64{},
+					Users:          []*mtproto.User{},
+				})
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591) // rpc_result constructor
+				buf.Long(m.MsgId)
+				importedContacts.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+			default:
+				// other types
+			}
+		}
 	default:
 		fmt.Printf("Not found %T\n", obj)
 	}
+}
+
+func createUserFullResponse(msgId int64) []byte {
+	buf := mtproto.NewEncodeBuf(2048)
+	
+	// rpc_result constructor
+	buf.Int(-212046591) // 0xf35c6d01
+	buf.Long(msgId)
+	
+	// users.userFull#3b6d152e (Layer 158)
+	buf.Int(0x3b6d152e) // 997004590 decimal
+	
+	buf.Int(-1179571092) // 0xb9b12c6c as signed int32
+	
+	// flags field - from your JSON: 128 (bit 7 = can_pin_message)
+	buf.Int(128)
+	
+	// id field (always present)
+	buf.Long(777010)
+	
+	// about - flags.1 not set, skip
+	
+	// settings - PeerSettings (always required)
+	buf.Int(-1395233698) // 0xacd66c5e as signed int32
+	buf.Int(0)          // flags for peerSettings
+	
+	// personal_photo - flags.21 not set, skip
+	// profile_photo - flags.2 not set, skip  
+	// fallback_photo - flags.22 not set, skip
+	
+	// notify_settings - PeerNotifySettings (always required)
+	// peerNotifySettings#99622c0c
+	buf.Int(-1721619444) // -1721619444 as signed
+	buf.Int(0)          // flags for notify_settings
+	
+	// bot_info - flags.3 not set, skip
+	// pinned_msg_id - flags.6 not set, skip (bit 6 not in 128)
+	
+	// common_chats_count (always present)
+	buf.Int(0)
+	
+	// chats - Vector<Chat> (always required, comes BEFORE users in Layer 158)
+	buf.Int(0x1cb5c415) // vector constructor
+	buf.Int(0)          // empty vector
+	
+	// users - Vector<User> (always required)
+	buf.Int(0x1cb5c415) // vector constructor
+	buf.Int(1)          // one user
+	
+	// User object - user#3ff6ecb0 (Layer 158)
+	// Note: The constructor ID may differ in Layer 158
+	// Common Layer 158 user constructor: user#3ff6ecb0
+	buf.Int(0x3ff6ecb0)  // 1073684656 decimal
+	
+	// User flags from your JSON: 7255
+	// 7255 = 0x1C57 in hex
+	// Binary: 0001 1100 0101 0111
+	// Set bits: 0,1,2,4,6,10,11,12
+	buf.Int(7255)
+	
+	// flags2
+	buf.Int(0)
+	
+	// id (always present)
+	buf.Long(777010)
+	
+	// access_hash - flags.0 is set (bit 0)
+	buf.Long(9110083885959396583)
+	
+	// first_name - flags.1 is set (bit 1)
+	buf.String("Y")
+	
+	// last_name - flags.2 is set (bit 2)
+	buf.String("Y")
+	
+	buf.Int(0x8c703f)   // 9203071 decimal
+	buf.Int(0)          // was_online (expires)
+	
+	return buf.GetBuf()
 }
 
 func getDebugLevel() int {
