@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/kr/pretty"
 	"github.com/teamgram/proto/mtproto"
 )
 
@@ -25,7 +26,7 @@ func processTLBytes(data []byte) {
 		if obj == nil {
 			break
 		}
-		fmt.Printf("Offset %d: %+v\n", offset, obj)
+		fmt.Printf("Offset %d: %# v\n", offset, pretty.Formatter(obj))
 	}
 	fmt.Println()
 }
@@ -48,6 +49,6 @@ func generate(){
 }
 
 func main() {
-	// processBinFiles("/home/u/dev/telegram/japp/mirror/CommData-send2u2/")
-	generate()
+	processBinFiles("/home/u/dev/telegram/japp/mirror/CommData-send2u22/")
+	// generate()
 }

@@ -9,7 +9,6 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
-	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
@@ -216,8 +215,11 @@ func calcNewNonceHash(newNonce, authKey []byte, b byte) []byte {
 }
 
 func (cp *ConnProp) handleQuery(query mtproto.TLObject, msgId int64) *mtproto.EncodeBuf {
-	buf := mtproto.NewEncodeBuf(512); buf.Int(-212046591); buf.Long(msgId)
 	
+	qBuf := mtproto.NewDecodeBuf(query.(*mtproto.TLInitConnection).GetQuery())
+	query = qBuf.Object()
+
+	buf := mtproto.NewEncodeBuf(512); buf.Int(-212046591); buf.Long(msgId)
 	switch query.(type) {
 	case *mtproto.TLLangpackGetLanguages: buf.Int(481674261); buf.Int(0)
 	case *mtproto.TLHelpGetNearestDc: buf.Int(-1910892683); buf.String("CN"); buf.Int(1); buf.Int(1)
@@ -244,21 +246,8 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		newSessionData := mtproto.NewEncodeBuf(512)
 		newSessionData.Int(-1631450872); newSessionData.Long(msgId); newSessionData.Long(time.Now().UnixNano()); newSessionData.Long(salt)
 		cp.send(newSessionData.GetBuf(), salt, sessionId)
-		var query mtproto.TLObject
-		for qBytes := invLayer.Query; len(qBytes) > 0; {
-			qBuf := mtproto.NewDecodeBuf(qBytes)
-			if qObj := qBuf.Object(); qObj != nil {
-				query = qObj
-				v := reflect.ValueOf(qObj)
-				if v.Kind() == reflect.Ptr { v = v.Elem() }
-				if v.Kind() == reflect.Struct {
-					if field := v.FieldByName("Query"); field.IsValid() && !field.IsNil() {
-						if nextBytes, ok := field.Interface().([]byte); ok && len(nextBytes) > 0 { qBytes = nextBytes; continue }
-					}
-				}
-			}
-			break
-		}
+		dBuf := mtproto.NewDecodeBuf(invLayer.Query)
+		query := dBuf.Object()
 		buf := cp.handleQuery(query, msgId)
 		cp.send(buf.GetBuf(), salt, sessionId)
 		
@@ -266,7 +255,7 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		fmt.Printf("%d TLAuthSendCode Phone: %s\n", msgId, o.(*mtproto.TLAuthSendCode).PhoneNumber)
 		buf := mtproto.NewEncodeBuf(512)
 		buf.Int(-212046591); buf.Long(msgId); buf.Int(0x5e002502); buf.Int(17)
-		buf.Int(-1073693790); buf.Int(5); buf.String("21e22a8d47e7fc8241239f6a0102786c"); buf.Int(60)
+		buf.Int(-1073693790); buf.Int(5); buf.String(crypto.GenerateStringNonce(16)); buf.Int(60)
 		cp.send(buf.GetBuf(), salt, sessionId)
 	case *mtproto.TLAuthSignIn:
 		fmt.Printf("%d TLAuthSignIn Phone: %s, Code: %s\n", msgId, o.(*mtproto.TLAuthSignIn).PhoneNumber, o.(*mtproto.TLAuthSignIn).PhoneCode_FLAGSTRING.Value)
@@ -277,36 +266,37 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		authSignUp := o.(*mtproto.TLAuthSignUp)
 		fmt.Printf("%d TLAuthSignUp Phone: %s, Name: %s %s\n", msgId, authSignUp.PhoneNumber, authSignUp.FirstName, authSignUp.LastName)
 		
-		user := mtproto.MakeTLUser(&mtproto.User{
-			Id:            777009,
-			Self:          true,
-			Contact:       true,
-			MutualContact: true,
-			AccessHash:    &wrapperspb.Int64Value{Value: 7748176802034418738},
-			FirstName:     &wrapperspb.StringValue{Value: authSignUp.FirstName},
-			LastName:      &wrapperspb.StringValue{Value: authSignUp.LastName},
-			Phone:         &wrapperspb.StringValue{Value: authSignUp.PhoneNumber},
-			Status: &mtproto.UserStatus{
-				PredicateName: "userStatusOnline",
-				Constructor:   -306628279,
-				Expires:       1763554375,
-			},
-		}).To_User()
-		
-		authAuth := mtproto.MakeTLAuthAuthorization(&mtproto.Auth_Authorization{
-			SetupPasswordRequired: false,
-			OtherwiseReloginDays:  nil,
-			TmpSessions:           nil,
-			FutureAuthToken:       nil,
-			User:                  user,
-		})
-		
+		result := &mtproto.TLRpcResult{
+			ReqMsgId: msgId,
+			Result: &mtproto.TLAuthAuthorization{
+				Data2: &mtproto.Auth_Authorization{
+					PredicateName:   "auth_authorization",
+					Constructor:     782418132,
+					FutureAuthToken: nil,
+					User: &mtproto.User{
+						PredicateName: "user",
+						Constructor:   -1885878744,
+						Id:            1271292209,
+						Self:          true,
+						Contact:       true,
+						MutualContact: true,
+						AccessHash: &wrapperspb.Int64Value{
+							Value: 5975011023862253205},
+						FirstName: &wrapperspb.StringValue{
+							Value: authSignUp.FirstName},
+						LastName: &wrapperspb.StringValue{
+							Value: authSignUp.LastName},
+						Phone: &wrapperspb.StringValue{
+							Value: authSignUp.PhoneNumber},
+						Status: &mtproto.UserStatus{
+							PredicateName: "userStatusOnline",
+							Constructor:   -306628279,
+							Expires:       1764156857},
+						RestrictionReason: nil,
+						Usernames:         nil}}}}
+
 		buf := mtproto.NewEncodeBuf(512)
-		
-		buf.Int(-212046591) // rpc_result constructor  
-		buf.Long(msgId)     // ReqMsgId
-		authAuth.Encode(buf, 158)
-		
+		result.Encode(buf, 158)
 		cp.send(buf.GetBuf(), salt, sessionId)
 	case *mtproto.TLHelpGetPromoData:
 		promoData := mtproto.MakeTLHelpPromoDataEmpty(&mtproto.Help_PromoData{
@@ -322,11 +312,55 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		for _, m := range obj.Messages { 
 			// Process each message in the container asynchronously
 			cp.replyMsg(m.Object, m.MsgId, salt, sessionId) 
+			fmt.Printf("(%d) %T\n", m.MsgId, m.Object) 
 		}
 	case *mtproto.TLUsersGetFullUser:
-		fmt.Println("========== FROM *mtproto.TLUsersGetFullUser ========")
-		// response := createUserFullResponse(msgId)
-		// cp.send(response, salt, sessionId)
+
+		result := &mtproto.TLRpcResult{
+			ReqMsgId: msgId,
+			Result: &mtproto.TLUsersUserFull{
+				Data2: &mtproto.Users_UserFull{
+					PredicateName: "users_userFull",
+					Constructor:   997004590,
+					FullUser: &mtproto.UserFull{
+						PredicateName:       "userFull",
+						Constructor:         -120378643,
+						PhoneCallsAvailable: true,
+						CanPinMessage:       true,
+						VideoCallsAvailable: true,
+						Id:                  1271292179,
+						Settings: &mtproto.PeerSettings{
+							PredicateName: "peerSettings",
+							Constructor:   -1525149427},
+						NotifySettings: &mtproto.PeerNotifySettings{
+							PredicateName: "peerNotifySettings",
+							Constructor:   -1472527322},
+						PremiumGifts: nil},
+					Chats: []*mtproto.Chat{},
+					Users: []*mtproto.User{
+						{
+							PredicateName: "user",
+							Constructor:   -1885878744,
+							Id:            1271292179,
+							Contact:       true,
+							MutualContact: true,
+							AccessHash: &wrapperspb.Int64Value{
+								Value: 8958681173931933652},
+							FirstName: &wrapperspb.StringValue{
+								Value: "U"},
+							LastName: &wrapperspb.StringValue{
+								Value: "2"},
+							Status: &mtproto.UserStatus{
+								PredicateName: "userStatusOffline",
+								Constructor:   9203775,
+								WasOnline:     1763471112},
+							RestrictionReason: nil,
+							Usernames:         nil},
+					}}}}
+
+		buf := mtproto.NewEncodeBuf(1024)
+		result.Encode(buf, 158)
+		cp.send(buf.GetBuf(), salt, sessionId)
 	case *mtproto.TLAccountUpdateStatus:
 		boolTrue := mtproto.MakeTLBoolTrue(nil)
 		buf := mtproto.NewEncodeBuf(512)
@@ -524,16 +558,253 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		updates.Encode(buf, 158)
 		cp.send(buf.GetBuf(), salt, sessionId)
 	case *mtproto.TLContactsImportContacts:
-		importedContacts := mtproto.MakeTLContactsImportedContacts(&mtproto.Contacts_ImportedContacts{
-			Imported:       []*mtproto.ImportedContact{},
-			PopularInvites: []*mtproto.PopularContact{},
-			RetryContacts:  []int64{},
-			Users:          []*mtproto.User{},
-		})
+		result := &mtproto.TLRpcResult{
+			ReqMsgId: msgId,
+			Result: &mtproto.TLContactsImportedContacts{
+				Data2: &mtproto.Contacts_ImportedContacts{
+					PredicateName: "contacts_importedContacts",
+					Constructor:   2010127419,
+					Imported: []*mtproto.ImportedContact{
+						{
+							PredicateName: "importedContact",
+							Constructor:   -1052885936,
+							UserId:        1271292179},
+					},
+					PopularInvites: []*mtproto.PopularContact{},
+					RetryContacts:  []int64{},
+					Users: []*mtproto.User{
+						{
+							PredicateName: "user",
+							Constructor:   -1885878744,
+							Id:            1271292179,
+							Contact:       true,
+							MutualContact: true,
+							AccessHash: &wrapperspb.Int64Value{
+								Value: 8958681173931933652},
+							FirstName: &wrapperspb.StringValue{
+								Value: "U"},
+							LastName: &wrapperspb.StringValue{
+								Value: "2"},
+							Status: &mtproto.UserStatus{
+								PredicateName: "userStatusOffline",
+								Constructor:   9203775,
+								WasOnline:     1763471112},
+							RestrictionReason: nil,
+							Usernames:         nil},
+					}}}}
+		
 		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		importedContacts.Encode(buf, 158)
+		result.Encode(buf, 158)
+		cp.send(buf.GetBuf(), salt, sessionId)
+
+		r2 := &mtproto.TLUpdates{
+			Data2: &mtproto.Updates{
+				PredicateName: "updates",
+				Constructor:   1957577280,
+				Entities:      nil,
+				Updates: []*mtproto.Update{
+					{
+						PredicateName: "updatePeerSettings",
+						Constructor:   1786671974,
+						Peer_PEER: &mtproto.Peer{
+							PredicateName: "peerUser",
+							Constructor:   1498486562,
+							UserId:        1271292179},
+						Order_VECTORINT64:          nil,
+						Data_FLAGBYTES:             nil,
+						Order_FLAGVECTORDIALOGPEER: nil,
+						Payload_BYTES:              nil,
+						FolderPeers:                nil,
+						Settings: &mtproto.PeerSettings{
+							PredicateName: "peerSettings",
+							Constructor:   -1525149427},
+						},
+				},
+				Users: []*mtproto.User{
+					{
+						PredicateName: "user",
+						Constructor:   -1885878744,
+						Id:            1271292179,
+						Contact:       true,
+						MutualContact: true,
+						AccessHash: &wrapperspb.Int64Value{
+							Value: 8958681173931933652},
+						FirstName: &wrapperspb.StringValue{
+							Value: "U"},
+						LastName: &wrapperspb.StringValue{
+							Value: "2"},
+						Status: &mtproto.UserStatus{
+							PredicateName: "userStatusOffline",
+							Constructor:   9203775,
+							WasOnline:     1763471112},
+						RestrictionReason: nil,
+						Usernames:         []*mtproto.Username{}},
+				},
+				Chats: nil}}
+
+		buf2 := mtproto.NewEncodeBuf(512)
+		r2.Encode(buf2, 158)
+		cp.send(buf2.GetBuf(), salt, sessionId)
+	
+	case *mtproto.TLMessagesSendMessage:
+		messageSent := o.(*mtproto.TLMessagesSendMessage)
+		result := &mtproto.TLRpcResult{
+			ReqMsgId: msgId,
+			Result: &mtproto.TLUpdates{
+				Data2: &mtproto.Updates{
+					PredicateName: "updates",
+					Constructor:   1957577280,
+					Entities:      nil,
+					Updates: []*mtproto.Update{
+						{
+							PredicateName:                            "updateMessageID",
+							Constructor:                              1318109142,
+							Id_INT32:                                 81,
+							RandomId:                                 7103481991564945566},
+						{
+							PredicateName: "updateNewMessage",
+							Constructor:   522914557,
+							Message_MESSAGE: &mtproto.Message{
+								PredicateName: "message",
+								Constructor:   940666592,
+								Id:            81,
+								PeerId: &mtproto.Peer{
+									PredicateName: "peerUser",
+									Constructor:   1498486562,
+									UserId:        1271292179},
+								Out: true,
+								FromId: &mtproto.Peer{
+									PredicateName: "peerUser",
+									Constructor:   1498486562,
+									UserId:        1271284286},
+								Date:        int32(time.Now().Unix()),
+								Message:           messageSent.Message,
+								Entities:          nil,
+								RestrictionReason: nil},
+							Pts_INT32:                                261,},
+					},
+					Users: []*mtproto.User{
+						{
+							PredicateName: "user",
+							Constructor:   -1885878744,
+							Id:            1271284286,
+							Self:          true,
+							Contact:       true,
+							MutualContact: true,
+							AccessHash: &wrapperspb.Int64Value{
+								Value: 7248528399095271617},
+							FirstName: &wrapperspb.StringValue{
+								Value: "u"},
+							LastName: &wrapperspb.StringValue{
+								Value: "r"},
+							Phone: &wrapperspb.StringValue{
+								Value: "6281298219323"},
+							Status: &mtproto.UserStatus{
+								PredicateName: "userStatusOnline",
+								Constructor:   -306628279,
+								Expires:       int32(time.Now().Unix() + 3600)},
+							RestrictionReason: nil,
+							Usernames:         nil},
+						{
+							Constructor:       6215,
+							RestrictionReason: nil,
+							Usernames:         nil},
+					},
+					Chats: nil}}}
+
+		buf := mtproto.NewEncodeBuf(1024)
+		result.Encode(buf, 158)
+		cp.send(buf.GetBuf(), salt, sessionId)
+	case *mtproto.TLMessagesGetEmojiKeywords:
+
+		result := &mtproto.TLRpcResult{
+			ReqMsgId: msgId,
+			Result: &mtproto.TLEmojiKeywordsDifference{
+				Data2: &mtproto.EmojiKeywordsDifference{
+					PredicateName: "emojiKeywordsDifference",
+					Constructor:   1556570557,
+					LangCode:      "en-US",
+					Keywords:      []*mtproto.EmojiKeyword{}}}}
+
+		buf := mtproto.NewEncodeBuf(512)
+		result.Encode(buf, 158)
+		cp.send(buf.GetBuf(), salt, sessionId)
+
+	case *mtproto.TLMessagesGetSearchCounters:
+
+		result := &mtproto.TLRpcResult{
+			ReqMsgId: msgId,
+			Result:   nil}
+
+		buf := mtproto.NewEncodeBuf(512)
+		result.Encode(buf, 158)
+		cp.send(buf.GetBuf(), salt, sessionId)
+
+	case *mtproto.TLMessagesGetPeerSettings:
+
+		result := &mtproto.TLRpcResult{
+			ReqMsgId: msgId,
+			Result: &mtproto.TLMessagesPeerSettings{
+				Data2: &mtproto.Messages_PeerSettings{
+					PredicateName: "messages_peerSettings",
+					Constructor:   1753266509,
+					Settings: &mtproto.PeerSettings{
+						PredicateName: "peerSettings",
+						Constructor:   -1525149427},
+					Chats: []*mtproto.Chat{},
+					Users: []*mtproto.User{}}}}
+
+		buf := mtproto.NewEncodeBuf(512)
+		result.Encode(buf, 158)
+		cp.send(buf.GetBuf(), salt, sessionId)
+
+	case *mtproto.TLMessagesReadHistory:
+
+		result := &mtproto.TLRpcResult{
+			ReqMsgId: msgId,
+			Result: &mtproto.TLMessagesAffectedMessages{
+				Data2: &mtproto.Messages_AffectedMessages{
+					PredicateName: "messages_affectedMessages",
+					Constructor:   -2066640507,
+					Pts:           261}}}
+
+		buf := mtproto.NewEncodeBuf(512)
+		result.Encode(buf, 158)
+		cp.send(buf.GetBuf(), salt, sessionId)
+	case *mtproto.TLMessagesGetHistory:
+
+		result := &mtproto.TLRpcResult{
+			ReqMsgId: msgId,
+			Result: &mtproto.TLMessagesMessages{
+				Data2: &mtproto.Messages_Messages{
+					PredicateName: "messages_messages",
+					Constructor:   -1938715001,
+					Messages:      []*mtproto.Message{},
+					Chats:         []*mtproto.Chat{},
+					Users: []*mtproto.User{
+						{
+							PredicateName: "user",
+							Constructor:   -1885878744,
+							Id:            1271292179,
+							Contact:       true,
+							MutualContact: true,
+							AccessHash: &wrapperspb.Int64Value{
+								Value: 8958681173931933652},
+							FirstName: &wrapperspb.StringValue{
+								Value: "U"},
+							LastName: &wrapperspb.StringValue{
+								Value: "2"},
+							Status: &mtproto.UserStatus{
+								PredicateName: "userStatusOffline",
+								Constructor:   9203775,
+								WasOnline:     1763471112},
+							RestrictionReason: nil,
+							Usernames:         nil},
+					},
+					Topics: nil}}}
+
+		buf := mtproto.NewEncodeBuf(512)
+		result.Encode(buf, 158)
 		cp.send(buf.GetBuf(), salt, sessionId)
 	case *mtproto.TLRpcDropAnswer:
 		// Client is dropping/cancelling a previous RPC call

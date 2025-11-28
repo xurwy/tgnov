@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/teamgram/proto/mtproto"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
@@ -20,53 +19,13 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		buf := mtproto.NewEncodeBuf(32)
 		buf.Int(-212046591); buf.Long(msgId); buf.Int(-501201412); buf.Bytes(destroyData.GetBuf())
 		cp.send(buf.GetBuf(), salt, sessionId)
+	// first
 
 
 
 
-	case *mtproto.TLContactsImportContacts:
-   result := &mtproto.TLRpcResult{
-    ReqMsgId: 7574052660154174464,
-    Result:   &mtproto.TLContactsImportedContacts{
-        Data2: &mtproto.Contacts_ImportedContacts{
-            PredicateName: "contacts_importedContacts",
-            Constructor:   2010127419,
-            Imported:      []*mtproto.ImportedContact{
-                &mtproto.ImportedContact{
-                    PredicateName: "importedContact",
-                    Constructor:   -1052885936,
-                    UserId:        1271292179},
-            },
-            PopularInvites: []*mtproto.PopularContact{},
-            RetryContacts:  []int64{},
-            Users:          []*mtproto.User{
-                &mtproto.User{
-                    PredicateName: "user",
-                    Constructor:   -1885878744,
-                    Id:            1271292179,
-                    Contact:       true,
-                    MutualContact: true,
-                    AccessHash:    &wrapperspb.Int64Value{
-                        Value: 8958681173931933652},
-                    FirstName: &wrapperspb.StringValue{
-                        Value: "U"},
-                    LastName: &wrapperspb.StringValue{
-                        Value: "2"},
-                    Status: &mtproto.UserStatus{
-                        PredicateName: "userStatusOffline",
-                        Constructor:   9203775,
-                        WasOnline:     1763471112},
-                    RestrictionReason: nil,
-                    Usernames:         nil},
-            }}}}
 
-    buf := mtproto.NewEncodeBuf(512)
-    result.Encode(buf, 158)
-    cp.send(buf.GetBuf(), salt, sessionId)
-
-
-
-
+	// last
 	case *mtproto.TLInvokeWithLayer:
 		invLayer := o.(*mtproto.TLInvokeWithLayer)
 		newSessionData := mtproto.NewEncodeBuf(512)
@@ -89,7 +48,7 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		}
 		buf := cp.handleQuery(query, msgId)
 		cp.send(buf.GetBuf(), salt, sessionId)
-		
+
 	default:
 		fmt.Printf("Not found %T\n", obj)
 	}

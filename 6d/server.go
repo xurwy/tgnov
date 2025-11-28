@@ -64,7 +64,7 @@ func handleConnection(conn net.Conn) {
 								sobj := fmt.Sprintf("%T", msg.Object) // *mtproto.TL
 								sobj = CamelToUnderscore(sobj[9:]) // tl_a_b
 								sobj = makeTLTable(sobj)
-								logf(1, "Found at offset %d: %s, msgId: %d\n", offset, sobj, msgId)
+								logf(2, "Found at offset %d: %s, msgId: %d\n", offset, sobj, msgId)
 								cp.replyMsg(msg.Object, msgId, salt, sessionId) 
 							}
 						}

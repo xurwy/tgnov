@@ -134,6 +134,10 @@ func shouldIncludeField(field reflect.StructField, fieldValue reflect.Value) boo
 }
 
 func (p *printer) printValue(v reflect.Value, showType, quote bool) {
+	p.printValueWithContext(v, showType, quote, false)
+}
+
+func (p *printer) printValueWithContext(v reflect.Value, showType, quote, inPointerSlice bool) {
 	switch v.Kind() {
 	case reflect.Bool:
 		p.printInline(v, v.Bool(), showType)
@@ -171,7 +175,7 @@ func (p *printer) printValue(v reflect.Value, showType, quote bool) {
 					writeByte(pp, '\t')
 				}
 				showTypeInStruct = t.Elem().Kind() == reflect.Interface
-				pp.printValue(mv, showTypeInStruct, true)
+				pp.printValueWithContext(mv, showTypeInStruct, true, false)
 				if expand {
 					io.WriteString(pp, ",\n")
 				} else if i < v.Len()-1 {
@@ -228,7 +232,7 @@ func (p *printer) printValue(v reflect.Value, showType, quote bool) {
 						writeByte(pp, '\t')
 					}
 					showTypeInStruct = field.Type.Kind() == reflect.Interface
-					pp.printValue(fieldValue, showTypeInStruct, true)
+					pp.printValueWithContext(fieldValue, showTypeInStruct, true, false)
 					validFieldCount++
 				}
 			}
@@ -242,7 +246,7 @@ func (p *printer) printValue(v reflect.Value, showType, quote bool) {
 		case e.Kind() == reflect.Invalid:
 			io.WriteString(p, "nil")
 		case e.IsValid():
-			p.printValue(e, showType, true)
+			p.printValueWithContext(e, showType, true, inPointerSlice)
 		default:
 			io.WriteString(p, v.Type().String())
 			io.WriteString(p, "(nil)")
@@ -283,8 +287,10 @@ func (p *printer) printValue(v reflect.Value, showType, quote bool) {
 			pp = p.indent()
 		}
 		for i := 0; i < v.Len(); i++ {
+			// For slices of pointers, pass context to avoid redundant &Type{}
+			isPointerSlice := t.Elem().Kind() == reflect.Ptr
 			showTypeInSlice := t.Elem().Kind() == reflect.Interface
-			pp.printValue(v.Index(i), showTypeInSlice, true)
+			pp.printValueWithContext(v.Index(i), showTypeInSlice, true, isPointerSlice)
 			if expand {
 				io.WriteString(pp, ",\n")
 			} else if i < v.Len()-1 {
@@ -302,8 +308,11 @@ func (p *printer) printValue(v reflect.Value, showType, quote bool) {
 			io.WriteString(p, v.Type().String())
 			io.WriteString(p, ")(nil)")
 		} else {
-			writeByte(p, '&')
-			p.printValue(e, true, true)
+			// Only skip the '&' prefix when we're inside a slice of pointers
+			if !inPointerSlice {
+				writeByte(p, '&')
+			}
+			p.printValueWithContext(e, !inPointerSlice, true, false)
 		}
 	case reflect.Chan:
 		x := v.Pointer()

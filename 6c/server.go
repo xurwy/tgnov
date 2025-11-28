@@ -51,6 +51,7 @@ func handleConnection(conn net.Conn) {
 					}
 				}
 			} else { // authenticated
+				// CTR decrypt must be done synchronously (stateful cipher)
 				decrypted := cp.cryp.Decrypt(buffer[:n])
 				messageFound := false
 				for offset := 0; offset <= len(decrypted)-32; offset++ {
@@ -105,71 +106,6 @@ func (cp *ConnProp) send(body []byte, salt, sessionId int64) {
 
 func bytesToTL2(b []byte) *mtproto.TLMessage2 { msg := &mtproto.TLMessage2{}; msg.Decode(mtproto.NewDecodeBuf(b)); return msg }
 func padTo16(data []byte) []byte { if rem := len(data) % 16; rem != 0 { data = append(data, make([]byte, 16-rem)...) }; return data }
-
-/*
-func createUserFullResponse(msgId int64) []byte {
-	buf := mtproto.NewEncodeBuf(1024)
-	
-	// rpc_result constructor
-	buf.Int(-212046591) // 0xf35c6d01
-	buf.Long(msgId)
-	
-	// users.userFull#3b6d152e constructor
-	buf.Int(0x3b6d152e) // 997004590 as unsigned, or use buf.Int(997004590)
-	
-	// UserFull object - userFull#979d2376
-	buf.Int(-1745552522) // -1745552522 as signed int32, but better as hex
-	
-	buf.Int(128) // flags (bit 7 set for can_pin_message)
-	buf.Int(0) // flags2
-	
-	buf.Long(777010)
-	buf.Int(-1388545662) // -1388545662 as signed
-	buf.Int(0)          // flags for peerSettings
-	
-	// notify_settings - PeerNotifySettings (always required)
-	// peerNotifySettings#99622c0c
-	buf.Int(-1721619444) // -1721619444 as signed
-	buf.Int(0)          // flags for notify_settings
-	
-	// common_chats_count (always present)
-	buf.Int(0)
-	
-	// chats - Vector<Chat> (always required)
-	buf.Int(0x1cb5c415) // vector constructor
-	buf.Int(0)          // empty vector
-	
-	// users - Vector<User> (always required)
-	buf.Int(0x1cb5c415) // vector constructor
-	buf.Int(1)          // one user
-	
-	// User object - user#20b1422 (hex of decimal 34267170)
-	buf.Int(0x20b1422)  // or buf.Int(34267170)
-	
-	// User flags
-	buf.Int(7255)       // flags (bits: 0,1,2,10,11,12)
-	buf.Int(0)          // flags2
-	
-	// id (always present)
-	buf.Long(777010)
-	
-	// access_hash - flags.0 is set (7255 & 1 = 1)
-	buf.Long(9110083885959396583)
-	
-	// first_name - flags.1 is set (7255 & 2 = 2)
-	buf.String("Y")
-	
-	// last_name - flags.2 is set (7255 & 4 = 4)
-	buf.String("Y")
-	
-	// status - flags.6 is set
-	// userStatusOffline#8c703f
-	buf.Int(0x8c703f)   // 9203071 as signed int
-	buf.Int(0)          // was_online
-	
-	return buf.GetBuf()
-}
-*/
 
 func main() {
 	log.SetFlags(0)

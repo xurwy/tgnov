@@ -337,8 +337,7 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 				cp.send(buf.GetBuf(), salt, sessionId)
 			case *mtproto.TLUsersGetFullUser:
 				fmt.Printf("mtproto.TLUsersGetFullUser %d\n", msgId)
-				response := createUserFullResponse(msgId)
-				cp.send(response, salt, sessionId)
+				
 			case *mtproto.TLAccountUpdateStatus:
 				boolTrue := mtproto.MakeTLBoolTrue(nil)
 				buf := mtproto.NewEncodeBuf(512)
@@ -533,85 +532,6 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 	default:
 		fmt.Printf("Not found %T\n", obj)
 	}
-}
-
-func createUserFullResponse(msgId int64) []byte {
-	buf := mtproto.NewEncodeBuf(2048)
-	
-	// rpc_result constructor
-	buf.Int(-212046591) // 0xf35c6d01
-	buf.Long(msgId)
-	
-	// users.userFull#3b6d152e (Layer 158)
-	buf.Int(0x3b6d152e) // 997004590 decimal
-	
-	buf.Int(-1179571092) // 0xb9b12c6c as signed int32
-	
-	// flags field - from your JSON: 128 (bit 7 = can_pin_message)
-	buf.Int(128)
-	
-	// id field (always present)
-	buf.Long(777010)
-	
-	// about - flags.1 not set, skip
-	
-	// settings - PeerSettings (always required)
-	buf.Int(-1395233698) // 0xacd66c5e as signed int32
-	buf.Int(0)          // flags for peerSettings
-	
-	// personal_photo - flags.21 not set, skip
-	// profile_photo - flags.2 not set, skip  
-	// fallback_photo - flags.22 not set, skip
-	
-	// notify_settings - PeerNotifySettings (always required)
-	// peerNotifySettings#99622c0c
-	buf.Int(-1721619444) // -1721619444 as signed
-	buf.Int(0)          // flags for notify_settings
-	
-	// bot_info - flags.3 not set, skip
-	// pinned_msg_id - flags.6 not set, skip (bit 6 not in 128)
-	
-	// common_chats_count (always present)
-	buf.Int(0)
-	
-	// chats - Vector<Chat> (always required, comes BEFORE users in Layer 158)
-	buf.Int(0x1cb5c415) // vector constructor
-	buf.Int(0)          // empty vector
-	
-	// users - Vector<User> (always required)
-	buf.Int(0x1cb5c415) // vector constructor
-	buf.Int(1)          // one user
-	
-	// User object - user#3ff6ecb0 (Layer 158)
-	// Note: The constructor ID may differ in Layer 158
-	// Common Layer 158 user constructor: user#3ff6ecb0
-	buf.Int(0x3ff6ecb0)  // 1073684656 decimal
-	
-	// User flags from your JSON: 7255
-	// 7255 = 0x1C57 in hex
-	// Binary: 0001 1100 0101 0111
-	// Set bits: 0,1,2,4,6,10,11,12
-	buf.Int(7255)
-	
-	// flags2
-	buf.Int(0)
-	
-	// id (always present)
-	buf.Long(777010)
-	
-	// access_hash - flags.0 is set (bit 0)
-	buf.Long(9110083885959396583)
-	
-	// first_name - flags.1 is set (bit 1)
-	buf.String("Y")
-	
-	// last_name - flags.2 is set (bit 2)
-	buf.String("Y")
-	
-	buf.Int(0x8c703f)   // 9203071 decimal
-	buf.Int(0)          // was_online (expires)
-	
-	return buf.GetBuf()
 }
 
 func getDebugLevel() int {
