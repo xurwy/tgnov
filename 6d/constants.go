@@ -8,17 +8,11 @@ import (
 	"log"
 	"math/big"
 	"os"
-	"path/filepath"
-	"reflect"
-	"runtime"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/teamgram/marmota/pkg/hack"
 	"github.com/teamgram/proto/mtproto"
 	"github.com/teamgram/proto/mtproto/crypto"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 var (
@@ -186,9 +180,12 @@ func handleSetClientDHParams(cp *ConnProp, obj mtproto.TLObject, nonce, serverNo
 	sha1E := sha1.Sum(authKeyAuxHash[:len(authKeyAuxHash)-12])
 	authKeyAuxHash = append(authKeyAuxHash, sha1E[:]...)
 	authKeyId = int64(binary.LittleEndian.Uint64(authKeyAuxHash[len(newNonce)+1+12 : len(newNonce)+1+12+8]))
-	
-	os.WriteFile("auth_key.bin", AuthKey, 0644); 
-	
+
+	os.WriteFile("auth_key.bin", AuthKey, 0644)
+
+	// Reload auth key immediately after creation
+	loadAuthKey()
+
 	dhGen := mtproto.MakeTLDhGenOk(&mtproto.SetClient_DHParamsAnswer{Nonce: nonce, ServerNonce: serverNonce, NewNonceHash1: calcNewNonceHash(newNonce, AuthKey, 0x01)}).To_SetClient_DHParamsAnswer()
 	cp.sendTLObjectResponse(dhGen)
 	return nil
@@ -218,8 +215,11 @@ func calcNewNonceHash(newNonce, authKey []byte, b byte) []byte {
 }
 
 func (cp *ConnProp) handleQuery(query mtproto.TLObject, msgId int64) *mtproto.EncodeBuf {
-	buf := mtproto.NewEncodeBuf(512); buf.Int(-212046591); buf.Long(msgId)
 	
+	qBuf := mtproto.NewDecodeBuf(query.(*mtproto.TLInitConnection).GetQuery())
+	query = qBuf.Object()
+	logf(1, "In query %T\n", query)
+	buf := mtproto.NewEncodeBuf(512); buf.Int(-212046591); buf.Long(msgId)
 	switch query.(type) {
 	case *mtproto.TLLangpackGetLanguages: buf.Int(481674261); buf.Int(0)
 	case *mtproto.TLHelpGetNearestDc: buf.Int(-1910892683); buf.String("CN"); buf.Int(1); buf.Int(1)
@@ -246,317 +246,16 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		newSessionData := mtproto.NewEncodeBuf(512)
 		newSessionData.Int(-1631450872); newSessionData.Long(msgId); newSessionData.Long(time.Now().UnixNano()); newSessionData.Long(salt)
 		cp.send(newSessionData.GetBuf(), salt, sessionId)
-		var query mtproto.TLObject
-		for qBytes := invLayer.Query; len(qBytes) > 0; {
-			qBuf := mtproto.NewDecodeBuf(qBytes)
-			if qObj := qBuf.Object(); qObj != nil {
-				query = qObj
-				v := reflect.ValueOf(qObj)
-				if v.Kind() == reflect.Ptr { v = v.Elem() }
-				if v.Kind() == reflect.Struct {
-					if field := v.FieldByName("Query"); field.IsValid() && !field.IsNil() {
-						if nextBytes, ok := field.Interface().([]byte); ok && len(nextBytes) > 0 { qBytes = nextBytes; continue }
-					}
-				}
-			}
-			break
-		}
+		dBuf := mtproto.NewDecodeBuf(invLayer.Query)
+		query := dBuf.Object()
 		buf := cp.handleQuery(query, msgId)
 		cp.send(buf.GetBuf(), salt, sessionId)
-		
-	case *mtproto.TLAuthSendCode:
-		fmt.Printf("%d TLAuthSendCode Phone: %s\n", msgId, o.(*mtproto.TLAuthSendCode).PhoneNumber)
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591); buf.Long(msgId); buf.Int(0x5e002502); buf.Int(17)
-		buf.Int(-1073693790); buf.Int(5); buf.String("21e22a8d47e7fc8241239f6a0102786c"); buf.Int(60)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLAuthSignIn:
-		fmt.Printf("%d TLAuthSignIn Phone: %s, Code: %s\n", msgId, o.(*mtproto.TLAuthSignIn).PhoneNumber, o.(*mtproto.TLAuthSignIn).PhoneCode_FLAGSTRING.Value)
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591); buf.Long(msgId); buf.Int(1148485274); buf.Int(0)
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLAuthSignUp:
-		authSignUp := o.(*mtproto.TLAuthSignUp)
-		fmt.Printf("%d TLAuthSignUp Phone: %s, Name: %s %s\n", msgId, authSignUp.PhoneNumber, authSignUp.FirstName, authSignUp.LastName)
-		
-		user := mtproto.MakeTLUser(&mtproto.User{
-			Id:            777009,
-			Self:          true,
-			Contact:       true,
-			MutualContact: true,
-			AccessHash:    &wrapperspb.Int64Value{Value: 7748176802034418738},
-			FirstName:     &wrapperspb.StringValue{Value: authSignUp.FirstName},
-			LastName:      &wrapperspb.StringValue{Value: authSignUp.LastName},
-			Phone:         &wrapperspb.StringValue{Value: authSignUp.PhoneNumber},
-			Status: &mtproto.UserStatus{
-				PredicateName: "userStatusOnline",
-				Constructor:   -306628279,
-				Expires:       1763554375,
-			},
-		}).To_User()
-		
-		authAuth := mtproto.MakeTLAuthAuthorization(&mtproto.Auth_Authorization{
-			SetupPasswordRequired: false,
-			OtherwiseReloginDays:  nil,
-			TmpSessions:           nil,
-			FutureAuthToken:       nil,
-			User:                  user,
-		})
-		
-		buf := mtproto.NewEncodeBuf(512)
-		
-		buf.Int(-212046591) // rpc_result constructor  
-		buf.Long(msgId)     // ReqMsgId
-		authAuth.Encode(buf, 158)
-		
-		cp.send(buf.GetBuf(), salt, sessionId)
-	case *mtproto.TLContactsGetStatuses:
-		contactsStatuses := &mtproto.Vector_ContactStatus{
-			Datas: []*mtproto.ContactStatus{},
-		}
-		buf := mtproto.NewEncodeBuf(512)
-		buf.Int(-212046591) // rpc_result constructor
-		buf.Long(msgId)
-		contactsStatuses.Encode(buf, 158)
-		cp.send(buf.GetBuf(), salt, sessionId)
 	case *mtproto.TLMsgContainer:
-		fmt.Println("Going inside TLMsgContainer")
 		for _, m := range obj.Messages { 
-			switch m.Object.(type) {
-			case *mtproto.TLAccountGetNotifySettings:
-				fmt.Printf("TLAccountGetNotifySettings %d\n", msgId)
-				notifySettings := mtproto.MakeTLPeerNotifySettings(&mtproto.PeerNotifySettings{
-					ShowPreviews: mtproto.MakeTLBoolTrue(nil).To_Bool(),
-					Silent:       mtproto.MakeTLBoolFalse(nil).To_Bool(),
-					MuteUntil:    &wrapperspb.Int32Value{Value: 0},
-				})
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(m.MsgId)
-				notifySettings.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLUsersGetFullUser:
-				fmt.Printf("mtproto.TLUsersGetFullUser %d\n", msgId)
-				
-			case *mtproto.TLAccountUpdateStatus:
-				boolTrue := mtproto.MakeTLBoolTrue(nil)
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(msgId)
-				boolTrue.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLLangpackGetLanguages, *mtproto.TLHelpGetNearestDc, *mtproto.TLHelpGetCountriesList:
-				buf := cp.handleQuery(o, msgId)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLHelpGetTermsOfServiceUpdate:
-				termsUpdate := mtproto.MakeTLHelpTermsOfServiceUpdateEmpty(&mtproto.Help_TermsOfServiceUpdate{
-					Expires: int32(time.Now().Unix() + 3600),
-				})
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(m.MsgId)
-				termsUpdate.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLAccountGetContactSignUpNotification:
-				boolFalse := mtproto.MakeTLBoolTrue(nil)
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(msgId)
-				boolFalse.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLMessagesGetStickers:
-				stickers := mtproto.MakeTLMessagesStickers(&mtproto.Messages_Stickers{
-					Hash:     0,
-					Stickers: []*mtproto.Document{},
-				})
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(m.MsgId)
-				stickers.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLMessagesGetStickerSet:
-				stickerSetNotModified := mtproto.MakeTLMessagesStickerSetNotModified(nil)
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(m.MsgId)
-				stickerSetNotModified.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLMessagesGetPinnedDialogs:
-				peerDialogs := mtproto.MakeTLMessagesPeerDialogs(&mtproto.Messages_PeerDialogs{
-					Dialogs:  []*mtproto.Dialog{},
-					Messages: []*mtproto.Message{},
-					Chats:    []*mtproto.Chat{},
-					Users:    []*mtproto.User{},
-					State: mtproto.MakeTLUpdatesState(&mtproto.Updates_State{
-						Pts:         1,
-						Qts:         0,
-						Date:        int32(time.Now().Unix()),
-						Seq:         -1,
-						UnreadCount: 0,
-					}).To_Updates_State(),
-				})
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(m.MsgId)
-				peerDialogs.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLMessagesGetPeerDialogs, *mtproto.TLMessagesGetDialogs:
-				dialogs := mtproto.MakeTLMessagesDialogsSlice(&mtproto.Messages_Dialogs{
-					Dialogs:  []*mtproto.Dialog{},
-					Messages: []*mtproto.Message{},
-					Chats:    []*mtproto.Chat{},
-					Users:    []*mtproto.User{},
-					Count:    0,
-				})
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(m.MsgId)
-				dialogs.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLHelpGetPremiumPromo, *mtproto.TLMessagesGetAttachMenuBots, *mtproto.TLMessagesGetDialogFiltersF19ED96D, *mtproto.TLHelpGetInviteText:
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591); buf.Long(msgId); buf.Int(558156313); buf.Int(400); buf.String("ERR_ENTERPRISE_IS_BLOCKED")
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLMessagesGetAvailableReactions:
-				availableReactionsNotModified := mtproto.MakeTLMessagesAvailableReactionsNotModified(nil)
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(m.MsgId)
-				availableReactionsNotModified.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLUpdatesGetState:
-				updatesState := mtproto.MakeTLUpdatesState(&mtproto.Updates_State{
-					Pts:         1,
-					Qts:         0,
-					Date:        int32(time.Now().Unix()),
-					Seq:         -1,
-					UnreadCount: 0,
-				})
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(m.MsgId)
-				updatesState.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLContactsGetContacts:
-				contacts := mtproto.MakeTLContactsContacts(&mtproto.Contacts_Contacts{
-					Contacts:   []*mtproto.Contact{},
-					SavedCount: 0,
-					Users:      []*mtproto.User{},
-				})
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(m.MsgId)
-				contacts.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLMessagesGetFavedStickers:
-				favedStickers := mtproto.MakeTLMessagesFavedStickers(&mtproto.Messages_FavedStickers{
-					Hash:     0,
-					Packs:    []*mtproto.StickerPack{},
-					Stickers: []*mtproto.Document{},
-				})
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(m.MsgId)
-				favedStickers.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLMessagesGetFeaturedStickers, *mtproto.TLMessagesGetFeaturedEmojiStickers:
-				featuredStickers := mtproto.MakeTLMessagesFeaturedStickers(&mtproto.Messages_FeaturedStickers{
-					Hash:     0,
-					Count:    0,
-					Sets:     []*mtproto.StickerSetCovered{},
-					Unread:   []int64{},
-				})
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(m.MsgId)
-				featuredStickers.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLContactsGetTopPeers:
-				
-				topPeers := mtproto.MakeTLContactsTopPeers(&mtproto.Contacts_TopPeers{
-					Categories: []*mtproto.TopPeerCategoryPeers{},
-					Chats:      []*mtproto.Chat{},
-					Users:      []*mtproto.User{},
-				})
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor  
-				buf.Long(m.MsgId)   
-				topPeers.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLMessagesGetAllDrafts:
-				user := mtproto.MakeTLUser(&mtproto.User{
-					Id:            777008,
-					Self:          true,
-					Contact:       true,
-					MutualContact: true,
-					AccessHash:    &wrapperspb.Int64Value{Value: 8646839358227092202},
-					FirstName:     &wrapperspb.StringValue{Value: "U"},
-					LastName:      &wrapperspb.StringValue{Value: "T"},
-					Phone:         &wrapperspb.StringValue{Value: "6281698219323"},
-					Status: &mtproto.UserStatus{
-						PredicateName: "userStatusOnline",
-						Constructor:   -306628279,
-						Expires:       int32(time.Now().Unix() + 60),
-					},
-				}).To_User()
-				
-				updates := mtproto.MakeTLUpdates(&mtproto.Updates{
-					Updates: []*mtproto.Update{},
-					Users:   []*mtproto.User{user},
-					Chats:   []*mtproto.Chat{},
-					Date:    int32(time.Now().Unix()),
-					Seq:     0,
-				})
-				
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(m.MsgId)
-				updates.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			case *mtproto.TLContactsImportContacts:
-				importedContacts := mtproto.MakeTLContactsImportedContacts(&mtproto.Contacts_ImportedContacts{
-					Imported:       []*mtproto.ImportedContact{},
-					PopularInvites: []*mtproto.PopularContact{},
-					RetryContacts:  []int64{},
-					Users:          []*mtproto.User{},
-				})
-				buf := mtproto.NewEncodeBuf(512)
-				buf.Int(-212046591) // rpc_result constructor
-				buf.Long(m.MsgId)
-				importedContacts.Encode(buf, 158)
-				cp.send(buf.GetBuf(), salt, sessionId)
-			default:
-				// other types
-			}
+			logf(1, "In container %T\n", m.Object)
+			cp.replyMsg(m.Object, m.MsgId, salt, sessionId)
 		}
 	default:
-		fmt.Printf("Not found %T\n", obj)
-	}
-}
-
-func getDebugLevel() int {
-	if envVal := os.Getenv("DEBUG_LVL"); envVal != "" {
-		if level, err := strconv.Atoi(envVal); err == nil {
-			return level
-		}
-	}
-	return 1 // default value
-}
-
-var DEBUG_LVL int = getDebugLevel()
-
-func logf(level int, format string, args ...interface{}) {
-    pc, file, line, _ := runtime.Caller(1)
-	funcName := runtime.FuncForPC(pc).Name()
-    shortName := funcName[strings.LastIndex(funcName, ".")+1:]
-    filename := filepath.Base(file)
-    msg := fmt.Sprintf(format, args...)
-	_ = line
-	_ = shortName
-	_ = filename
-	_ = msg
-	if level <= DEBUG_LVL {
-		timestamp := time.Now().Format("15:04:05.000")
-		log.Printf("%s %4d %8s:%3d %20s() | %s", timestamp, level, filename, line, shortName, msg)
+		logf(1, "Not found %T\n", obj)
 	}
 }
