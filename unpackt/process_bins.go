@@ -37,30 +37,44 @@ func findObjectsInBytes(filename string, data []byte) {
 	fmt.Printf("\n=== Scanning %s (%d bytes) ===\n", filename, len(data))
 	fmt.Printf("========================================\n")
 
-	foundAny := false
-	for offset := 0; offset < len(data)-4; offset++ {
-		// Skip if remaining data is too small
-		if len(data[offset:]) < 8 {
-			continue
-		}
+	// foundAny := false
+	// for offset := 0; offset < len(data)-4; offset++ {
+	// 	// Skip if remaining data is too small
+	// 	if len(data[offset:]) < 8 {
+	// 		continue
+	// 	}
 
-		// Create a decode buffer from the current offset
-		dBuf := mtproto.NewDecodeBuf(data[offset:])
+	// 	// Create a decode buffer from the current offset
+	// 	dBuf := mtproto.NewDecodeBuf(data[offset:])
 
-		// Try to decode an object
+	// 	// Try to decode an object
+	// 	obj := dBuf.Object()
+
+	// 	if obj != nil {
+	// 		foundAny = true
+	// 		fmt.Printf("\n>>> Found object at offset %d\n", offset)
+	// 		fmt.Printf("    Type: %T\n", obj)
+	// 		fmt.Printf("%# v\n", pretty.Formatter(obj))
+	// 	}
+	// }
+
+	dBuf := mtproto.NewDecodeBuf(data)
+	// dBuf.MySeekOffset(40)
+	// dBuf.Long()
+	// dBuf.MySeekOffset(8)
+	for dBuf.GetOffset() < len(data) {
 		obj := dBuf.Object()
-
-		if obj != nil {
-			foundAny = true
-			fmt.Printf("\n>>> Found object at offset %d\n", offset)
-			fmt.Printf("    Type: %T\n", obj)
-			fmt.Printf("%# v\n", pretty.Formatter(obj))
+		dBuf.GetOffset()
+		if obj == nil {
+			break
 		}
+
+		fmt.Printf("\n   result := %# v\n", pretty.Formatter(obj))
 	}
 
-	if !foundAny {
-		fmt.Printf("    No valid objects found\n")
-	}
+	// if !foundAny {
+	// 	fmt.Printf("    No valid objects found\n")
+	// }
 }
 
 func main() {

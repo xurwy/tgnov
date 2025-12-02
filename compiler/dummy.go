@@ -22,8 +22,7 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 	// first
 
 
-
-
+	
 
 	// last
 	case *mtproto.TLInvokeWithLayer:

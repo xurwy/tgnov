@@ -1,2 +1,1 @@
-rm auth_key.bin
-DEBUG_LVL=1 ./6d
+DEBUG_LVL=2 ./6d

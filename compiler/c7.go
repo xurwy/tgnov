@@ -18,9 +18,9 @@ var out string
 func processTLBytes(data []byte) string {
 	var o1 string
 	dBuf := mtproto.NewDecodeBuf(data)
-	dBuf.MySeekOffset(40)
-	dBuf.Long()
-	dBuf.MySeekOffset(8)
+	// dBuf.MySeekOffset(40)
+	// dBuf.Long()
+	// dBuf.MySeekOffset(8)
 	for dBuf.GetOffset() < len(data) {
 		obj := dBuf.Object()
 		dBuf.GetOffset()
@@ -112,9 +112,9 @@ func findTLInOut1(tlType string) (string, string, string) {
 func main() {
 	if len(os.Args) > 1 {
 		// Original functionality with command line arguments
-		fullPathIn := "/home/u/dev/telegram/japp/mirror/CommData-send2u22/" + os.Args[1]
+		fullPathIn := "/home/u/dev/telegram/japp/mirror/CommData1/" + os.Args[1]
 		dataIn := readBytes(fullPathIn)
-		fullPathOut := "/home/u/dev/telegram/japp/mirror/CommData-send2u22/" + os.Args[2]
+		fullPathOut := "/home/u/dev/telegram/japp/mirror/CommData1/" + os.Args[2]
 		dataOut := readBytes(fullPathOut)
 		line := 26
 		out = fmt.Sprintf("\tcase %T:\n%s", getT(dataIn), processTLBytes(dataOut))	

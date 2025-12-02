@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"math/big"
-	"os"
 	"time"
 
 	"github.com/teamgram/marmota/pkg/hack"
@@ -55,13 +54,10 @@ func serializeToBuffer(x *mtproto.EncodeBuf, msgId int64, obj mtproto.TLObject) 
 	return nil
 }
 
-func (cp *ConnProp) sendTLObjectResponse(obj mtproto.TLObject) { cp.conn.Write(cp.encode(obj)) }
+func (cp *ConnProp) sendHandshakeRes(obj mtproto.TLObject) { cp.conn.Write(cp.encode(obj)) }
 
 var (
 	cryptoCodec *AesCTR128Crypto
-	AuthKey     []byte
-	authKeyId   int64
-	crAuthKey    *crypto.AuthKey
 )
 
 func initializeCTRCodec(buffer []byte, n int) *AesCTR128Crypto {
@@ -140,7 +136,7 @@ func handleReqDHParams(cp *ConnProp, obj mtproto.TLObject) ([]byte, []byte, []by
 	serverDHParams := mtproto.MakeTLServer_DHParamsOk(&mtproto.Server_DH_Params{Constructor: mtproto.TLConstructor(mtproto.TLConstructor_CRC32_server_DH_params_ok), Nonce: reqDhParam.Nonce, ServerNonce: reqDhParam.ServerNonce, EncryptedAnswer: hack.String(tmpEncryptedAnswer)}).To_Server_DH_Params()
 	_ = handshakeType
 	_ = expiresIn
-	cp.sendTLObjectResponse(serverDHParams)
+	cp.sendHandshakeRes(serverDHParams)
 	return reqDhParam.Nonce, reqDhParam.ServerNonce, newNonce, A, nil
 }
 
@@ -170,24 +166,27 @@ func handleSetClientDHParams(cp *ConnProp, obj mtproto.TLObject, nonce, serverNo
 	bigIntA := new(big.Int).SetBytes(A)
 	authKeyNum := new(big.Int)
 	authKeyNum.Exp(new(big.Int).SetBytes([]byte(clientDHInnerData.GetGB())), bigIntA, gBigIntDH2048P)
-	AuthKey = make([]byte, 256)
-	copy(AuthKey[256-len(authKeyNum.Bytes()):], authKeyNum.Bytes())
+	authKey := make([]byte, 256)
+	copy(authKey[256-len(authKeyNum.Bytes()):], authKeyNum.Bytes())
 	authKeyAuxHash := make([]byte, len(newNonce))
 	copy(authKeyAuxHash, newNonce)
 	authKeyAuxHash = append(authKeyAuxHash, byte(0x01))
-	sha1D := sha1.Sum(AuthKey)
+	sha1D := sha1.Sum(authKey)
 	authKeyAuxHash = append(authKeyAuxHash, sha1D[:]...)
 	sha1E := sha1.Sum(authKeyAuxHash[:len(authKeyAuxHash)-12])
 	authKeyAuxHash = append(authKeyAuxHash, sha1E[:]...)
-	authKeyId = int64(binary.LittleEndian.Uint64(authKeyAuxHash[len(newNonce)+1+12 : len(newNonce)+1+12+8]))
+	authKeyId := int64(binary.LittleEndian.Uint64(authKeyAuxHash[len(newNonce)+1+12 : len(newNonce)+1+12+8]))
 
-	os.WriteFile("auth_key.bin", AuthKey, 0644)
+	// Save auth key to MongoDB
+	cp.authKey = crypto.NewAuthKey(authKeyId, authKey)
+	if err := SaveAuthKey(authKey, authKeyId); err != nil {
+		log.Printf("[Conn %d] Failed to save auth key: %v\n", cp.connID, err)
+	} else {
+		log.Printf("[Conn %d] Auth key created and saved to MongoDB: %d\n", cp.connID, authKeyId)
+	}
 
-	// Reload auth key immediately after creation
-	loadAuthKey()
-
-	dhGen := mtproto.MakeTLDhGenOk(&mtproto.SetClient_DHParamsAnswer{Nonce: nonce, ServerNonce: serverNonce, NewNonceHash1: calcNewNonceHash(newNonce, AuthKey, 0x01)}).To_SetClient_DHParamsAnswer()
-	cp.sendTLObjectResponse(dhGen)
+	dhGen := mtproto.MakeTLDhGenOk(&mtproto.SetClient_DHParamsAnswer{Nonce: nonce, ServerNonce: serverNonce, NewNonceHash1: calcNewNonceHash(newNonce, authKey, 0x01)}).To_SetClient_DHParamsAnswer()
+	cp.sendHandshakeRes(dhGen)
 	return nil
 }
 
@@ -214,20 +213,40 @@ func calcNewNonceHash(newNonce, authKey []byte, b byte) []byte {
 	return authKeyAuxHash[len(authKeyAuxHash)-16:]
 }
 
-func (cp *ConnProp) handleQuery(query mtproto.TLObject, msgId int64) *mtproto.EncodeBuf {
-	
+func (cp *ConnProp) handleInvokeQuery(query mtproto.TLObject, msgId int64) *mtproto.EncodeBuf {
+
 	qBuf := mtproto.NewDecodeBuf(query.(*mtproto.TLInitConnection).GetQuery())
 	query = qBuf.Object()
 	logf(1, "In query %T\n", query)
-	buf := mtproto.NewEncodeBuf(512); buf.Int(-212046591); buf.Long(msgId)
+	return cp.overlapWithInvokeRes(query, msgId)
+}
+
+func (cp *ConnProp) overlapWithInvokeRes(query mtproto.TLObject, msgId int64) *mtproto.EncodeBuf {
+	buf := mtproto.NewEncodeBuf(15764); buf.Int(-212046591); buf.Long(msgId)
+
 	switch query.(type) {
-	case *mtproto.TLLangpackGetLanguages: buf.Int(481674261); buf.Int(0)
-	case *mtproto.TLHelpGetNearestDc: buf.Int(-1910892683); buf.String("CN"); buf.Int(1); buf.Int(1)
-	case *mtproto.TLHelpGetCountriesList: buf.Int(-2016381538); buf.Int(481674261); buf.Int(0); buf.Int(0)
-	default: buf.Int(481674261); buf.Int(0)
+	case *mtproto.TLLangpackGetLanguages:
+		buf.Int(481674261); buf.Int(3)
+		buf.Int(-288727837); buf.Int(1); buf.String("English"); buf.String("en"); buf.String("English"); buf.String("en"); buf.Int(5744); buf.Int(5744); buf.String("https://translations.telegram.org/en/")
+		buf.Int(-288727837); buf.Int(2); buf.String("Chinese (Simplified, @zh_CN)"); buf.String("classic-zh-cn"); buf.String("简体中文 (@zh_CN 版)"); buf.String("zh-hans-raw"); buf.String("zh"); buf.Int(5744); buf.Int(5744); buf.String("https://translations.telegram.org/classic-zh-cn/")
+		buf.Int(-288727837); buf.Int(12); buf.String("Persian"); buf.String("fa-raw"); buf.String("فارسی (beta)"); buf.String("fa"); buf.Int(5744); buf.Int(5045); buf.String("https://translations.telegram.org/fa/")
+	case *mtproto.TLHelpGetNearestDc:
+		buf.Int(-1910892683); buf.String("CN"); buf.Int(1); buf.Int(1)
+	case *mtproto.TLHelpGetCountriesList:
+		help_countriesList.Encode(buf, 158)
+	default:
+		buf.Int(481674261); buf.Int(0) // empty vector
 	}
-	
+
 	return buf
+}
+
+func (cp *ConnProp) encodeAndSend(obj mtproto.TLObject, msgId, salt, sessionId int64, bufSize int) {
+	buf := mtproto.NewEncodeBuf(bufSize)
+	buf.Int(-212046591) // rpc_result
+	buf.Long(msgId)
+	obj.Encode(buf, 158)
+	cp.send(buf.GetBuf(), salt, sessionId)
 }
 
 func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
@@ -248,10 +267,66 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		cp.send(newSessionData.GetBuf(), salt, sessionId)
 		dBuf := mtproto.NewDecodeBuf(invLayer.Query)
 		query := dBuf.Object()
-		buf := cp.handleQuery(query, msgId)
+		buf := cp.handleInvokeQuery(query, msgId)
 		cp.send(buf.GetBuf(), salt, sessionId)
+	case *mtproto.TLAuthSendCode:
+		cp.HandleAuthSendCode(obj, msgId, salt, sessionId)
+	case *mtproto.TLAuthSignIn:
+		cp.HandleAuthSignIn(obj, msgId, salt, sessionId)
+	case *mtproto.TLAuthSignUp:
+		cp.HandleAuthSignUp(obj, msgId, salt, sessionId)
+	case *mtproto.TLLangpackGetLanguages, *mtproto.TLHelpGetNearestDc, *mtproto.TLHelpGetCountriesList:
+		buf := cp.overlapWithInvokeRes(obj, msgId)
+		cp.send(buf.GetBuf(), salt, sessionId)
+	case *mtproto.TLMessagesGetStickers:
+		cp.encodeAndSend(messages_stickers, msgId, salt, sessionId, 1024)
+	case *mtproto.TLHelpGetPromoData:
+		promoData := mtproto.MakeTLHelpPromoDataEmpty(&mtproto.Help_PromoData{
+			Expires: int32(time.Now().Unix() + 3600),
+		})
+		cp.encodeAndSend(promoData, msgId, salt, sessionId, 512)
+	case *mtproto.TLHelpGetTermsOfServiceUpdate:
+		termsUpdate := mtproto.MakeTLHelpTermsOfServiceUpdateEmpty(&mtproto.Help_TermsOfServiceUpdate{
+			Expires: int32(time.Now().Unix() + 3600),
+		})
+		cp.encodeAndSend(termsUpdate, msgId, salt, sessionId, 512)
+	case *mtproto.TLMessagesGetAvailableReactions:
+		cp.encodeAndSend(available_reactions, msgId, salt, sessionId, 30000)
+	case *mtproto.TLMessagesGetAttachMenuBots:
+		result := &mtproto.TLAttachMenuBots{
+			Data2: &mtproto.AttachMenuBots{
+				PredicateName: "attachMenuBots",
+				Constructor:   1011024320,
+				Bots:          []*mtproto.AttachMenuBot{},
+				Users:         []*mtproto.User{}}}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+	case *mtproto.TLUpdatesGetState:
+		result := &mtproto.TLUpdatesState{
+			Data2: &mtproto.Updates_State{
+				PredicateName: "updates_state",
+				Constructor:   -1519637954,
+				Pts:           1,
+				Date:          int32(time.Now().Unix()),
+				Seq:           -1}}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+	case *mtproto.TLMessagesGetPinnedDialogs:
+		result := &mtproto.TLMessagesPeerDialogs{
+			Data2: &mtproto.Messages_PeerDialogs{
+				PredicateName: "messages_peerDialogs",
+				Constructor:   863093588,
+				Dialogs:       []*mtproto.Dialog{},
+				Messages:      []*mtproto.Message{},
+				Chats:         []*mtproto.Chat{},
+				Users:         []*mtproto.User{},
+				State: &mtproto.Updates_State{
+					PredicateName: "updates_state",
+					Constructor:   -1519637954,
+					Pts:           1,
+					Date:          int32(time.Now().Unix()),
+					Seq:           -1}}}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
 	case *mtproto.TLMsgContainer:
-		for _, m := range obj.Messages { 
+		for _, m := range obj.Messages {
 			logf(1, "In container %T\n", m.Object)
 			cp.replyMsg(m.Object, m.MsgId, salt, sessionId)
 		}
