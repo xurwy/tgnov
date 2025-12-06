@@ -19,7 +19,6 @@ func (cp *ConnProp) HandleAuthSendCode(obj *mtproto.TLAuthSendCode, msgId, salt,
 	// Check if this auth key already has a user
 	if cp.userID != 0 {
 		logf(1, "[Conn %d] Auth key already has user %d, ignoring sendCode\n", cp.connID, cp.userID)
-		cp.sendError(msgId, salt, sessionId, 400, "SESSION_PASSWORD_NEEDED")
 		return
 	}
 
@@ -97,26 +96,22 @@ func (cp *ConnProp) HandleAuthSignIn(obj *mtproto.TLAuthSignIn, msgId, salt, ses
 	phoneCodeDoc, err := FindPhoneCode(phoneCodeHash)
 	if err != nil || phoneCodeDoc == nil {
 		logf(1, "[Conn %d] Invalid phone code hash\n", cp.connID)
-		cp.sendError(msgId, salt, sessionId, 400, "PHONE_CODE_HASH_EMPTY")
 		return
 	}
 
 	// Verify this phone code belongs to this auth key
 	if phoneCodeDoc.AuthKeyID != cp.authKey.AuthKeyId() {
 		logf(1, "[Conn %d] Phone code auth key mismatch\n", cp.connID)
-		cp.sendError(msgId, salt, sessionId, 400, "PHONE_CODE_HASH_EMPTY")
 		return
 	}
 
 	if phoneCodeDoc.PhoneNumber != phoneNumber {
 		logf(1, "[Conn %d] Phone number mismatch\n", cp.connID)
-		cp.sendError(msgId, salt, sessionId, 400, "PHONE_NUMBER_INVALID")
 		return
 	}
 
 	if time.Now().After(phoneCodeDoc.ExpiresAt) {
 		logf(1, "[Conn %d] Phone code expired\n", cp.connID)
-		cp.sendError(msgId, salt, sessionId, 400, "PHONE_CODE_EXPIRED")
 		return
 	}
 
@@ -127,7 +122,6 @@ func (cp *ConnProp) HandleAuthSignIn(obj *mtproto.TLAuthSignIn, msgId, salt, ses
 	user, err := FindUserByPhone(phoneNumber)
 	if err != nil {
 		logf(1, "[Conn %d] Database error: %v\n", cp.connID, err)
-		cp.sendError(msgId, salt, sessionId, 500, "INTERNAL_SERVER_ERROR")
 		return
 	}
 
@@ -177,26 +171,22 @@ func (cp *ConnProp) HandleAuthSignUp(obj *mtproto.TLAuthSignUp, msgId, salt, ses
 	phoneCodeDoc, err := FindPhoneCode(phoneCodeHash)
 	if err != nil || phoneCodeDoc == nil {
 		logf(1, "[Conn %d] Invalid phone code hash\n", cp.connID)
-		cp.sendError(msgId, salt, sessionId, 400, "PHONE_CODE_HASH_EMPTY")
 		return
 	}
 
 	// Verify this phone code belongs to this auth key
 	if phoneCodeDoc.AuthKeyID != cp.authKey.AuthKeyId() {
 		logf(1, "[Conn %d] Phone code auth key mismatch\n", cp.connID)
-		cp.sendError(msgId, salt, sessionId, 400, "PHONE_CODE_HASH_EMPTY")
 		return
 	}
 
 	if phoneCodeDoc.PhoneNumber != phoneNumber {
 		logf(1, "[Conn %d] Phone number mismatch\n", cp.connID)
-		cp.sendError(msgId, salt, sessionId, 400, "PHONE_NUMBER_INVALID")
 		return
 	}
 
 	if !phoneCodeDoc.Verified {
 		logf(1, "[Conn %d] Phone code not verified\n", cp.connID)
-		cp.sendError(msgId, salt, sessionId, 400, "PHONE_CODE_INVALID")
 		return
 	}
 
@@ -204,7 +194,6 @@ func (cp *ConnProp) HandleAuthSignUp(obj *mtproto.TLAuthSignUp, msgId, salt, ses
 	existingUser, _ := FindUserByPhone(phoneNumber)
 	if existingUser != nil {
 		logf(1, "[Conn %d] User already exists\n", cp.connID)
-		cp.sendError(msgId, salt, sessionId, 400, "PHONE_NUMBER_OCCUPIED")
 		return
 	}
 
@@ -235,7 +224,6 @@ func (cp *ConnProp) HandleAuthSignUp(obj *mtproto.TLAuthSignUp, msgId, salt, ses
 
 	if err := CreateUser(user); err != nil {
 		logf(1, "[Conn %d] Failed to create user: %v\n", cp.connID, err)
-		cp.sendError(msgId, salt, sessionId, 500, "INTERNAL_SERVER_ERROR")
 		return
 	}
 
@@ -308,10 +296,6 @@ func (cp *ConnProp) createSessionForUser(user *UserDoc, msgId, salt, sessionId i
 	cp.send(buf.GetBuf(), salt, sessionId)
 }
 
-// Helper: Send error response
-func (cp *ConnProp) sendError(msgId, salt, sessionId int64, code int32, text string) {
-	logf(1, "[Conn %d] Sending error: %d %s\n", cp.connID, code, text)
-}
 
 // Helper: Generate verification code (static for testing)
 func generateVerificationCode(length int) string {
@@ -321,11 +305,18 @@ func generateVerificationCode(length int) string {
 }
 
 // Helper: Generate user ID
+// func generateUserID() int64 {
+// 	n, _ := rand.Int(rand.Reader, big.NewInt(9000000000))
+// 	return n.Int64() + 1000000000 // Range: 1B to 10B
+// }
+
 func generateUserID() int64 {
-	// Generate random positive int64
-	n, _ := rand.Int(rand.Reader, big.NewInt(9000000000))
-	return n.Int64() + 1000000000 // Range: 1B to 10B
+    maxRange := int64(4294967296 - 1000000000) // 3,294,967,296
+    n, _ := rand.Int(rand.Reader, big.NewInt(maxRange))
+    return n.Int64() + 1000000000
+	// return 1271292217
 }
+
 
 // Helper: Generate access hash
 func generateAccessHash() int64 {

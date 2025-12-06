@@ -1,1 +1,1 @@
-DEBUG_LVL=2 ./6d
+DEBUG_LVL=2 ./server

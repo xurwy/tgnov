@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"compress/gzip"
 	"crypto/sha1"
 	"encoding/binary"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"github.com/teamgram/marmota/pkg/hack"
 	"github.com/teamgram/proto/mtproto"
 	"github.com/teamgram/proto/mtproto/crypto"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 var (
@@ -213,6 +215,27 @@ func calcNewNonceHash(newNonce, authKey []byte, b byte) []byte {
 	return authKeyAuxHash[len(authKeyAuxHash)-16:]
 }
 
+func gzipCompress(data []byte) ([]byte, error) {
+	var buf bytes.Buffer
+	writer := gzip.NewWriter(&buf)
+	if _, err := writer.Write(data); err != nil {
+		return nil, err
+	}
+	if err := writer.Close(); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+func buildLangpackResponse() []byte {
+	langBuf := mtproto.NewEncodeBuf(1024)
+	langBuf.Int(481674261); langBuf.Int(3)
+	langBuf.Int(-288727837); langBuf.Int(1); langBuf.String("English"); langBuf.String("en"); langBuf.String("English"); langBuf.String("en"); langBuf.Int(5744); langBuf.Int(5744); langBuf.String("https://translations.telegram.org/en/")
+	langBuf.Int(-288727837); langBuf.Int(2); langBuf.String("Chinese (Simplified, @zh_CN)"); langBuf.String("classic-zh-cn"); langBuf.String("简体中文 (@zh_CN 版)"); langBuf.String("zh-hans-raw"); langBuf.String("zh"); langBuf.Int(5744); langBuf.Int(5744); langBuf.String("https://translations.telegram.org/classic-zh-cn/")
+	langBuf.Int(-288727837); langBuf.Int(12); langBuf.String("Persian"); langBuf.String("fa-raw"); langBuf.String("فارسی (beta)"); langBuf.String("fa"); langBuf.Int(5744); langBuf.Int(5045); langBuf.String("https://translations.telegram.org/fa/")
+	return langBuf.GetBuf()
+}
+
 func (cp *ConnProp) handleInvokeQuery(query mtproto.TLObject, msgId int64) *mtproto.EncodeBuf {
 
 	qBuf := mtproto.NewDecodeBuf(query.(*mtproto.TLInitConnection).GetQuery())
@@ -222,14 +245,11 @@ func (cp *ConnProp) handleInvokeQuery(query mtproto.TLObject, msgId int64) *mtpr
 }
 
 func (cp *ConnProp) overlapWithInvokeRes(query mtproto.TLObject, msgId int64) *mtproto.EncodeBuf {
-	buf := mtproto.NewEncodeBuf(15764); buf.Int(-212046591); buf.Long(msgId)
+	buf := mtproto.NewEncodeBuf(1024); buf.Int(-212046591); buf.Long(msgId)
 
 	switch query.(type) {
 	case *mtproto.TLLangpackGetLanguages:
-		buf.Int(481674261); buf.Int(3)
-		buf.Int(-288727837); buf.Int(1); buf.String("English"); buf.String("en"); buf.String("English"); buf.String("en"); buf.Int(5744); buf.Int(5744); buf.String("https://translations.telegram.org/en/")
-		buf.Int(-288727837); buf.Int(2); buf.String("Chinese (Simplified, @zh_CN)"); buf.String("classic-zh-cn"); buf.String("简体中文 (@zh_CN 版)"); buf.String("zh-hans-raw"); buf.String("zh"); buf.Int(5744); buf.Int(5744); buf.String("https://translations.telegram.org/classic-zh-cn/")
-		buf.Int(-288727837); buf.Int(12); buf.String("Persian"); buf.String("fa-raw"); buf.String("فارسی (beta)"); buf.String("fa"); buf.Int(5744); buf.Int(5045); buf.String("https://translations.telegram.org/fa/")
+		buf.Bytes(buildLangpackResponse())
 	case *mtproto.TLHelpGetNearestDc:
 		buf.Int(-1910892683); buf.String("CN"); buf.Int(1); buf.Int(1)
 	case *mtproto.TLHelpGetCountriesList:
@@ -242,7 +262,11 @@ func (cp *ConnProp) overlapWithInvokeRes(query mtproto.TLObject, msgId int64) *m
 }
 
 func (cp *ConnProp) encodeAndSend(obj mtproto.TLObject, msgId, salt, sessionId int64, bufSize int) {
-	buf := mtproto.NewEncodeBuf(bufSize)
+	initialSize := 512
+	if bufSize > 0 && bufSize < 2048 {
+		initialSize = bufSize
+	}
+	buf := mtproto.NewEncodeBuf(initialSize)
 	buf.Int(-212046591) // rpc_result
 	buf.Long(msgId)
 	obj.Encode(buf, 158)
@@ -275,7 +299,21 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		cp.HandleAuthSignIn(obj, msgId, salt, sessionId)
 	case *mtproto.TLAuthSignUp:
 		cp.HandleAuthSignUp(obj, msgId, salt, sessionId)
-	case *mtproto.TLLangpackGetLanguages, *mtproto.TLHelpGetNearestDc, *mtproto.TLHelpGetCountriesList:
+	case *mtproto.TLLangpackGetLanguages:
+		// Standalone langpack request (not in invoke) - use gzip compression
+		langData := buildLangpackResponse()
+		compressed, err := gzipCompress(langData)
+		buf := mtproto.NewEncodeBuf(len(compressed) + 64)
+		buf.Int(-212046591); buf.Long(msgId)
+		if err != nil {
+			logf(1, "Failed to gzip compress langpack response: %v\n", err)
+			buf.Bytes(langData)
+		} else {
+			buf.Int(0x3072cfa1) // gzip_packed
+			buf.String(string(compressed)) // Use String() for proper TL encoding
+		}
+		cp.send(buf.GetBuf(), salt, sessionId)
+	case *mtproto.TLHelpGetNearestDc, *mtproto.TLHelpGetCountriesList:
 		buf := cp.overlapWithInvokeRes(obj, msgId)
 		cp.send(buf.GetBuf(), salt, sessionId)
 	case *mtproto.TLMessagesGetStickers:
@@ -325,6 +363,145 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 					Date:          int32(time.Now().Unix()),
 					Seq:           -1}}}
 		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+	case *mtproto.TLHelpGetPremiumPromo:
+		cp.encodeAndSend(help_premiumpromo, msgId, salt, sessionId, 1024)
+	case *mtproto.TLAccountUpdateStatus:
+		boolTrue := mtproto.MakeTLBoolTrue(nil)
+		cp.encodeAndSend(boolTrue, msgId, salt, sessionId, 512)
+	case *mtproto.TLContactsGetTopPeers:
+		topPeers := mtproto.MakeTLContactsTopPeers(&mtproto.Contacts_TopPeers{
+			Categories: []*mtproto.TopPeerCategoryPeers{},
+			Chats:      []*mtproto.Chat{},
+			Users:      []*mtproto.User{},
+		})
+		cp.encodeAndSend(topPeers, msgId, salt, sessionId, 512)
+	case *mtproto.TLAccountGetNotifySettings:
+		peerNotif := &mtproto.TLPeerNotifySettings{
+			Data2: &mtproto.PeerNotifySettings{
+				PredicateName: "peerNotifySettings",
+				Constructor:   -1472527322,
+				ShowPreviews: &mtproto.Bool{
+					PredicateName: "boolTrue",
+					Constructor:   -1720552011},
+				Silent: &mtproto.Bool{
+					PredicateName: "boolFalse",
+					Constructor:   -1132882121},
+				MuteUntil: &wrapperspb.Int32Value{}}}
+		cp.encodeAndSend(peerNotif, msgId, salt, sessionId, 512)
+	case *mtproto.TLAccountGetContactSignUpNotification:
+		boolTrue := &mtproto.TLBoolTrue{
+			Data2: &mtproto.Bool{
+				PredicateName: "boolTrue",
+				Constructor:   -1720552011}}
+		cp.encodeAndSend(boolTrue, msgId, salt, sessionId, 512)
+	case *mtproto.TLHelpGetInviteText:
+		inviteTxt := &mtproto.TLHelpInviteText{
+			Data2: &mtproto.Help_InviteText{}}
+		cp.encodeAndSend(inviteTxt, msgId, salt, sessionId, 512)
+	case *mtproto.TLMessagesGetDialogs:
+		result := &mtproto.TLMessagesDialogsSlice{
+			Data2: &mtproto.Messages_Dialogs{
+				PredicateName: "messages_dialogsSlice",
+				Constructor:   1910543603,
+				Dialogs:       []*mtproto.Dialog{},
+				Messages:      []*mtproto.Message{},
+				Chats:         []*mtproto.Chat{},
+				Users:         []*mtproto.User{}}}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+	case *mtproto.TLMessagesGetFavedStickers:
+		result := &mtproto.TLMessagesFavedStickers{
+			Data2: &mtproto.Messages_FavedStickers{
+				PredicateName: "messages_favedStickers",
+				Constructor:   750063767,
+				Packs:         []*mtproto.StickerPack{},
+				Stickers:      []*mtproto.Document{}}}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+	case *mtproto.TLRpcDropAnswer:
+		dropAnswer := &mtproto.TLRpcAnswerUnknown{
+			Data2: &mtproto.RpcDropAnswer{
+				PredicateName: "rpc_answer_unknown",
+				Constructor:   1579864942}}
+		cp.encodeAndSend(dropAnswer, msgId, salt, sessionId, 512)
+	case *mtproto.TLContactsGetStatuses:
+		ev := mtproto.NewEncodeBuf(512)
+		ev.Int(-212046591); ev.Long(msgId)
+		ev.Int(481674261); ev.Int(0)
+		cp.send(ev.GetBuf(), salt, sessionId)
+	case *mtproto.TLContactsGetContacts:
+		cp.HandleContactsGetContacts(obj, msgId, salt, sessionId)
+	case *mtproto.TLMessagesGetPeerDialogs:
+		cp.HandleMessagesGetPeerDialogs(obj, msgId, salt, sessionId)
+	case *mtproto.TLUsersGetFullUser:
+		cp.HandleUsersGetFullUser(obj, msgId, salt, sessionId)
+	case *mtproto.TLMessagesGetAllDrafts:
+		cp.HandleMessagesGetAllDrafts(msgId, salt, sessionId)
+	case *mtproto.TLMessagesGetStickerSet:
+		stickerSet := obj.GetStickerset()
+		if stickerSet != nil {
+			// Check PredicateName first
+			switch stickerSet.PredicateName {
+			case "inputStickerSetShortName":
+				switch stickerSet.ShortName {
+				case "tg_placeholders_android":
+					cp.encodeAndSend(tg_placeholders_android, msgId, salt, sessionId, 30000)
+					return
+				case "EmojiAnimations":
+					cp.encodeAndSend(emoji_animations, msgId, salt, sessionId, 30000)
+					return
+				}
+			case "inputStickerSetDice":
+				switch stickerSet.Emoticon {
+				case "🎯":
+					cp.encodeAndSend(animated_dart, msgId, salt, sessionId, 30000)
+					return
+				case "🎲":
+					cp.encodeAndSend(animated_dice, msgId, salt, sessionId, 30000)
+					return
+				}
+			case "inputStickerSetAnimatedEmoji":
+				cp.encodeAndSend(animated_emojies, msgId, salt, sessionId, 30000)
+				return
+			case "inputStickerSetPremiumGifts":
+				cp.encodeAndSend(gifts_premium, msgId, salt, sessionId, 30000)
+				return
+			case "inputStickerSetEmojiGenericAnimations":
+				cp.encodeAndSend(generic_animations, msgId, salt, sessionId, 30000)
+				return
+			}
+		}
+
+		// If nothing matches, return a not found error or empty response
+		logf(1, "Sticker set not found: %+v\n", stickerSet)
+	case *mtproto.TLMessagesGetFeaturedStickers, *mtproto.TLMessagesGetFeaturedEmojiStickers:
+		cp.encodeAndSend(featured_stickers, msgId, salt, sessionId, 30000)
+	case *mtproto.TLMessagesGetDialogFiltersF19ED96D:
+		result := &mtproto.Vector_DialogFilter{
+			Datas: []*mtproto.DialogFilter{},
+		}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+	case *mtproto.TLUploadGetFile:
+		location := obj.GetLocation()
+		if location != nil && location.PredicateName == "inputDocumentFileLocation" {
+			fileData, err := FindFileDataByID(location.Id)
+			if err != nil || fileData == nil {
+				logf(1, "File data not found for document %d\n", location.Id)
+				fileData = []byte{}
+			}
+			result := &mtproto.TLUploadFile{
+				Data2: &mtproto.Upload_File{
+					PredicateName: "upload_file",
+					Constructor:   157948117,
+					Type: &mtproto.Storage_FileType{
+						PredicateName: "storage_fileUnknown",
+						Constructor:   -1432995067,
+					},
+					Bytes: fileData,
+				},
+			}
+			buf := mtproto.NewEncodeBuf(len(fileData)+512)
+			result.Encode(buf, 158)
+			cp.send(buf.GetBuf(), salt, sessionId)
+		}
 	case *mtproto.TLMsgContainer:
 		for _, m := range obj.Messages {
 			logf(1, "In container %T\n", m.Object)

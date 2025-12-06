@@ -19,6 +19,7 @@ var (
 	usersCollection      *mongo.Collection
 	sessionsCollection   *mongo.Collection
 	phoneCodesCollection *mongo.Collection
+	fileDataCollection   *mongo.Collection
 )
 
 // AuthKeyDoc represents the MongoDB document for auth keys
@@ -79,6 +80,14 @@ type PhoneCodeDoc struct {
 	Verified      bool      `bson:"verified"`
 }
 
+// FileDataDoc stores file data for upload.getFile responses
+type FileDataDoc struct {
+	DocumentID int64     `bson:"document_id"` // Document ID from inputDocumentFileLocation
+	Data       []byte    `bson:"data"`        // Compressed file data (gzip)
+	CreatedAt  time.Time `bson:"created_at"`
+	UpdatedAt  time.Time `bson:"updated_at"`
+}
+
 // InitMongoDB initializes the MongoDB connection
 func InitMongoDB(mongoURL string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -102,6 +111,7 @@ func InitMongoDB(mongoURL string) error {
 	usersCollection = db.Collection("users")
 	sessionsCollection = db.Collection("sessions")
 	phoneCodesCollection = db.Collection("phone_codes")
+	fileDataCollection = db.Collection("file_data")
 
 	// Create indexes for auth_keys
 	authKeyIndexes := []mongo.IndexModel{
@@ -138,6 +148,10 @@ func InitMongoDB(mongoURL string) error {
 	// Create indexes for sessions
 	sessionIndexes := []mongo.IndexModel{
 		{
+			Keys:    bson.D{{Key: "session_id", Value: 1}},
+			Options: options.Index().SetUnique(true),
+		},
+		{
 			Keys:    bson.D{{Key: "auth_key_id", Value: 1}},
 			Options: options.Index(),
 		},
@@ -165,6 +179,18 @@ func InitMongoDB(mongoURL string) error {
 	_, err = phoneCodesCollection.Indexes().CreateMany(ctx, phoneCodeIndexes)
 	if err != nil {
 		log.Printf("Warning: Could not create phone_codes indexes: %v", err)
+	}
+
+	// Create indexes for file_data
+	fileDataIndexes := []mongo.IndexModel{
+		{
+			Keys:    bson.D{{Key: "document_id", Value: 1}},
+			Options: options.Index().SetUnique(true),
+		},
+	}
+	_, err = fileDataCollection.Indexes().CreateMany(ctx, fileDataIndexes)
+	if err != nil {
+		log.Printf("Warning: Could not create file_data indexes: %v", err)
 	}
 
 	log.Printf("Connected to MongoDB successfully")
@@ -356,15 +382,29 @@ func UpdateSession(session *SessionDoc) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	session.UpdatedAt = time.Now()
-	session.LastUsedAt = time.Now()
+	now := time.Now()
+	session.UpdatedAt = now
+	session.LastUsedAt = now
 
-	_, err := sessionsCollection.UpdateOne(
-		ctx,
-		bson.M{"auth_key_id": session.AuthKeyID, "session_id": session.SessionID},
-		bson.M{"$set": session},
-		options.Update().SetUpsert(true),
-	)
+	// Use session_id as the unique identifier
+	filter := bson.M{"session_id": session.SessionID}
+
+	// On insert, set created_at; on update, keep existing created_at
+	update := bson.M{
+		"$set": bson.M{
+			"auth_key_id":  session.AuthKeyID,
+			"user_id":      session.UserID,
+			"salt":         session.Salt,
+			"updated_at":   session.UpdatedAt,
+			"last_used_at": session.LastUsedAt,
+		},
+		"$setOnInsert": bson.M{
+			"session_id": session.SessionID,
+			"created_at": now,
+		},
+	}
+
+	_, err := sessionsCollection.UpdateOne(ctx, filter, update, options.Update().SetUpsert(true))
 	if err != nil {
 		return fmt.Errorf("failed to update session: %w", err)
 	}
@@ -417,6 +457,49 @@ func MarkPhoneCodeVerified(phoneCodeHash string) error {
 		return fmt.Errorf("failed to mark phone code verified: %w", err)
 	}
 	return nil
+}
+
+// File data management functions
+
+// SaveFileData saves file data to MongoDB
+func SaveFileData(documentID int64, data []byte) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	now := time.Now()
+	doc := FileDataDoc{
+		DocumentID: documentID,
+		Data:       data,
+		CreatedAt:  now,
+		UpdatedAt:  now,
+	}
+
+	opts := options.Update().SetUpsert(true)
+	filter := bson.M{"document_id": documentID}
+	update := bson.M{"$set": doc}
+
+	_, err := fileDataCollection.UpdateOne(ctx, filter, update, opts)
+	if err != nil {
+		return fmt.Errorf("failed to save file data: %w", err)
+	}
+
+	return nil
+}
+
+// FindFileDataByID finds file data by document ID
+func FindFileDataByID(documentID int64) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var doc FileDataDoc
+	err := fileDataCollection.FindOne(ctx, bson.M{"document_id": documentID}).Decode(&doc)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to find file data: %w", err)
+	}
+	return doc.Data, nil
 }
 
 // CloseMongoDB closes the MongoDB connection

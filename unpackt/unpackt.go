@@ -62,7 +62,7 @@ func findObjectsInBytes(data []byte, label string) {
 
 func main() {
     // Read the binary file
-    data, err := ioutil.ReadFile("/home/u/dev/buff_1764585904971.bin")
+    data, err := ioutil.ReadFile("/home/u/dev/telegram/japp/mirror/CommData1/buff_1764237811620.bin")
     if err != nil {
         panic(err)
     }

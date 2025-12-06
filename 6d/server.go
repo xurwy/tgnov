@@ -30,6 +30,8 @@ var (
 	connCounter int
 	connMutex sync.Mutex
 	activeConnections sync.Map
+	// Map auth key ID to active connection
+	authKeyConnections sync.Map
 )
 
 func handleConnection(conn net.Conn) {
@@ -72,15 +74,28 @@ func handleConnection(conn net.Conn) {
 
 		// Try to discover auth key from the data if we don't have one
 		if cp.authKey == nil {
-			authKey, offset, err := FindAuthKeyInData(decrypted)
-			if err != nil {
-				logf(1, "[Conn %d] Error finding auth key: %v\n", cp.connID, err)
-			} else if authKey != nil {
+			authKey, offset, _ := FindAuthKeyInData(decrypted)
+			if authKey != nil {
+				authKeyID := authKey.AuthKeyId()
+				
+				// Check if there's already an active connection for this auth key
+				if existingConn, exists := authKeyConnections.Load(authKeyID); exists {
+					existingCP := existingConn.(*ConnProp)
+					logf(1, "[Conn %d] Auth key %d already has active connection [Conn %d]. Closing this connection.\n", 
+						connID, authKeyID, existingCP.connID)
+					conn.Close()
+					return
+				}
+				
 				cp.authKey = authKey
-				logf(1, "[Conn %d] Auth key discovered from data at offset %d: %d\n", cp.connID, offset, authKey.AuthKeyId())
+				authKeyConnections.Store(authKeyID, cp)
+				defer authKeyConnections.Delete(authKeyID)
+				
+				logf(1, "[Conn %d] Auth key discovered from data at offset %d: %d (now serving this session)\n", 
+					cp.connID, offset, authKeyID)
 
 				// Try to load session to get user ID
-				session, err := FindSessionByAuthKey(authKey.AuthKeyId())
+				session, err := FindSessionByAuthKey(authKeyID)
 				if err == nil && session != nil && session.UserID != 0 {
 					cp.userID = session.UserID
 					logf(1, "[Conn %d] Session loaded, user ID: %d\n", cp.connID, cp.userID)
@@ -151,36 +166,31 @@ func (cp *ConnProp) aesIgeDecrypt(decrypted []byte, offset int) int {
 	msgKeyOffset := offset + 8
 	remainingBytes := len(decrypted) - msgKeyOffset - 16
 
-	logf(2, "[Conn %d] Attempting decrypt at offset %d (msgKey at %d), remaining %d bytes\n", cp.connID, offset, msgKeyOffset, remainingBytes)
-
 	// Try to find the correct encrypted data length by trying multiples of 16
-	// Start from the end and work backwards to find valid padding
 	var rawP []byte
 	var err error
-	found := false
 	validEncLen := 0
 
-	for encLen := (remainingBytes / 16) * 16; encLen >= 16; encLen -= 16 {
+	minLen := 48  // Minimum: 32 bytes header + 16 bytes minimum body
+	maxLen := (remainingBytes / 16) * 16
+
+	for encLen := minLen; encLen <= maxLen; encLen += 16 {
 		rawP, err = cp.authKey.AesIgeDecrypt(decrypted[msgKeyOffset:msgKeyOffset+16], decrypted[msgKeyOffset+16:msgKeyOffset+16+encLen])
-		if err == nil && len(rawP) >= 24 {
-			// Try to decode to verify it's valid
+		if err == nil && len(rawP) >= 32 {
 			msg := &mtproto.TLMessage2{}
 			msg.Decode(mtproto.NewDecodeBuf(rawP[16:]))
 			if msg.Object != nil {
-				found = true
 				validEncLen = encLen
-				logf(2, "[Conn %d] Found valid message with encrypted length %d\n", cp.connID, encLen)
+				logf(2, "[Conn %d] Found message at offset %d (encrypted: %d bytes)\n", cp.connID, offset, encLen)
 				break
 			}
 		}
 	}
 
-	if !found {
-		logf(2, "[Conn %d] Could not find valid message at offset %d\n", cp.connID, offset)
+	if validEncLen == 0 {
 		return 0
 	}
 
-	// Decode again to get the actual message (we already validated it above)
 	msg := &mtproto.TLMessage2{}
 	msg.Decode(mtproto.NewDecodeBuf(rawP[16:]))
 
@@ -224,6 +234,19 @@ func (cp *ConnProp) encodeCtr(data []byte) []byte {
 	return cp.aesCtr.Encrypt(append(sb, data...))
 }
 
+func trimToActualData(data []byte) []byte {
+	// Find the last non-zero byte
+	lastNonZero := len(data) - 1
+	for lastNonZero >= 0 && data[lastNonZero] == 0 {
+		lastNonZero--
+	}
+	// Return up to the last non-zero byte (plus 1 for length)
+	if lastNonZero < len(data)-1 {
+		return data[:lastNonZero+1]
+	}
+	return data
+}
+
 func (cp *ConnProp) send(body []byte, salt, sessionId int64) {
 	if cp.authKey == nil { return }
 	x := mtproto.NewEncodeBuf(512)
@@ -232,7 +255,8 @@ func (cp *ConnProp) send(body []byte, salt, sessionId int64) {
 	msgKey, data, _ := cp.authKey.AesIgeEncrypt(x.GetBuf())
 	x2 := mtproto.NewEncodeBuf(8 + len(msgKey) + len(data))
 	x2.Long(cp.authKey.AuthKeyId()); x2.Bytes(msgKey); x2.Bytes(data)
-	cp.conn.Write(cp.encodeCtr(x2.GetBuf()))
+	finalData := trimToActualData(x2.GetBuf())
+	cp.conn.Write(cp.encodeCtr(finalData))
 }
 
 
@@ -277,13 +301,22 @@ func main() {
 	}
 	defer CloseMongoDB()
 
-	listener, _ := net.Listen("tcp", ":10443")
+	listener, err := net.Listen("tcp", ":10443")
+	if err != nil {
+		log.Fatalf("Failed to start listener: %v", err)
+	}
 	defer listener.Close()
+	
 	log.Printf("Server listening on :10443")
-	for i := 0; i < 50; i++ {
-		if conn, err := listener.Accept(); err == nil {
-			log.Printf("New connection accepted from %s", conn.RemoteAddr())
-			go handleConnection(conn)
+	
+	// Accept connections indefinitely
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			log.Printf("Error accepting connection: %v", err)
+			continue
 		}
+		log.Printf("New connection accepted from %s", conn.RemoteAddr())
+		go handleConnection(conn)
 	}
 }
