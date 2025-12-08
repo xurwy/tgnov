@@ -16,6 +16,9 @@ func (cp *ConnProp) HandleUpdatesGetDifference(obj *mtproto.TLUpdatesGetDifferen
 		return
 	}
 
+	// Update last seen when user checks for updates
+	UpdateUserLastSeen(cp.userID)
+
 	// Get client's current state
 	clientPts := obj.GetPts()
 	clientDate := obj.GetDate()
@@ -62,7 +65,10 @@ func (cp *ConnProp) HandleUpdatesGetDifference(obj *mtproto.TLUpdatesGetDifferen
 	userMap := make(map[int64]bool)
 
 	for _, msg := range pendingMessages {
-		// Create updateNewMessage for each pending message
+		// For the RECIPIENT (cp.userID), this is an incoming message
+		// Message.PeerId should point to the OTHER person in the dialog (the sender, msg.FromID)
+		// Message.Out should be false (incoming)
+		// Message.FromId should be the actual sender
 		updates = append(updates, &mtproto.Update{
 			PredicateName: "updateNewMessage",
 			Constructor:   522914557,
@@ -73,13 +79,13 @@ func (cp *ConnProp) HandleUpdatesGetDifference(obj *mtproto.TLUpdatesGetDifferen
 				PeerId: &mtproto.Peer{
 					PredicateName: "peerUser",
 					Constructor:   1498486562,
-					UserId:        cp.userID, // Recipient is the current user
+					UserId:        msg.FromID, // Dialog peer = the sender (the OTHER person)
 				},
 				Out: false, // Incoming message for the recipient
 				FromId: &mtproto.Peer{
 					PredicateName: "peerUser",
 					Constructor:   1498486562,
-					UserId:        msg.FromID, // Sender
+					UserId:        msg.FromID, // Actual sender
 				},
 				Date:    msg.Date,
 				Message: msg.Message,
@@ -96,7 +102,7 @@ func (cp *ConnProp) HandleUpdatesGetDifference(obj *mtproto.TLUpdatesGetDifferen
 			PeerId: &mtproto.Peer{
 				PredicateName: "peerUser",
 				Constructor:   1498486562,
-				UserId:        cp.userID,
+				UserId:        msg.FromID, // Dialog peer = the sender (the OTHER person)
 			},
 			Out: false,
 			FromId: &mtproto.Peer{

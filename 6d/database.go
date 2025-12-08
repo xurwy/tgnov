@@ -177,6 +177,13 @@ func InitMongoDB(mongoURL string) error {
 	}
 
 	// Create indexes for users
+	// First, try to drop the old unique username index if it exists
+	_, err = usersCollection.Indexes().DropOne(ctx, "username_1")
+	if err != nil {
+		// Ignore error if index doesn't exist
+		log.Printf("Note: Could not drop old username_1 index (may not exist): %v", err)
+	}
+
 	userIndexes := []mongo.IndexModel{
 		{
 			Keys:    bson.D{{Key: "id", Value: 1}},
@@ -187,8 +194,10 @@ func InitMongoDB(mongoURL string) error {
 			Options: options.Index().SetUnique(true).SetSparse(true),
 		},
 		{
-			Keys:    bson.D{{Key: "username", Value: 1}},
-			Options: options.Index().SetUnique(true).SetSparse(true),
+			Keys: bson.D{{Key: "username", Value: 1}},
+			// Username is sparse (allows null/empty) but NOT unique
+			// Multiple users could have empty username, or in future support duplicate usernames
+			Options: options.Index().SetSparse(true),
 		},
 	}
 	_, err = usersCollection.Indexes().CreateMany(ctx, userIndexes)
@@ -278,10 +287,34 @@ func InitMongoDB(mongoURL string) error {
 			Keys:    bson.D{{Key: "random_id", Value: 1}},
 			Options: options.Index(),
 		},
+		{
+			Keys:    bson.D{{Key: "peer_id", Value: 1}, {Key: "pts", Value: 1}},
+			Options: options.Index(),
+		},
 	}
 	_, err = messagesCollection.Indexes().CreateMany(ctx, messageIndexes)
 	if err != nil {
 		log.Printf("Warning: Could not create messages indexes: %v", err)
+	}
+
+	// Create indexes for dialogs
+	dialogIndexes := []mongo.IndexModel{
+		{
+			Keys:    bson.D{{Key: "user_id", Value: 1}, {Key: "peer_user_id", Value: 1}},
+			Options: options.Index().SetUnique(true),
+		},
+		{
+			Keys:    bson.D{{Key: "user_id", Value: 1}, {Key: "last_message_date", Value: -1}},
+			Options: options.Index(),
+		},
+		{
+			Keys:    bson.D{{Key: "dialog_id", Value: 1}},
+			Options: options.Index(),
+		},
+	}
+	_, err = dialogsCollection.Indexes().CreateMany(ctx, dialogIndexes)
+	if err != nil {
+		log.Printf("Warning: Could not create dialogs indexes: %v", err)
 	}
 
 	log.Printf("Connected to MongoDB successfully")
@@ -847,10 +880,51 @@ func UpdateDialog(userID, peerUserID int64, messageID, messageDate int32, isOutg
 			"updated_at":        time.Now(),
 		},
 		"$setOnInsert": bson.M{
-			"read_inbox_max_id":  int32(0),
-			"read_outbox_max_id": int32(0),
-			"unread_count":       int32(0),
-			"created_at":         time.Now(),
+			"created_at": time.Now(),
+		},
+	}
+
+	// If this is an incoming message, increment unread count
+	if !isOutgoing {
+		update["$inc"] = bson.M{"unread_count": 1}
+	}
+
+	opts := options.Update().SetUpsert(true)
+	_, err := dialogsCollection.UpdateOne(ctx, filter, update, opts)
+	return err
+}
+
+// UpdateDialogWithReadState updates a dialog with explicit read state tracking
+func UpdateDialogWithReadState(userID, peerUserID int64, messageID, messageDate int32, isOutgoing bool, readOutboxMaxID, readInboxMaxID int32) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	dialogID := GetDialogID(userID, peerUserID)
+
+	filter := bson.M{
+		"user_id":      userID,
+		"peer_user_id": peerUserID,
+	}
+
+	setFields := bson.M{
+		"dialog_id":         dialogID,
+		"top_message":       messageID,
+		"last_message_date": messageDate,
+		"updated_at":        time.Now(),
+	}
+
+	// Update read states if provided
+	if readOutboxMaxID > 0 {
+		setFields["read_outbox_max_id"] = readOutboxMaxID
+	}
+	if readInboxMaxID > 0 {
+		setFields["read_inbox_max_id"] = readInboxMaxID
+	}
+
+	update := bson.M{
+		"$set": setFields,
+		"$setOnInsert": bson.M{
+			"created_at": time.Now(),
 		},
 	}
 
@@ -923,6 +997,22 @@ func UpdateUserPts(userID int64, newPts int32) error {
 		"$set": bson.M{
 			"pts":        newPts,
 			"updated_at": time.Now(),
+		},
+	}
+
+	_, err := usersCollection.UpdateOne(ctx, filter, update)
+	return err
+}
+
+// UpdateUserLastSeen updates a user's last seen timestamp
+func UpdateUserLastSeen(userID int64) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"id": userID}
+	update := bson.M{
+		"$set": bson.M{
+			"last_seen_at": time.Now(),
 		},
 	}
 

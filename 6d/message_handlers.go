@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"time"
 
 	"github.com/teamgram/proto/mtproto"
+	"go.mongodb.org/mongo-driver/bson"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -211,9 +213,38 @@ func (cp *ConnProp) HandleMessagesGetHistory(obj *mtproto.TLMessagesGetHistory, 
 	case "inputPeerUser":
 		peerUserID = peer.UserId
 	case "inputPeerSelf":
-		peerUserID = cp.userID
+		// Return empty history for self-chat (Saved Messages)
+		// Proper Saved Messages support requires different handling
+		logf(1, "[Conn %d] Self-chat history requested, returning empty\n", cp.connID)
+		result := &mtproto.TLMessagesMessages{
+			Data2: &mtproto.Messages_Messages{
+				PredicateName: "messages_messages",
+				Constructor:   -1938715001,
+				Messages:      []*mtproto.Message{},
+				Chats:         []*mtproto.Chat{},
+				Users:         []*mtproto.User{},
+			},
+		}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+		return
 	default:
 		logf(1, "[Conn %d] Unknown peer type: %s\n", cp.connID, peer.PredicateName)
+		return
+	}
+
+	// Additional safeguard against self-messaging edge cases
+	if peerUserID == cp.userID {
+		logf(1, "[Conn %d] Self-chat detected (userID=%d), returning empty history\n", cp.connID, cp.userID)
+		result := &mtproto.TLMessagesMessages{
+			Data2: &mtproto.Messages_Messages{
+				PredicateName: "messages_messages",
+				Constructor:   -1938715001,
+				Messages:      []*mtproto.Message{},
+				Chats:         []*mtproto.Chat{},
+				Users:         []*mtproto.User{},
+			},
+		}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
 		return
 	}
 
@@ -234,6 +265,20 @@ func (cp *ConnProp) HandleMessagesGetHistory(obj *mtproto.TLMessagesGetHistory, 
 	// Convert to mtproto messages
 	var mtprotoMessages []*mtproto.Message
 	for _, msg := range messages {
+		// Determine Out and PeerId from CURRENT user's perspective
+		var isOut bool
+		var peerID int64
+
+		if msg.FromID == cp.userID {
+			// Current user sent this message
+			isOut = true
+			peerID = msg.PeerID // The person we sent to
+		} else {
+			// Current user received this message
+			isOut = false
+			peerID = msg.FromID // The person who sent it
+		}
+
 		mtprotoMessages = append(mtprotoMessages, &mtproto.Message{
 			PredicateName: "message",
 			Constructor:   940666592,
@@ -241,8 +286,8 @@ func (cp *ConnProp) HandleMessagesGetHistory(obj *mtproto.TLMessagesGetHistory, 
 			PeerId: &mtproto.Peer{
 				PredicateName: "peerUser",
 				Constructor:   1498486562,
-				UserId:        msg.PeerID},
-			Out: msg.Out,
+				UserId:        peerID}, // Always the OTHER person
+			Out: isOut, // Correct from current user's perspective
 			FromId: &mtproto.Peer{
 				PredicateName: "peerUser",
 				Constructor:   1498486562,
@@ -351,6 +396,25 @@ func (cp *ConnProp) HandleMessagesSendMessage(obj *mtproto.TLMessagesSendMessage
 		return
 	}
 
+	// Prevent self-messaging (would create "Saved Messages" which needs special handling)
+	if peerUserID == cp.userID {
+		logf(1, "[Conn %d] Cannot send message to self (userID=%d), ignoring\n", cp.connID, cp.userID)
+		// Still return success to avoid client errors
+		result := &mtproto.TLUpdates{
+			Data2: &mtproto.Updates{
+				PredicateName: "updates",
+				Constructor:   1957577280,
+				Updates:       []*mtproto.Update{},
+				Users:         []*mtproto.User{},
+				Chats:         []*mtproto.Chat{},
+				Date:          int32(time.Now().Unix()),
+				Seq:           0,
+			},
+		}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+		return
+	}
+
 	// Get dialog ID (same for both users in the conversation)
 	dialogID := GetDialogID(cp.userID, peerUserID)
 
@@ -363,6 +427,9 @@ func (cp *ConnProp) HandleMessagesSendMessage(obj *mtproto.TLMessagesSendMessage
 	}
 
 	logf(1, "[Conn %d] Sending message ID %d in dialog %s\n", cp.connID, messageID, dialogID)
+
+	// Update last seen for sender
+	UpdateUserLastSeen(cp.userID)
 
 	// Atomically increment user's pts counter
 	// For a simple message send, we only have ONE pts-affecting update: the message itself
@@ -397,7 +464,8 @@ func (cp *ConnProp) HandleMessagesSendMessage(obj *mtproto.TLMessagesSendMessage
 	}
 
 	// Update dialog for sender (outgoing message)
-	err = UpdateDialog(cp.userID, peerUserID, messageID, now, true)
+	// When sending, also mark it as read from sender's perspective (read_outbox_max_id = messageID)
+	err = UpdateDialogWithReadState(cp.userID, peerUserID, messageID, now, true, messageID, 0)
 	if err != nil {
 		logf(1, "[Conn %d] Failed to update sender dialog: %v\n", cp.connID, err)
 	}
@@ -408,9 +476,11 @@ func (cp *ConnProp) HandleMessagesSendMessage(obj *mtproto.TLMessagesSendMessage
 		logf(1, "[Conn %d] Failed to update recipient dialog: %v\n", cp.connID, err)
 	}
 
-	// Get current user info
-	user, _ := FindUserByID(cp.userID)
+	// Build users array - must include both self and peer
 	var users []*mtproto.User
+
+	// Add self
+	user, _ := FindUserByID(cp.userID)
 	if user != nil {
 		users = append(users, &mtproto.User{
 			PredicateName: "user",
@@ -431,6 +501,31 @@ func (cp *ConnProp) HandleMessagesSendMessage(obj *mtproto.TLMessagesSendMessage
 				PredicateName: "userStatusOnline",
 				Constructor:   -306628279,
 				Expires:       int32(time.Now().Unix() + 300)},
+		})
+	}
+
+	// Add peer user
+	peerUser, _ := FindUserByID(peerUserID)
+	if peerUser != nil {
+		users = append(users, &mtproto.User{
+			PredicateName: "user",
+			Constructor:   -1885878744,
+			Id:            peerUser.ID,
+			Self:          false,
+			Contact:       true,
+			MutualContact: true,
+			AccessHash: &wrapperspb.Int64Value{
+				Value: peerUser.AccessHash},
+			FirstName: &wrapperspb.StringValue{
+				Value: peerUser.FirstName},
+			LastName: &wrapperspb.StringValue{
+				Value: peerUser.LastName},
+			Phone: &wrapperspb.StringValue{
+				Value: peerUser.Phone},
+			Status: &mtproto.UserStatus{
+				PredicateName: "userStatusOffline",
+				Constructor:   9203775,
+				WasOnline:     int32(peerUser.LastSeenAt.Unix())},
 		})
 	}
 
@@ -738,4 +833,79 @@ func (cp *ConnProp) HandleMessagesGetMessagesReactions(obj *mtproto.TLMessagesGe
 	}
 
 	cp.encodeAndSend(result, msgId, salt, sessionId, 2048)
+}
+
+
+// HandleMessagesReadHistory handles TL_messages_readHistory requests
+func (cp *ConnProp) HandleMessagesReadHistory(obj *mtproto.TLMessagesReadHistory, msgId, salt, sessionId int64) {
+	logf(1, "[Conn %d] messages.readHistory for user %d\n", cp.connID, cp.userID)
+
+	if cp.userID == 0 {
+		logf(1, "[Conn %d] Not authenticated\n", cp.connID)
+		return
+	}
+
+	peer := obj.GetPeer()
+	if peer == nil {
+		logf(1, "[Conn %d] No peer in request\n", cp.connID)
+		return
+	}
+
+	var peerUserID int64
+	switch peer.PredicateName {
+	case "inputPeerUser":
+		peerUserID = peer.UserId
+	default:
+		logf(1, "[Conn %d] Unknown peer type: %s\n", cp.connID, peer.PredicateName)
+		return
+	}
+
+	maxID := obj.GetMaxId()
+	logf(1, "[Conn %d] Marking messages up to %d as read for user %d in dialog with %d\n",
+		cp.connID, maxID, cp.userID, peerUserID)
+
+	// Update read_inbox_max_id in current user's dialog (they are reading incoming messages)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := dialogsCollection.UpdateOne(ctx,
+		bson.M{"user_id": cp.userID, "peer_user_id": peerUserID},
+		bson.M{"$set": bson.M{
+			"read_inbox_max_id": maxID,
+			"unread_count":      0,
+			"updated_at":        time.Now(),
+		}})
+
+	if err != nil {
+		logf(1, "[Conn %d] Failed to update read status: %v\n", cp.connID, err)
+	}
+
+	// Also update the peer's read_outbox_max_id (they sent those messages, now they're read)
+	_, err = dialogsCollection.UpdateOne(ctx,
+		bson.M{"user_id": peerUserID, "peer_user_id": cp.userID},
+		bson.M{"$set": bson.M{
+			"read_outbox_max_id": maxID,
+			"updated_at":         time.Now(),
+		}})
+
+	if err != nil {
+		logf(1, "[Conn %d] Failed to update peer's read_outbox status: %v\n", cp.connID, err)
+	}
+
+	// Get current pts
+	pts, _, _, _, err := GetUserState(cp.userID)
+	if err != nil {
+		pts = 1
+	}
+
+	result := &mtproto.TLMessagesAffectedMessages{
+		Data2: &mtproto.Messages_AffectedMessages{
+			PredicateName: "messages_affectedMessages",
+			Constructor:   -2066640507,
+			Pts:           pts,
+			PtsCount:      0,
+		},
+	}
+
+	cp.encodeAndSend(result, msgId, salt, sessionId, 512)
 }

@@ -480,15 +480,7 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 	case *mtproto.TLMessagesSearch:
 		cp.HandleMessagesSearch(obj, msgId, salt, sessionId)
 	case *mtproto.TLMessagesReadHistory:
-		result := &mtproto.TLMessagesAffectedMessages{
-			Data2: &mtproto.Messages_AffectedMessages{
-				PredicateName: "messages_affectedMessages",
-				Constructor:   -2066640507,
-				Pts:           3,
-				PtsCount:      1,
-			},
-		}
-		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+		cp.HandleMessagesReadHistory(obj, msgId, salt, sessionId)
 	case *mtproto.TLMessagesGetMessagesReactions:
 		cp.HandleMessagesGetMessagesReactions(obj, msgId, salt, sessionId)
 	case *mtproto.TLMessagesGetArchivedStickers:
