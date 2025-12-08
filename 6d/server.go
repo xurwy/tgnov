@@ -30,8 +30,6 @@ var (
 	connCounter int
 	connMutex sync.Mutex
 	activeConnections sync.Map
-	// Map auth key ID to active connection
-	authKeyConnections sync.Map
 )
 
 func handleConnection(conn net.Conn) {
@@ -77,21 +75,9 @@ func handleConnection(conn net.Conn) {
 			authKey, offset, _ := FindAuthKeyInData(decrypted)
 			if authKey != nil {
 				authKeyID := authKey.AuthKeyId()
-				
-				// Check if there's already an active connection for this auth key
-				if existingConn, exists := authKeyConnections.Load(authKeyID); exists {
-					existingCP := existingConn.(*ConnProp)
-					logf(1, "[Conn %d] Auth key %d already has active connection [Conn %d]. Closing this connection.\n", 
-						connID, authKeyID, existingCP.connID)
-					conn.Close()
-					return
-				}
-				
 				cp.authKey = authKey
-				authKeyConnections.Store(authKeyID, cp)
-				defer authKeyConnections.Delete(authKeyID)
-				
-				logf(1, "[Conn %d] Auth key discovered from data at offset %d: %d (now serving this session)\n", 
+
+				logf(1, "[Conn %d] Auth key discovered from data at offset %d: %d (now serving this session)\n",
 					cp.connID, offset, authKeyID)
 
 				// Try to load session to get user ID

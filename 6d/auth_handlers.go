@@ -199,7 +199,7 @@ func (cp *ConnProp) HandleAuthSignUp(obj *mtproto.TLAuthSignUp, msgId, salt, ses
 
 	// Generate new user ID and access hash
 	userID := generateUserID()
-	accessHash := generateAccessHash()
+	accessHash := GenerateAccessHash()
 
 	// Create new user
 	user := &UserDoc{
@@ -318,8 +318,3 @@ func generateUserID() int64 {
 }
 
 
-// Helper: Generate access hash
-func generateAccessHash() int64 {
-	n, _ := rand.Int(rand.Reader, big.NewInt(0x7FFFFFFFFFFFFFFF))
-	return n.Int64()
-}

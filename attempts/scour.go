@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
+	"math/rand/v2"
 	"os"
 
 	"github.com/teamgram/proto/mtproto"
@@ -155,4 +156,6 @@ func main() {
 			}
 		}
 	}
+
+	accessHash := int64(extType)<<32 | int64(rand.Uint32())
 }

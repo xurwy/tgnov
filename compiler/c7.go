@@ -18,9 +18,9 @@ var out string
 func processTLBytes(data []byte) string {
 	var o1 string
 	dBuf := mtproto.NewDecodeBuf(data)
-	// dBuf.MySeekOffset(40)
-	// dBuf.Long()
-	// dBuf.MySeekOffset(8)
+	dBuf.MySeekOffset(40)
+	dBuf.Long()
+	dBuf.MySeekOffset(8)
 	for dBuf.GetOffset() < len(data) {
 		obj := dBuf.Object()
 		dBuf.GetOffset()

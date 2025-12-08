@@ -20,6 +20,9 @@ var (
 	sessionsCollection   *mongo.Collection
 	phoneCodesCollection *mongo.Collection
 	fileDataCollection   *mongo.Collection
+	contactsCollection   *mongo.Collection
+	messagesCollection   *mongo.Collection
+	dialogsCollection    *mongo.Collection
 )
 
 // AuthKeyDoc represents the MongoDB document for auth keys
@@ -52,6 +55,12 @@ type UserDoc struct {
 	Fake          bool `bson:"fake"`
 	Premium       bool `bson:"premium"`
 	Support       bool `bson:"support"`
+
+	// Update sequence counters (for proper update synchronization)
+	Pts int32 `bson:"pts"` // Persistent timestamp sequence (for messages, profile updates)
+	Qts int32 `bson:"qts"` // Query timestamp sequence (for secret chats, encrypted data)
+	Seq int32 `bson:"seq"` // Sequence number (for groups, channels)
+	Date int32 `bson:"date"` // Unix timestamp of last update
 
 	CreatedAt  time.Time `bson:"created_at"`
 	UpdatedAt  time.Time `bson:"updated_at"`
@@ -88,6 +97,45 @@ type FileDataDoc struct {
 	UpdatedAt  time.Time `bson:"updated_at"`
 }
 
+// ContactDoc represents a contact relationship between users
+type ContactDoc struct {
+	OwnerUserID   int64     `bson:"owner_user_id"`   // The user who owns this contact
+	ContactUserID int64     `bson:"contact_user_id"` // The user being contacted
+	Phone         string    `bson:"phone"`           // Phone number used to import
+	ClientID      int64     `bson:"client_id"`       // Client ID from import
+	CreatedAt     time.Time `bson:"created_at"`
+	UpdatedAt     time.Time `bson:"updated_at"`
+	Mutual        bool      `bson:"mutual"` // Whether this is a mutual contact
+}
+
+// MessageDoc stores messages between users
+type MessageDoc struct {
+	ID       int32     `bson:"id"`        // Message ID (unique per dialog)
+	DialogID string    `bson:"dialog_id"` // Dialog identifier (e.g., "user_1234_5678")
+	FromID   int64     `bson:"from_id"`   // Sender user ID
+	PeerID   int64     `bson:"peer_id"`   // Receiver user ID (for direct messages)
+	Date     int32     `bson:"date"`      // Unix timestamp
+	Message  string    `bson:"message"`   // Message text
+	Out      bool      `bson:"out"`       // True if outgoing from FromID
+	RandomID int64     `bson:"random_id"` // Random ID from client
+	Pts      int32     `bson:"pts"`       // Pts counter for updates
+	CreatedAt time.Time `bson:"created_at"`
+}
+
+// DialogDoc stores dialog state for each user
+type DialogDoc struct {
+	UserID           int64     `bson:"user_id"`            // Owner of this dialog
+	PeerUserID       int64     `bson:"peer_user_id"`       // The other user in the dialog
+	DialogID         string    `bson:"dialog_id"`          // Dialog identifier (e.g., "user_1234_5678")
+	TopMessage       int32     `bson:"top_message"`        // ID of the last message
+	ReadInboxMaxID   int32     `bson:"read_inbox_max_id"`  // Last read incoming message ID
+	ReadOutboxMaxID  int32     `bson:"read_outbox_max_id"` // Last read outgoing message ID
+	UnreadCount      int32     `bson:"unread_count"`       // Number of unread messages
+	LastMessageDate  int32     `bson:"last_message_date"`  // Date of last message
+	CreatedAt        time.Time `bson:"created_at"`
+	UpdatedAt        time.Time `bson:"updated_at"`
+}
+
 // InitMongoDB initializes the MongoDB connection
 func InitMongoDB(mongoURL string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -112,6 +160,9 @@ func InitMongoDB(mongoURL string) error {
 	sessionsCollection = db.Collection("sessions")
 	phoneCodesCollection = db.Collection("phone_codes")
 	fileDataCollection = db.Collection("file_data")
+	contactsCollection = db.Collection("contacts")
+	messagesCollection = db.Collection("messages")
+	dialogsCollection = db.Collection("dialogs")
 
 	// Create indexes for auth_keys
 	authKeyIndexes := []mongo.IndexModel{
@@ -191,6 +242,46 @@ func InitMongoDB(mongoURL string) error {
 	_, err = fileDataCollection.Indexes().CreateMany(ctx, fileDataIndexes)
 	if err != nil {
 		log.Printf("Warning: Could not create file_data indexes: %v", err)
+	}
+
+	// Create indexes for contacts
+	contactIndexes := []mongo.IndexModel{
+		{
+			Keys:    bson.D{{Key: "owner_user_id", Value: 1}, {Key: "contact_user_id", Value: 1}},
+			Options: options.Index().SetUnique(true),
+		},
+		{
+			Keys:    bson.D{{Key: "owner_user_id", Value: 1}},
+			Options: options.Index(),
+		},
+		{
+			Keys:    bson.D{{Key: "phone", Value: 1}},
+			Options: options.Index(),
+		},
+	}
+	_, err = contactsCollection.Indexes().CreateMany(ctx, contactIndexes)
+	if err != nil {
+		log.Printf("Warning: Could not create contacts indexes: %v", err)
+	}
+
+	// Create indexes for messages
+	messageIndexes := []mongo.IndexModel{
+		{
+			Keys:    bson.D{{Key: "dialog_id", Value: 1}, {Key: "id", Value: 1}},
+			Options: options.Index().SetUnique(true),
+		},
+		{
+			Keys:    bson.D{{Key: "dialog_id", Value: 1}, {Key: "date", Value: -1}},
+			Options: options.Index(),
+		},
+		{
+			Keys:    bson.D{{Key: "random_id", Value: 1}},
+			Options: options.Index(),
+		},
+	}
+	_, err = messagesCollection.Indexes().CreateMany(ctx, messageIndexes)
+	if err != nil {
+		log.Printf("Warning: Could not create messages indexes: %v", err)
 	}
 
 	log.Printf("Connected to MongoDB successfully")
@@ -318,7 +409,43 @@ func CreateUser(user *UserDoc) error {
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 
-	_, err := usersCollection.InsertOne(ctx, user)
+	// Build update document, excluding username if empty to avoid unique index conflicts
+	update := bson.M{
+		"$setOnInsert": bson.M{
+			"created_at": user.CreatedAt,
+		},
+		"$set": bson.M{
+			"access_hash":    user.AccessHash,
+			"first_name":     user.FirstName,
+			"last_name":      user.LastName,
+			"phone":          user.Phone,
+			"self":           user.Self,
+			"contact":        user.Contact,
+			"mutual_contact": user.MutualContact,
+			"deleted":        user.Deleted,
+			"bot":            user.Bot,
+			"verified":       user.Verified,
+			"restricted":     user.Restricted,
+			"scam":           user.Scam,
+			"fake":           user.Fake,
+			"premium":        user.Premium,
+			"support":        user.Support,
+			"updated_at":     user.UpdatedAt,
+			"last_seen_at":   user.LastSeenAt,
+		},
+	}
+
+	// Only set username if it's not empty
+	if user.Username != "" {
+		update["$set"].(bson.M)["username"] = user.Username
+	}
+
+	_, err := usersCollection.UpdateOne(
+		ctx,
+		bson.M{"id": user.ID},
+		update,
+		options.Update().SetUpsert(true),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to create user: %w", err)
 	}
@@ -341,6 +468,60 @@ func UpdateUser(user *UserDoc) error {
 		return fmt.Errorf("failed to update user: %w", err)
 	}
 	return nil
+}
+
+// IncrementUserPts atomically increments a user's pts counter and returns the new value
+// ptsCount: how many pts units to increment (usually 1 for single message, 2+ for multiple updates)
+func IncrementUserPts(userID int64, ptsCount int32) (int32, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Use findOneAndUpdate with $inc for atomic increment
+	filter := bson.M{"id": userID}
+	update := bson.M{
+		"$inc": bson.M{"pts": ptsCount},
+		"$set": bson.M{
+			"date":       int32(time.Now().Unix()),
+			"updated_at": time.Now(),
+		},
+	}
+
+	// Return the updated document
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+
+	var user UserDoc
+	err := usersCollection.FindOneAndUpdate(ctx, filter, update, opts).Decode(&user)
+	if err != nil {
+		return 0, fmt.Errorf("failed to increment user pts: %w", err)
+	}
+
+	return user.Pts, nil
+}
+
+// GetUserState returns the current update state for a user (pts, qts, seq, date)
+func GetUserState(userID int64) (pts, qts, seq, date int32, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var user UserDoc
+	err = usersCollection.FindOne(ctx, bson.M{"id": userID}).Decode(&user)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			// User not found, return default state
+			return 1, 0, 0, int32(time.Now().Unix()), nil
+		}
+		return 0, 0, 0, 0, fmt.Errorf("failed to get user state: %w", err)
+	}
+
+	// If pts/qts/seq are 0 (newly created user), initialize them
+	if user.Pts == 0 {
+		user.Pts = 1
+	}
+	if user.Date == 0 {
+		user.Date = int32(time.Now().Unix())
+	}
+
+	return user.Pts, user.Qts, user.Seq, user.Date, nil
 }
 
 // Session management functions
@@ -386,21 +567,28 @@ func UpdateSession(session *SessionDoc) error {
 	session.UpdatedAt = now
 	session.LastUsedAt = now
 
-	// Use session_id as the unique identifier
-	filter := bson.M{"session_id": session.SessionID}
+	// Use auth_key_id as the unique identifier (multiple session_ids can share same auth key)
+	filter := bson.M{"auth_key_id": session.AuthKeyID}
 
 	// On insert, set created_at; on update, keep existing created_at
+	// Build update document - only set user_id if it's non-zero to avoid overwriting
+	setFields := bson.M{
+		"session_id":   session.SessionID, // Update to latest session_id
+		"salt":         session.Salt,
+		"updated_at":   session.UpdatedAt,
+		"last_used_at": session.LastUsedAt,
+	}
+
+	// Only update user_id if it's non-zero (to preserve existing user_id when authenticated)
+	if session.UserID != 0 {
+		setFields["user_id"] = session.UserID
+	}
+
 	update := bson.M{
-		"$set": bson.M{
-			"auth_key_id":  session.AuthKeyID,
-			"user_id":      session.UserID,
-			"salt":         session.Salt,
-			"updated_at":   session.UpdatedAt,
-			"last_used_at": session.LastUsedAt,
-		},
+		"$set": setFields,
 		"$setOnInsert": bson.M{
-			"session_id": session.SessionID,
-			"created_at": now,
+			"auth_key_id": session.AuthKeyID, // Set auth_key_id only on insert
+			"created_at":  now,
 		},
 	}
 
@@ -500,6 +688,246 @@ func FindFileDataByID(documentID int64) ([]byte, error) {
 		return nil, fmt.Errorf("failed to find file data: %w", err)
 	}
 	return doc.Data, nil
+}
+
+// AddContact adds a contact relationship for a user
+func AddContact(ownerUserID, contactUserID int64, phone string, clientID int64) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	contact := ContactDoc{
+		OwnerUserID:   ownerUserID,
+		ContactUserID: contactUserID,
+		Phone:         phone,
+		ClientID:      clientID,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+		Mutual:        false,
+	}
+
+	// Check if reverse contact exists to set mutual
+	var reverseContact ContactDoc
+	err := contactsCollection.FindOne(ctx, bson.M{
+		"owner_user_id":   contactUserID,
+		"contact_user_id": ownerUserID,
+	}).Decode(&reverseContact)
+
+	if err == nil {
+		// Reverse contact exists, mark both as mutual
+		contact.Mutual = true
+		contactsCollection.UpdateOne(ctx, bson.M{
+			"owner_user_id":   contactUserID,
+			"contact_user_id": ownerUserID,
+		}, bson.M{"$set": bson.M{"mutual": true}})
+	}
+
+	_, err = contactsCollection.UpdateOne(
+		ctx,
+		bson.M{
+			"owner_user_id":   ownerUserID,
+			"contact_user_id": contactUserID,
+		},
+		bson.M{"$set": contact},
+		options.Update().SetUpsert(true),
+	)
+	return err
+}
+
+// GetContacts gets all contacts for a user
+func GetContacts(ownerUserID int64) ([]ContactDoc, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	cursor, err := contactsCollection.Find(ctx, bson.M{"owner_user_id": ownerUserID})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var contacts []ContactDoc
+	if err := cursor.All(ctx, &contacts); err != nil {
+		return nil, err
+	}
+	return contacts, nil
+}
+
+// SaveMessage saves a message to the database
+func SaveMessage(msg *MessageDoc) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := messagesCollection.InsertOne(ctx, msg)
+	return err
+}
+
+// GetNextMessageID gets the next message ID for a dialog
+func GetNextMessageID(dialogID string) (int32, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Find the highest message ID in this dialog
+	opts := options.FindOne().SetSort(bson.D{{Key: "id", Value: -1}})
+	var lastMsg MessageDoc
+	err := messagesCollection.FindOne(ctx, bson.M{"dialog_id": dialogID}, opts).Decode(&lastMsg)
+
+	if err == mongo.ErrNoDocuments {
+		return 1, nil // First message
+	}
+	if err != nil {
+		return 0, err
+	}
+	return lastMsg.ID + 1, nil
+}
+
+// GetMessages retrieves messages from a dialog
+func GetMessages(dialogID string, limit int32) ([]MessageDoc, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	opts := options.Find().SetSort(bson.D{{Key: "date", Value: -1}}).SetLimit(int64(limit))
+	cursor, err := messagesCollection.Find(ctx, bson.M{"dialog_id": dialogID}, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var messages []MessageDoc
+	if err := cursor.All(ctx, &messages); err != nil {
+		return nil, err
+	}
+	return messages, nil
+}
+
+// GetMessageByID retrieves a specific message by dialog_id and message id
+func GetMessageByID(dialogID string, messageID int32) (*MessageDoc, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var msg MessageDoc
+	err := messagesCollection.FindOne(ctx, bson.M{
+		"dialog_id": dialogID,
+		"id":        messageID,
+	}).Decode(&msg)
+
+	if err == mongo.ErrNoDocuments {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &msg, nil
+}
+
+// GetDialogID generates a unique dialog ID for two users
+func GetDialogID(userID1, userID2 int64) string {
+	// Always use smaller ID first for consistency
+	if userID1 > userID2 {
+		userID1, userID2 = userID2, userID1
+	}
+	return fmt.Sprintf("user_%d_%d", userID1, userID2)
+}
+
+// UpdateDialog updates or creates a dialog for a user
+func UpdateDialog(userID, peerUserID int64, messageID, messageDate int32, isOutgoing bool) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	dialogID := GetDialogID(userID, peerUserID)
+
+	filter := bson.M{
+		"user_id":      userID,
+		"peer_user_id": peerUserID,
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"dialog_id":         dialogID,
+			"top_message":       messageID,
+			"last_message_date": messageDate,
+			"updated_at":        time.Now(),
+		},
+		"$setOnInsert": bson.M{
+			"read_inbox_max_id":  int32(0),
+			"read_outbox_max_id": int32(0),
+			"unread_count":       int32(0),
+			"created_at":         time.Now(),
+		},
+	}
+
+	// If this is an incoming message, increment unread count
+	if !isOutgoing {
+		update["$inc"] = bson.M{"unread_count": 1}
+	}
+
+	opts := options.Update().SetUpsert(true)
+	_, err := dialogsCollection.UpdateOne(ctx, filter, update, opts)
+	return err
+}
+
+// GetDialogs retrieves all dialogs for a user
+func GetDialogs(userID int64, limit int32) ([]DialogDoc, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	opts := options.Find().
+		SetSort(bson.D{{Key: "last_message_date", Value: -1}}).
+		SetLimit(int64(limit))
+
+	cursor, err := dialogsCollection.Find(ctx, bson.M{"user_id": userID}, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var dialogs []DialogDoc
+	if err := cursor.All(ctx, &dialogs); err != nil {
+		return nil, err
+	}
+	return dialogs, nil
+}
+
+// GetPendingMessages retrieves messages that haven't been delivered to a user yet
+func GetPendingMessages(userID int64, lastPts int32) ([]MessageDoc, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Find messages where:
+	// 1. The user is the recipient (peer_id = userID and out = false from sender's perspective)
+	// 2. The pts is greater than the user's current pts
+	filter := bson.M{
+		"peer_id": userID,
+		"pts":     bson.M{"$gt": lastPts},
+	}
+
+	opts := options.Find().SetSort(bson.D{{Key: "pts", Value: 1}})
+	cursor, err := messagesCollection.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var messages []MessageDoc
+	if err := cursor.All(ctx, &messages); err != nil {
+		return nil, err
+	}
+	return messages, nil
+}
+
+// UpdateUserPts sets a user's pts value (used after delivering updates)
+func UpdateUserPts(userID int64, newPts int32) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"id": userID}
+	update := bson.M{
+		"$set": bson.M{
+			"pts":        newPts,
+			"updated_at": time.Now(),
+		},
+	}
+
+	_, err := usersCollection.UpdateOne(ctx, filter, update)
+	return err
 }
 
 // CloseMongoDB closes the MongoDB connection

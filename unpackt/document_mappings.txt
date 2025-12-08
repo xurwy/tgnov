@@ -1,0 +1,25 @@
+# Document ID mappings (document_id, sent_msgid, sent_file, received_msgid, received_file, offset)
+1655888074694987777,7577343702454170624,/home/u/dev/telegram/japp/mirror/CommData1/97_sent_data.bin,7577343702454170624,/home/u/dev/telegram/japp/mirror/CommData1/123_received_data.bin,60
+1655888074158116865,7577343703467782144,/home/u/dev/telegram/japp/mirror/CommData1/151_sent_data.bin,7577343703467782144,/home/u/dev/telegram/japp/mirror/CommData1/157_received_data.bin,60
+1655889425424453632,7577343701818515456,/home/u/dev/telegram/japp/mirror/CommData1/84_sent_data.bin,7577343701818515456,/home/u/dev/telegram/japp/mirror/CommData1/96_received_data.bin,60
+1655889425428647936,7577343701818515460,/home/u/dev/telegram/japp/mirror/CommData1/85_sent_data.bin,7577343701818515460,/home/u/dev/telegram/japp/mirror/CommData1/101_received_data.bin,4744
+1655889425428647938,7577343701822810116,/home/u/dev/telegram/japp/mirror/CommData1/87_sent_data.bin,7577343701822810116,/home/u/dev/telegram/japp/mirror/CommData1/100_received_data.bin,60
+1655889425432842240,7577343700860737536,/home/u/dev/telegram/japp/mirror/CommData1/71_sent_data.bin,7577343700860737536,/home/u/dev/telegram/japp/mirror/CommData1/88_received_data.bin,60
+1655888074158116865,7577343702759112708,/home/u/dev/telegram/japp/mirror/CommData1/129_sent_data.bin,7577343702759112708,/home/u/dev/telegram/japp/mirror/CommData1/152_received_data.bin,60
+1655889310768959489,7577343702604493824,/home/u/dev/telegram/japp/mirror/CommData1/99_sent_data.bin,7577343702604493824,/home/u/dev/telegram/japp/mirror/CommData1/134_received_data.bin,60
+1655889310752182272,7577343703042580480,/home/u/dev/telegram/japp/mirror/CommData1/137_sent_data.bin,7577343703042580480,/home/u/dev/telegram/japp/mirror/CommData1/155_received_data.bin,60
+1655889425428647937,7577343700783427584,/home/u/dev/telegram/japp/mirror/CommData1/69_sent_data.bin,7577343700783427584,/home/u/dev/telegram/japp/mirror/CommData1/95_received_data.bin,60
+1655889425428647937,7577343701822810112,/home/u/dev/telegram/japp/mirror/CommData1/86_sent_data.bin,7577343701822810112,/home/u/dev/telegram/japp/mirror/CommData1/98_received_data.bin,60
+1655889425432842241,7577343702033263616,/home/u/dev/telegram/japp/mirror/CommData1/89_sent_data.bin,7577343702033263616,/home/u/dev/telegram/japp/mirror/CommData1/103_received_data.bin,60
+1655889425428647938,7577343700822082560,/home/u/dev/telegram/japp/mirror/CommData1/70_sent_data.bin,7577343700822082560,/home/u/dev/telegram/japp/mirror/CommData1/94_received_data.bin,60
+1655888074694987778,7577343702673213440,/home/u/dev/telegram/japp/mirror/CommData1/127_sent_data.bin,7577343702673213440,/home/u/dev/telegram/japp/mirror/CommData1/133_received_data.bin,60
+1655888074158116865,7577343702763407360,/home/u/dev/telegram/japp/mirror/CommData1/130_sent_data.bin,7577343702763407360,/home/u/dev/telegram/japp/mirror/CommData1/170_received_data.bin,60
+1655889310752182273,7577343702879372292,/home/u/dev/telegram/japp/mirror/CommData1/132_sent_data.bin,7577343702879372292,/home/u/dev/telegram/japp/mirror/CommData1/171_received_data.bin,19372
+1655891575881863168,7577343732819589120,/home/u/dev/telegram/japp/mirror/CommData1/178_sent_data.bin,7577343732819589120,/home/u/dev/telegram/japp/mirror/CommData1/236_received_data.bin,60
+1655889425428647936,7577343700749068288,/home/u/dev/telegram/japp/mirror/CommData1/68_sent_data.bin,7577343700749068288,/home/u/dev/telegram/japp/mirror/CommData1/93_received_data.bin,60
+1655889310773153792,7577343702703278080,/home/u/dev/telegram/japp/mirror/CommData1/128_sent_data.bin,7577343702703278080,/home/u/dev/telegram/japp/mirror/CommData1/225_received_data.bin,84
+1655889310752182273,7577343702879372288,/home/u/dev/telegram/japp/mirror/CommData1/131_sent_data.bin,7577343702879372288,/home/u/dev/telegram/japp/mirror/CommData1/153_received_data.bin,60
+1655889310773153792,7577343703463487488,/home/u/dev/telegram/japp/mirror/CommData1/150_sent_data.bin,7577343703463487488,/home/u/dev/telegram/japp/mirror/CommData1/169_received_data.bin,60
+1655888074376220672,7577343703021106176,/home/u/dev/telegram/japp/mirror/CommData1/135_sent_data.bin,7577343703021106176,/home/u/dev/telegram/japp/mirror/CommData1/156_received_data.bin,60
+1655889591007186945,7577343792103022592,/home/u/dev/telegram/japp/mirror/CommData1/215_sent_data.bin,7577343792103022592,/home/u/dev/telegram/japp/mirror/CommData1/216_received_data.bin,60
+1655889425424453632,7577343700719003648,/home/u/dev/telegram/japp/mirror/CommData1/67_sent_data.bin,7577343700719003648,/home/u/dev/telegram/japp/mirror/CommData1/92_received_data.bin,60

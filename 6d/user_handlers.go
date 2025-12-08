@@ -91,6 +91,9 @@ func (cp *ConnProp) HandleMessagesGetPeerDialogs(obj *mtproto.TLMessagesGetPeerD
 			LastName: &wrapperspb.StringValue{
 				Value: user.LastName,
 			},
+			Phone: &wrapperspb.StringValue{
+				Value: user.Phone,
+			},
 			Status: &mtproto.UserStatus{
 				PredicateName: "userStatusOnline",
 				Constructor:   -306628279,
@@ -140,7 +143,13 @@ func (cp *ConnProp) HandleUsersGetFullUser(obj *mtproto.TLUsersGetFullUser, msgI
 		isSelf = true
 	case "inputUser":
 		requestedUserId = inputUser.UserId
-		isSelf = (requestedUserId == cp.userID)
+		// Special case: user_id=0 means "self" in some contexts
+		if requestedUserId == 0 {
+			requestedUserId = cp.userID
+			isSelf = true
+		} else {
+			isSelf = (requestedUserId == cp.userID)
+		}
 	default:
 		logf(1, "[Conn %d] Unknown inputUser predicate: %s\n", cp.connID, inputUser.PredicateName)
 		return
@@ -282,6 +291,9 @@ func (cp *ConnProp) HandleMessagesGetAllDrafts(msgId, salt, sessionId int64) {
 					},
 					LastName: &wrapperspb.StringValue{
 						Value: user.LastName,
+					},
+					Phone: &wrapperspb.StringValue{
+						Value: user.Phone,
 					},
 					Status: &mtproto.UserStatus{
 						PredicateName: "userStatusOnline",

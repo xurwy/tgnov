@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"compress/gzip"
+	"crypto/rand"
 	"crypto/sha1"
 	"encoding/binary"
 	"fmt"
@@ -215,6 +216,14 @@ func calcNewNonceHash(newNonce, authKey []byte, b byte) []byte {
 	return authKeyAuxHash[len(authKeyAuxHash)-16:]
 }
 
+func GenerateAccessHash() int64 {
+    var b [8]byte
+    if _, err := rand.Read(b[:]); err != nil {
+        panic(err)
+    }
+    return int64(binary.LittleEndian.Uint64(b[:]))
+}
+
 func gzipCompress(data []byte) ([]byte, error) {
 	var buf bytes.Buffer
 	writer := gzip.NewWriter(&buf)
@@ -339,14 +348,28 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 				Users:         []*mtproto.User{}}}
 		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
 	case *mtproto.TLUpdatesGetState:
+		// Get current state for authenticated user
+		pts, qts, seq, date := int32(1), int32(0), int32(0), int32(time.Now().Unix())
+		if cp.userID != 0 {
+			var err error
+			pts, qts, seq, date, err = GetUserState(cp.userID)
+			if err != nil {
+				logf(1, "[Conn %d] Failed to get user state: %v\n", cp.connID, err)
+			}
+		}
+
 		result := &mtproto.TLUpdatesState{
 			Data2: &mtproto.Updates_State{
 				PredicateName: "updates_state",
 				Constructor:   -1519637954,
-				Pts:           1,
-				Date:          int32(time.Now().Unix()),
-				Seq:           -1}}
+				Pts:           pts,
+				Qts:           qts,
+				Date:          date,
+				Seq:           seq,
+				UnreadCount:   0}}
 		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+	case *mtproto.TLUpdatesGetDifference:
+		cp.HandleUpdatesGetDifference(obj, msgId, salt, sessionId)
 	case *mtproto.TLMessagesGetPinnedDialogs:
 		result := &mtproto.TLMessagesPeerDialogs{
 			Data2: &mtproto.Messages_PeerDialogs{
@@ -399,15 +422,7 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 			Data2: &mtproto.Help_InviteText{}}
 		cp.encodeAndSend(inviteTxt, msgId, salt, sessionId, 512)
 	case *mtproto.TLMessagesGetDialogs:
-		result := &mtproto.TLMessagesDialogsSlice{
-			Data2: &mtproto.Messages_Dialogs{
-				PredicateName: "messages_dialogsSlice",
-				Constructor:   1910543603,
-				Dialogs:       []*mtproto.Dialog{},
-				Messages:      []*mtproto.Message{},
-				Chats:         []*mtproto.Chat{},
-				Users:         []*mtproto.User{}}}
-		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+		cp.HandleMessagesGetDialogs(obj, msgId, salt, sessionId)
 	case *mtproto.TLMessagesGetFavedStickers:
 		result := &mtproto.TLMessagesFavedStickers{
 			Data2: &mtproto.Messages_FavedStickers{
@@ -416,6 +431,23 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 				Packs:         []*mtproto.StickerPack{},
 				Stickers:      []*mtproto.Document{}}}
 		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+	case *mtproto.TLMessagesGetEmojiStickers:
+		result := &mtproto.TLMessagesAllStickers{
+			Data2: &mtproto.Messages_AllStickers{
+				PredicateName: "messages_allStickers",
+				Constructor:   -843329861,
+				Sets:          []*mtproto.StickerSet{}}}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+	case *mtproto.TLMessagesGetEmojiKeywords, *mtproto.TLMessagesGetEmojiKeywordsDifference:
+		result := &mtproto.TLEmojiKeywordsDifference{
+			Data2: &mtproto.EmojiKeywordsDifference{
+				PredicateName: "emojiKeywordsDifference",
+				Constructor:   1556570557,
+				LangCode:      "en-US",
+				Keywords:      []*mtproto.EmojiKeyword{}}}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+	case *mtproto.TLMessagesSetTyping:
+		cp.HandleMessagesSetTyping(obj, msgId, salt, sessionId)
 	case *mtproto.TLRpcDropAnswer:
 		dropAnswer := &mtproto.TLRpcAnswerUnknown{
 			Data2: &mtproto.RpcDropAnswer{
@@ -428,13 +460,54 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		ev.Int(481674261); ev.Int(0)
 		cp.send(ev.GetBuf(), salt, sessionId)
 	case *mtproto.TLContactsGetContacts:
-		cp.HandleContactsGetContacts(obj, msgId, salt, sessionId)
+		cp.HandleContactsGetContactsDB(obj, msgId, salt, sessionId)
+	case *mtproto.TLContactsImportContacts:
+		cp.HandleContactsImportContacts(obj, msgId, salt, sessionId)
 	case *mtproto.TLMessagesGetPeerDialogs:
 		cp.HandleMessagesGetPeerDialogs(obj, msgId, salt, sessionId)
+	case *mtproto.TLMessagesGetPeerSettings:
+		cp.HandleMessagesGetPeerSettings(obj, msgId, salt, sessionId)
+	case *mtproto.TLMessagesGetHistory:
+		cp.HandleMessagesGetHistory(obj, msgId, salt, sessionId)
+	case *mtproto.TLMessagesSendMessage:
+		cp.HandleMessagesSendMessage(obj, msgId, salt, sessionId)
 	case *mtproto.TLUsersGetFullUser:
 		cp.HandleUsersGetFullUser(obj, msgId, salt, sessionId)
 	case *mtproto.TLMessagesGetAllDrafts:
 		cp.HandleMessagesGetAllDrafts(msgId, salt, sessionId)
+	case *mtproto.TLMessagesGetScheduledHistory:
+		cp.HandleMessagesGetScheduledHistory(obj, msgId, salt, sessionId)
+	case *mtproto.TLMessagesSearch:
+		cp.HandleMessagesSearch(obj, msgId, salt, sessionId)
+	case *mtproto.TLMessagesReadHistory:
+		result := &mtproto.TLMessagesAffectedMessages{
+			Data2: &mtproto.Messages_AffectedMessages{
+				PredicateName: "messages_affectedMessages",
+				Constructor:   -2066640507,
+				Pts:           3,
+				PtsCount:      1,
+			},
+		}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+	case *mtproto.TLMessagesGetMessagesReactions:
+		cp.HandleMessagesGetMessagesReactions(obj, msgId, salt, sessionId)
+	case *mtproto.TLMessagesGetArchivedStickers:
+		result := &mtproto.TLMessagesArchivedStickers{
+			Data2: &mtproto.Messages_ArchivedStickers{
+				PredicateName: "messages_archivedStickers",
+				Constructor:   1338747336,
+				Sets:          []*mtproto.StickerSetCovered{},
+			},
+		}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+	case *mtproto.TLMessagesGetSearchCounters:
+		// Return empty vector of search counters
+		buf := mtproto.NewEncodeBuf(512)
+		buf.Int(-212046591) // rpc_result
+		buf.Long(msgId)
+		buf.Int(481674261) // vector constructor
+		buf.Int(0) // count = 0 (empty vector)
+		cp.send(buf.GetBuf(), salt, sessionId)
 	case *mtproto.TLMessagesGetStickerSet:
 		stickerSet := obj.GetStickerset()
 		if stickerSet != nil {
@@ -481,24 +554,98 @@ func (cp *ConnProp) replyMsg(o mtproto.TLObject, msgId, salt, sessionId int64) {
 		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
 	case *mtproto.TLUploadGetFile:
 		location := obj.GetLocation()
+		// Telegram protocol uses either INT64 or INT32 for offset depending on layer
+		offset := obj.GetOffset_INT64()
+		if offset == 0 {
+			offset = int64(obj.GetOffset_INT32())
+		}
+		limit := obj.GetLimit()
+
+		// Default limit if not specified (Telegram uses 512KB chunks for large files)
+		if limit == 0 {
+			limit = 1024 * 1024 // 1MB default
+		}
+
+		logf(2, "[Conn %d] upload.getFile: offset=%d, limit=%d\n", cp.connID, offset, limit)
+
 		if location != nil && location.PredicateName == "inputDocumentFileLocation" {
+			// Get full file data from database
 			fileData, err := FindFileDataByID(location.Id)
 			if err != nil || fileData == nil {
-				logf(1, "File data not found for document %d\n", location.Id)
-				fileData = []byte{}
+				logf(1, "[Conn %d] File data not found for document %d: %v\n", cp.connID, location.Id, err)
+				// Return empty file instead of empty bytes
+				result := &mtproto.TLUploadFile{
+					Data2: &mtproto.Upload_File{
+						PredicateName: "upload_file",
+						Constructor:   157948117,
+						Type: &mtproto.Storage_FileType{
+							PredicateName: "storage_filePartial",
+							Constructor:   1086091090,
+						},
+						Mtime: int32(time.Now().Unix()),
+						Bytes: []byte{},
+					},
+				}
+				buf := mtproto.NewEncodeBuf(512)
+				buf.Int(-212046591)
+				buf.Long(msgId)
+				result.Encode(buf, 158)
+				cp.send(buf.GetBuf(), salt, sessionId)
+				return
 			}
+
+			// TGS files (and other Telegram files) are stored as raw bytes, NOT gzipped
+			// The data should be sent as-is to the client
+			// If your database has gzipped data, you need to decompress it first
+			// For now, send the data as-is (client will handle decompression if needed)
+
+			fileSize := int64(len(fileData))
+			logf(1, "[Conn %d] upload.getFile doc=%d offset=%d limit=%d fileSize=%d\n",
+				cp.connID, location.Id, offset, limit, fileSize)
+
+			// Log first few bytes to debug
+			if fileSize > 0 {
+				preview := fileData
+				if fileSize > 20 {
+					preview = fileData[:20]
+				}
+				logf(2, "[Conn %d] File preview (hex): %x\n", cp.connID, preview)
+			}
+
+			// Extract the requested chunk
+			var chunk []byte
+			if offset < fileSize {
+				endOffset := offset + int64(limit)
+				if endOffset > fileSize {
+					endOffset = fileSize
+				}
+				chunk = fileData[offset:endOffset]
+			} else {
+				// Offset beyond file size - return empty
+				chunk = []byte{}
+			}
+
+			// Always use storage_filePartial for consistency
+			// Telegram client handles this correctly for both complete and chunked files
 			result := &mtproto.TLUploadFile{
 				Data2: &mtproto.Upload_File{
 					PredicateName: "upload_file",
 					Constructor:   157948117,
 					Type: &mtproto.Storage_FileType{
-						PredicateName: "storage_fileUnknown",
-						Constructor:   -1432995067,
+						PredicateName: "storage_filePartial",
+						Constructor:   1086091090,
 					},
-					Bytes: fileData,
+					Mtime: int32(time.Now().Unix()),
+					Bytes: chunk,
 				},
 			}
-			buf := mtproto.NewEncodeBuf(len(fileData)+512)
+
+			logf(1, "[Conn %d] Sending file chunk: %d bytes (offset %d-%d of %d)\n",
+				cp.connID, len(chunk), offset, offset+int64(len(chunk)), fileSize)
+
+			buf := mtproto.NewEncodeBuf(len(chunk)+512)
+			buf.Int(-212046591) // rpc_result constructor
+			buf.Long(msgId)     // original request msg_id
 			result.Encode(buf, 158)
 			cp.send(buf.GetBuf(), salt, sessionId)
 		}
