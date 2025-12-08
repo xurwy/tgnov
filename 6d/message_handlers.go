@@ -90,9 +90,6 @@ func (cp *ConnProp) HandleContactsImportContacts(obj *mtproto.TLContactsImportCo
 
 	cp.encodeAndSend(result, msgId, salt, sessionId, 2048)
 
-	// Note: We don't send additional updatePeerSettings for each contact
-	// The imported contacts are already included in the main response above
-	// Sending extra updates without proper pts management can cause client issues
 }
 
 // HandleContactsGetContacts handles TL_contacts_getContacts requests
@@ -195,7 +192,7 @@ func (cp *ConnProp) HandleMessagesGetPeerSettings(obj *mtproto.TLMessagesGetPeer
 
 // HandleMessagesGetHistory handles TL_messages_getHistory requests
 func (cp *ConnProp) HandleMessagesGetHistory(obj *mtproto.TLMessagesGetHistory, msgId, salt, sessionId int64) {
-	logf(1, "[Conn %d] messages.getHistory for user %d\n", cp.connID, cp.userID)
+	logf(1, "[Conn %d] messages.getHistory for user %d (authKey=%d)\n", cp.connID, cp.userID, cp.authKey.AuthKeyId())
 
 	if cp.userID == 0 {
 		logf(1, "[Conn %d] Not authenticated\n", cp.connID)
@@ -262,98 +259,57 @@ func (cp *ConnProp) HandleMessagesGetHistory(obj *mtproto.TLMessagesGetHistory, 
 		messages = []MessageDoc{}
 	}
 
-	// Convert to mtproto messages
 	var mtprotoMessages []*mtproto.Message
 	for _, msg := range messages {
-		// Determine Out and PeerId from CURRENT user's perspective
-		var isOut bool
-		var peerID int64
+		isOut := (msg.FromID == cp.userID)
 
-		if msg.FromID == cp.userID {
-			// Current user sent this message
-			isOut = true
-			peerID = msg.PeerID // The person we sent to
-		} else {
-			// Current user received this message
-			isOut = false
-			peerID = msg.FromID // The person who sent it
-		}
+		logf(1, "[Conn %d] Message ID=%d FromID=%d CurrentUser=%d DialogPeer=%d → Out=%v\n",
+			cp.connID, msg.ID, msg.FromID, cp.userID, peerUserID, isOut)
 
-		mtprotoMessages = append(mtprotoMessages, &mtproto.Message{
+		message := &mtproto.Message{
 			PredicateName: "message",
 			Constructor:   940666592,
 			Id:            msg.ID,
+			Out:           isOut,
 			PeerId: &mtproto.Peer{
 				PredicateName: "peerUser",
 				Constructor:   1498486562,
-				UserId:        peerID}, // Always the OTHER person
-			Out: isOut, // Correct from current user's perspective
+				UserId:        peerUserID},
 			FromId: &mtproto.Peer{
 				PredicateName: "peerUser",
 				Constructor:   1498486562,
 				UserId:        msg.FromID},
 			Date:    msg.Date,
 			Message: msg.Message,
-		})
+		}
+
+		mtprotoMessages = append(mtprotoMessages, message)
 	}
 
-	// Get users involved in the conversation
 	var users []*mtproto.User
-	userMap := make(map[int64]bool)
 
-	// Add current user (self)
-	if !userMap[cp.userID] {
-		user, _ := FindUserByID(cp.userID)
-		if user != nil {
-			userMap[cp.userID] = true
-			users = append(users, &mtproto.User{
-				PredicateName: "user",
-				Constructor:   -1885878744,
-				Id:            user.ID,
-				Self:          true,
-				Contact:       true,
-				MutualContact: true,
-				AccessHash: &wrapperspb.Int64Value{
-					Value: user.AccessHash},
-				FirstName: &wrapperspb.StringValue{
-					Value: user.FirstName},
-				LastName: &wrapperspb.StringValue{
-					Value: user.LastName},
-				Phone: &wrapperspb.StringValue{
-					Value: user.Phone},
-				Status: &mtproto.UserStatus{
-					PredicateName: "userStatusOnline",
-					Constructor:   -306628279,
-					Expires:       int32(time.Now().Unix() + 300)},
-			})
-		}
-	}
-
-	// Add peer user if different from self
-	if peerUserID != cp.userID && !userMap[peerUserID] {
-		peerUser, _ := FindUserByID(peerUserID)
-		if peerUser != nil {
-			userMap[peerUserID] = true
-			users = append(users, &mtproto.User{
-				PredicateName: "user",
-				Constructor:   -1885878744,
-				Id:            peerUser.ID,
-				Contact:       true,
-				MutualContact: true,
-				AccessHash: &wrapperspb.Int64Value{
-					Value: peerUser.AccessHash},
-				FirstName: &wrapperspb.StringValue{
-					Value: peerUser.FirstName},
-				LastName: &wrapperspb.StringValue{
-					Value: peerUser.LastName},
-				Phone: &wrapperspb.StringValue{
-					Value: peerUser.Phone},
-				Status: &mtproto.UserStatus{
-					PredicateName: "userStatusOffline",
-					Constructor:   9203775,
-					WasOnline:     int32(peerUser.LastSeenAt.Unix())},
-			})
-		}
+	user, _ := FindUserByID(cp.userID)
+	if user != nil {
+		users = append(users, &mtproto.User{
+			PredicateName: "user",
+			Constructor:   -1885878744,
+			Id:            user.ID,
+			Self:          true,
+			Contact:       true,
+			MutualContact: true,
+			AccessHash: &wrapperspb.Int64Value{
+				Value: user.AccessHash},
+			FirstName: &wrapperspb.StringValue{
+				Value: user.FirstName},
+			LastName: &wrapperspb.StringValue{
+				Value: user.LastName},
+			Phone: &wrapperspb.StringValue{
+				Value: user.Phone},
+			Status: &mtproto.UserStatus{
+				PredicateName: "userStatusOnline",
+				Constructor:   -306628279,
+				Expires:       int32(time.Now().Unix() + 300)},
+		})
 	}
 
 	result := &mtproto.TLMessagesMessages{
@@ -369,9 +325,8 @@ func (cp *ConnProp) HandleMessagesGetHistory(obj *mtproto.TLMessagesGetHistory, 
 	cp.encodeAndSend(result, msgId, salt, sessionId, 4096)
 }
 
-// HandleMessagesSendMessage handles TL_messages_sendMessage requests
 func (cp *ConnProp) HandleMessagesSendMessage(obj *mtproto.TLMessagesSendMessage, msgId, salt, sessionId int64) {
-	logf(1, "[Conn %d] messages.sendMessage for user %d\n", cp.connID, cp.userID)
+	logf(1, "[Conn %d] messages.sendMessage for user %d (authKey=%d)\n", cp.connID, cp.userID, cp.authKey.AuthKeyId())
 
 	if cp.userID == 0 {
 		logf(1, "[Conn %d] Not authenticated\n", cp.connID)
@@ -396,7 +351,6 @@ func (cp *ConnProp) HandleMessagesSendMessage(obj *mtproto.TLMessagesSendMessage
 		return
 	}
 
-	// Prevent self-messaging (would create "Saved Messages" which needs special handling)
 	if peerUserID == cp.userID {
 		logf(1, "[Conn %d] Cannot send message to self (userID=%d), ignoring\n", cp.connID, cp.userID)
 		// Still return success to avoid client errors
@@ -415,11 +369,8 @@ func (cp *ConnProp) HandleMessagesSendMessage(obj *mtproto.TLMessagesSendMessage
 		return
 	}
 
-	// Get dialog ID (same for both users in the conversation)
 	dialogID := GetDialogID(cp.userID, peerUserID)
 
-	// Get next message ID - this is atomic and global for the dialog
-	// Both users will see the same message IDs
 	messageID, err := GetNextMessageID(dialogID)
 	if err != nil {
 		logf(1, "[Conn %d] Failed to get next message ID: %v\n", cp.connID, err)
@@ -428,13 +379,8 @@ func (cp *ConnProp) HandleMessagesSendMessage(obj *mtproto.TLMessagesSendMessage
 
 	logf(1, "[Conn %d] Sending message ID %d in dialog %s\n", cp.connID, messageID, dialogID)
 
-	// Update last seen for sender
 	UpdateUserLastSeen(cp.userID)
 
-	// Atomically increment user's pts counter
-	// For a simple message send, we only have ONE pts-affecting update: the message itself
-	// updateMessageID does NOT consume pts (it's just a mapping)
-	// updateNewMessage consumes 1 pts
 	ptsCount := int32(1)
 
 	newPts, err := IncrementUserPts(cp.userID, ptsCount)
@@ -463,17 +409,20 @@ func (cp *ConnProp) HandleMessagesSendMessage(obj *mtproto.TLMessagesSendMessage
 		logf(1, "[Conn %d] Failed to save message: %v\n", cp.connID, err)
 	}
 
-	// Update dialog for sender (outgoing message)
-	// When sending, also mark it as read from sender's perspective (read_outbox_max_id = messageID)
+	logf(1, "[Conn %d] Updating dialogs: sender=%d, recipient=%d, msgID=%d\n", cp.connID, cp.userID, peerUserID, messageID)
+
 	err = UpdateDialogWithReadState(cp.userID, peerUserID, messageID, now, true, messageID, 0)
 	if err != nil {
 		logf(1, "[Conn %d] Failed to update sender dialog: %v\n", cp.connID, err)
+	} else {
+		logf(1, "[Conn %d] Updated sender dialog: user=%d, peer=%d\n", cp.connID, cp.userID, peerUserID)
 	}
 
-	// Update dialog for recipient (incoming message)
 	err = UpdateDialog(peerUserID, cp.userID, messageID, now, false)
 	if err != nil {
 		logf(1, "[Conn %d] Failed to update recipient dialog: %v\n", cp.connID, err)
+	} else {
+		logf(1, "[Conn %d] Updated recipient dialog: user=%d, peer=%d\n", cp.connID, peerUserID, cp.userID)
 	}
 
 	// Build users array - must include both self and peer
@@ -855,8 +804,43 @@ func (cp *ConnProp) HandleMessagesReadHistory(obj *mtproto.TLMessagesReadHistory
 	switch peer.PredicateName {
 	case "inputPeerUser":
 		peerUserID = peer.UserId
+	case "inputPeerSelf":
+		logf(1, "[Conn %d] Ignoring readHistory for self (Saved Messages not supported)\n", cp.connID)
+		pts, _, _, _, _ := GetUserState(cp.userID)
+		if pts == 0 {
+			pts = 1
+		}
+		result := &mtproto.TLMessagesAffectedMessages{
+			Data2: &mtproto.Messages_AffectedMessages{
+				PredicateName: "messages_affectedMessages",
+				Constructor:   -2066640507,
+				Pts:           pts,
+				PtsCount:      0,
+			},
+		}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
+		return
 	default:
 		logf(1, "[Conn %d] Unknown peer type: %s\n", cp.connID, peer.PredicateName)
+		return
+	}
+
+	if peerUserID == cp.userID {
+		logf(1, "[Conn %d] ERROR: Attempted to mark own messages as read (peerUserID=%d == cp.userID=%d)\n",
+			cp.connID, peerUserID, cp.userID)
+		pts, _, _, _, _ := GetUserState(cp.userID)
+		if pts == 0 {
+			pts = 1
+		}
+		result := &mtproto.TLMessagesAffectedMessages{
+			Data2: &mtproto.Messages_AffectedMessages{
+				PredicateName: "messages_affectedMessages",
+				Constructor:   -2066640507,
+				Pts:           pts,
+				PtsCount:      0,
+			},
+		}
+		cp.encodeAndSend(result, msgId, salt, sessionId, 512)
 		return
 	}
 

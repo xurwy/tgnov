@@ -83,8 +83,15 @@ func handleConnection(conn net.Conn) {
 				// Try to load session to get user ID
 				session, err := FindSessionByAuthKey(authKeyID)
 				if err == nil && session != nil && session.UserID != 0 {
+					oldUserID := cp.userID
 					cp.userID = session.UserID
-					logf(1, "[Conn %d] Session loaded, user ID: %d\n", cp.connID, cp.userID)
+					if oldUserID != 0 && oldUserID != cp.userID {
+						logf(1, "[Conn %d] WARNING: UserID changed from %d to %d on same connection!\n",
+							cp.connID, oldUserID, cp.userID)
+					}
+					logf(1, "[Conn %d] Session loaded, authKey=%d → userID=%d\n", cp.connID, authKeyID, cp.userID)
+				} else {
+					logf(1, "[Conn %d] No session found for authKey=%d (err=%v)\n", cp.connID, authKeyID, err)
 				}
 			}
 		}

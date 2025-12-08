@@ -5,9 +5,8 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
-// HandleMessagesGetDialogs handles TL_messages_getDialogs requests
 func (cp *ConnProp) HandleMessagesGetDialogs(obj *mtproto.TLMessagesGetDialogs, msgId, salt, sessionId int64) {
-	logf(1, "[Conn %d] messages.getDialogs for user %d\n", cp.connID, cp.userID)
+	logf(1, "[Conn %d] ========== messages.getDialogs for user %d ==========\n", cp.connID, cp.userID)
 
 	if cp.userID == 0 {
 		logf(1, "[Conn %d] Not authenticated\n", cp.connID)
@@ -54,19 +53,18 @@ func (cp *ConnProp) HandleMessagesGetDialogs(obj *mtproto.TLMessagesGetDialogs, 
 
 	// Build dialogs
 	for _, dialog := range dialogs {
-		logf(1, "[Conn %d] Dialog: user=%d, peer=%d, top_msg=%d, unread=%d\n",
-			cp.connID, dialog.UserID, dialog.PeerUserID, dialog.TopMessage, dialog.UnreadCount)
+		logf(1, "[Conn %d] Dialog: user=%d, peer=%d, top_msg=%d, unread=%d, cp.userID=%d\n",
+			cp.connID, dialog.UserID, dialog.PeerUserID, dialog.TopMessage, dialog.UnreadCount, cp.userID)
 
-		// Verify this dialog belongs to current user
 		if dialog.UserID != cp.userID {
 			logf(1, "[Conn %d] ERROR: Dialog user_id %d != current user %d, skipping\n",
 				cp.connID, dialog.UserID, cp.userID)
 			continue
 		}
 
-		// Verify peer is not self (would cause "Saved Messages")
 		if dialog.PeerUserID == cp.userID {
-			logf(1, "[Conn %d] ERROR: Dialog peer_user_id == current user (self-dialog), skipping\n", cp.connID)
+			logf(1, "[Conn %d] ERROR: Dialog peer_user_id %d == current user %d (self-dialog), skipping\n",
+				cp.connID, dialog.PeerUserID, cp.userID)
 			continue
 		}
 
@@ -103,10 +101,9 @@ func (cp *ConnProp) HandleMessagesGetDialogs(obj *mtproto.TLMessagesGetDialogs, 
 				continue
 			}
 
-			// Determine if this message is outgoing from current user's perspective
 			isOut := (msg.FromID == cp.userID)
 
-			logf(1, "[Conn %d] Top message %d: from=%d, to=%d, isOut=%v\n",
+			logf(1, "[Conn %d] Top message %d: from=%d, peer=%d, isOut=%v\n",
 				cp.connID, msg.ID, msg.FromID, msg.PeerID, isOut)
 
 			messages = append(messages, &mtproto.Message{
@@ -116,7 +113,7 @@ func (cp *ConnProp) HandleMessagesGetDialogs(obj *mtproto.TLMessagesGetDialogs, 
 				PeerId: &mtproto.Peer{
 					PredicateName: "peerUser",
 					Constructor:   1498486562,
-					UserId:        dialog.PeerUserID, // Always points to the other person
+					UserId:        dialog.PeerUserID,
 				},
 				Out: isOut,
 				FromId: &mtproto.Peer{
@@ -178,5 +175,11 @@ func (cp *ConnProp) HandleMessagesGetDialogs(obj *mtproto.TLMessagesGetDialogs, 
 	logf(1, "[Conn %d] Returning %d dialogs, %d messages, %d users\n",
 		cp.connID, len(mtprotoDialogs), len(messages), len(users))
 
+	for i, user := range users {
+		logf(1, "[Conn %d] User[%d]: id=%d, self=%v, first_name=%s\n",
+			cp.connID, i, user.Id, user.Self, user.FirstName.Value)
+	}
+
 	cp.encodeAndSend(result, msgId, salt, sessionId, 8192)
+	logf(1, "[Conn %d] ========== END messages.getDialogs ==========\n", cp.connID)
 }
