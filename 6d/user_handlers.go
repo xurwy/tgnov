@@ -27,11 +27,13 @@ func (cp *ConnProp) HandleContactsGetContacts(obj *mtproto.TLContactsGetContacts
 
 // HandleMessagesGetPeerDialogs handles TL_messages_getPeerDialogs requests
 func (cp *ConnProp) HandleMessagesGetPeerDialogs(obj *mtproto.TLMessagesGetPeerDialogs, msgId, salt, sessionId int64) {
-	logf(1, "[Conn %d] messages.getPeerDialogs\n", cp.connID)
+	logf(1, "[Conn %d] messages.getPeerDialogs for user %d\n", cp.connID, cp.userID)
 
 	peers := obj.GetPeers()
 	var dialogs []*mtproto.Dialog
+	var messages []*mtproto.Message
 	var users []*mtproto.User
+	userMap := make(map[int64]bool)
 
 	for _, inputDialogPeer := range peers {
 		inputPeer := inputDialogPeer.GetPeer()
@@ -39,32 +41,94 @@ func (cp *ConnProp) HandleMessagesGetPeerDialogs(obj *mtproto.TLMessagesGetPeerD
 			continue
 		}
 
-		requestedUserId := inputPeer.UserId
-		logf(1, "[Conn %d] Requested user_id: %d\n", cp.connID, requestedUserId)
+		peerUserId := inputPeer.UserId
+		logf(1, "[Conn %d] Requested peer user_id: %d\n", cp.connID, peerUserId)
 
-		// Look up the requested user
-		user, err := FindUserByID(requestedUserId)
-		if err != nil || user == nil {
-			logf(1, "[Conn %d] Failed to find user %d: %v\n", cp.connID, requestedUserId, err)
-			continue
+		dialogID := GetDialogID(cp.userID, peerUserId)
+		dialogDoc, err := GetDialogByID(cp.userID, peerUserId)
+
+		var topMessage int32
+		var readInboxMaxId int32
+		var readOutboxMaxId int32
+		var unreadCount int32
+
+		if err == nil && dialogDoc != nil {
+			topMessage = dialogDoc.TopMessage
+			readInboxMaxId = dialogDoc.ReadInboxMaxID
+			readOutboxMaxId = dialogDoc.ReadOutboxMaxID
+			unreadCount = dialogDoc.UnreadCount
+
+			if topMessage > 0 {
+				msg, err := GetMessageByID(dialogID, topMessage)
+				if err == nil && msg != nil {
+					isOut := (msg.FromID == cp.userID)
+
+					messages = append(messages, &mtproto.Message{
+						PredicateName: "message",
+						Constructor:   940666592,
+						Id:            msg.ID,
+						Out:           isOut,
+						PeerId: &mtproto.Peer{
+							PredicateName: "peerUser",
+							Constructor:   1498486562,
+							UserId:        peerUserId,
+						},
+						FromId: &mtproto.Peer{
+							PredicateName: "peerUser",
+							Constructor:   1498486562,
+							UserId:        msg.FromID,
+						},
+						Date:    msg.Date,
+						Message: msg.Message,
+					})
+
+					if !userMap[peerUserId] {
+						peerUser, _ := FindUserByID(peerUserId)
+						if peerUser != nil {
+							userMap[peerUserId] = true
+							users = append(users, &mtproto.User{
+								PredicateName: "user",
+								Constructor:   -1885878744,
+								Id:            peerUser.ID,
+								Self:          false,
+								Contact:       true,
+								MutualContact: true,
+								AccessHash: &wrapperspb.Int64Value{
+									Value: peerUser.AccessHash,
+								},
+								FirstName: &wrapperspb.StringValue{
+									Value: peerUser.FirstName,
+								},
+								LastName: &wrapperspb.StringValue{
+									Value: peerUser.LastName,
+								},
+								Phone: &wrapperspb.StringValue{
+									Value: peerUser.Phone,
+								},
+								Status: &mtproto.UserStatus{
+									PredicateName: "userStatusOffline",
+									Constructor:   9203775,
+									WasOnline:     int32(peerUser.LastSeenAt.Unix()),
+								},
+							})
+						}
+					}
+				}
+			}
 		}
 
-		// Determine if this is self
-		isSelf := (requestedUserId == cp.userID)
-
-		// Create dialog
 		dialog := &mtproto.Dialog{
 			PredicateName: "dialog",
 			Constructor:   -1460809483,
 			Peer: &mtproto.Peer{
 				PredicateName: "peerUser",
 				Constructor:   1498486562,
-				UserId:        user.ID,
+				UserId:        peerUserId,
 			},
-			TopMessage:           0,
-			ReadInboxMaxId:       0,
-			ReadOutboxMaxId:      0,
-			UnreadCount:          0,
+			TopMessage:           topMessage,
+			ReadInboxMaxId:       readInboxMaxId,
+			ReadOutboxMaxId:      readOutboxMaxId,
+			UnreadCount:          unreadCount,
 			UnreadMentionsCount:  0,
 			UnreadReactionsCount: 0,
 			NotifySettings: &mtproto.PeerNotifySettings{
@@ -73,33 +137,35 @@ func (cp *ConnProp) HandleMessagesGetPeerDialogs(obj *mtproto.TLMessagesGetPeerD
 			},
 		}
 		dialogs = append(dialogs, dialog)
+	}
 
-		// Add user to users array
-		users = append(users, &mtproto.User{
+	selfUser, _ := FindUserByID(cp.userID)
+	if selfUser != nil {
+		users = append([]*mtproto.User{{
 			PredicateName: "user",
 			Constructor:   -1885878744,
-			Id:            user.ID,
-			Self:          isSelf,
-			Contact:       isSelf,
-			MutualContact: isSelf,
+			Id:            selfUser.ID,
+			Self:          true,
+			Contact:       true,
+			MutualContact: true,
 			AccessHash: &wrapperspb.Int64Value{
-				Value: user.AccessHash,
+				Value: selfUser.AccessHash,
 			},
 			FirstName: &wrapperspb.StringValue{
-				Value: user.FirstName,
+				Value: selfUser.FirstName,
 			},
 			LastName: &wrapperspb.StringValue{
-				Value: user.LastName,
+				Value: selfUser.LastName,
 			},
 			Phone: &wrapperspb.StringValue{
-				Value: user.Phone,
+				Value: selfUser.Phone,
 			},
 			Status: &mtproto.UserStatus{
 				PredicateName: "userStatusOnline",
 				Constructor:   -306628279,
 				Expires:       int32(time.Now().Unix() + 60),
 			},
-		})
+		}}, users...)
 	}
 
 	result := &mtproto.TLMessagesPeerDialogs{
@@ -107,7 +173,7 @@ func (cp *ConnProp) HandleMessagesGetPeerDialogs(obj *mtproto.TLMessagesGetPeerD
 			PredicateName: "messages_peerDialogs",
 			Constructor:   863093588,
 			Dialogs:       dialogs,
-			Messages:      []*mtproto.Message{},
+			Messages:      messages,
 			Chats:         []*mtproto.Chat{},
 			Users:         users,
 			State: &mtproto.Updates_State{

@@ -602,39 +602,28 @@ func (cp *ConnProp) HandleMessagesSearch(obj *mtproto.TLMessagesSearch, msgId, s
 		return
 	}
 
-	// Get the user ID from the peer
-	var peerUserID int64
-	switch peer.PredicateName {
-	case "inputPeerUser":
-		peerUserID = peer.UserId
-	case "inputPeerSelf":
-		peerUserID = cp.userID
-	default:
-		logf(1, "[Conn %d] Unknown peer type: %s\n", cp.connID, peer.PredicateName)
-		return
-	}
-
-	// Get user info for the requested peer
-	user, _ := FindUserByID(peerUserID)
 	var users []*mtproto.User
-	if user != nil {
+	selfUser, _ := FindUserByID(cp.userID)
+	if selfUser != nil {
 		users = append(users, &mtproto.User{
 			PredicateName: "user",
 			Constructor:   -1885878744,
-			Id:            user.ID,
+			Id:            selfUser.ID,
+			Self:          true,
 			Contact:       true,
+			MutualContact: true,
 			AccessHash: &wrapperspb.Int64Value{
-				Value: user.AccessHash},
+				Value: selfUser.AccessHash},
 			FirstName: &wrapperspb.StringValue{
-				Value: user.FirstName},
+				Value: selfUser.FirstName},
 			LastName: &wrapperspb.StringValue{
-				Value: user.LastName},
+				Value: selfUser.LastName},
+			Phone: &wrapperspb.StringValue{
+				Value: selfUser.Phone},
 			Status: &mtproto.UserStatus{
-				PredicateName: "userStatusOffline",
-				Constructor:   9203775,
-				WasOnline:     int32(user.LastSeenAt.Unix())},
-			RestrictionReason: nil,
-			Usernames:         nil,
+				PredicateName: "userStatusOnline",
+				Constructor:   -306628279,
+				Expires:       int32(time.Now().Unix() + 300)},
 		})
 	}
 
@@ -719,53 +708,34 @@ func (cp *ConnProp) HandleMessagesGetMessagesReactions(obj *mtproto.TLMessagesGe
 		return
 	}
 
-	// Extract peer user ID from request
-	peer := obj.GetPeer()
-	var peerUserID int64
-
-	switch peer.PredicateName {
-	case "inputPeerUser":
-		peerUserID = peer.UserId
-	case "inputPeerSelf":
-		peerUserID = cp.userID
-	default:
-		logf(1, "[Conn %d] Unsupported peer type: %s\n", cp.connID, peer.PredicateName)
-		return
-	}
-
-	// Look up the peer user
 	var users []*mtproto.User
-	if peerUserID != 0 {
-		peerUser, err := FindUserByID(peerUserID)
-		if err == nil && peerUser != nil {
-			users = append(users, &mtproto.User{
-				PredicateName: "user",
-				Constructor:   -1885878744,
-				Id:            peerUser.ID,
-				Self:          peerUser.Self,
-				Contact:       peerUser.Contact,
-				MutualContact: peerUser.MutualContact,
-				AccessHash: &wrapperspb.Int64Value{
-					Value: peerUser.AccessHash,
-				},
-				FirstName: &wrapperspb.StringValue{
-					Value: peerUser.FirstName,
-				},
-				LastName: &wrapperspb.StringValue{
-					Value: peerUser.LastName,
-				},
-				Phone: &wrapperspb.StringValue{
-					Value: peerUser.Phone,
-				},
-				Status: &mtproto.UserStatus{
-					PredicateName: "userStatusOffline",
-					Constructor:   9203775,
-					WasOnline:     int32(peerUser.LastSeenAt.Unix()),
-				},
-				RestrictionReason: nil,
-				Usernames:         nil,
-			})
-		}
+	selfUser, _ := FindUserByID(cp.userID)
+	if selfUser != nil {
+		users = append(users, &mtproto.User{
+			PredicateName: "user",
+			Constructor:   -1885878744,
+			Id:            selfUser.ID,
+			Self:          true,
+			Contact:       true,
+			MutualContact: true,
+			AccessHash: &wrapperspb.Int64Value{
+				Value: selfUser.AccessHash,
+			},
+			FirstName: &wrapperspb.StringValue{
+				Value: selfUser.FirstName,
+			},
+			LastName: &wrapperspb.StringValue{
+				Value: selfUser.LastName,
+			},
+			Phone: &wrapperspb.StringValue{
+				Value: selfUser.Phone,
+			},
+			Status: &mtproto.UserStatus{
+				PredicateName: "userStatusOnline",
+				Constructor:   -306628279,
+				Expires:       int32(time.Now().Unix() + 300),
+			},
+		})
 	}
 
 	// Return TL_updates with empty updates array

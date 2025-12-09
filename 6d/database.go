@@ -960,6 +960,22 @@ func GetDialogs(userID int64, limit int32) ([]DialogDoc, error) {
 	return dialogs, nil
 }
 
+func GetDialogByID(userID, peerUserID int64) (*DialogDoc, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var dialog DialogDoc
+	err := dialogsCollection.FindOne(ctx, bson.M{
+		"user_id":      userID,
+		"peer_user_id": peerUserID,
+	}).Decode(&dialog)
+
+	if err != nil {
+		return nil, err
+	}
+	return &dialog, nil
+}
+
 // GetPendingMessages retrieves messages that haven't been delivered to a user yet
 func GetPendingMessages(userID int64, lastPts int32) ([]MessageDoc, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

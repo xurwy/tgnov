@@ -127,15 +127,45 @@ func (cp *ConnProp) HandleMessagesGetDialogs(obj *mtproto.TLMessagesGetDialogs, 
 		}
 	}
 
-	// Build user objects
+	if selfUser, exists := userMap[cp.userID]; exists {
+		users = append(users, &mtproto.User{
+			PredicateName: "user",
+			Constructor:   -1885878744,
+			Id:            selfUser.ID,
+			Self:          true,
+			Contact:       true,
+			MutualContact: true,
+			AccessHash: &wrapperspb.Int64Value{
+				Value: selfUser.AccessHash,
+			},
+			FirstName: &wrapperspb.StringValue{
+				Value: selfUser.FirstName,
+			},
+			LastName: &wrapperspb.StringValue{
+				Value: selfUser.LastName,
+			},
+			Phone: &wrapperspb.StringValue{
+				Value: selfUser.Phone,
+			},
+			Status: &mtproto.UserStatus{
+				PredicateName: "userStatusOffline",
+				Constructor:   9203775,
+				WasOnline:     int32(selfUser.LastSeenAt.Unix()),
+			},
+		})
+		logf(1, "[Conn %d] User %d: self=true, name=%s\n", cp.connID, selfUser.ID, selfUser.FirstName)
+	}
+
 	for userID, userDoc := range userMap {
-		isSelf := (userID == cp.userID)
+		if userID == cp.userID {
+			continue
+		}
 
 		users = append(users, &mtproto.User{
 			PredicateName: "user",
 			Constructor:   -1885878744,
 			Id:            userDoc.ID,
-			Self:          isSelf,
+			Self:          false,
 			Contact:       true,
 			MutualContact: true,
 			AccessHash: &wrapperspb.Int64Value{
@@ -157,7 +187,7 @@ func (cp *ConnProp) HandleMessagesGetDialogs(obj *mtproto.TLMessagesGetDialogs, 
 			},
 		})
 
-		logf(1, "[Conn %d] User %d: self=%v, name=%s\n", cp.connID, userID, isSelf, userDoc.FirstName)
+		logf(1, "[Conn %d] User %d: self=false, name=%s\n", cp.connID, userID, userDoc.FirstName)
 	}
 
 	result := &mtproto.TLMessagesDialogsSlice{
